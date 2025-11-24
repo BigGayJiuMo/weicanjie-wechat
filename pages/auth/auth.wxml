@@ -1,0 +1,14 @@
+<!--pages/auth/auth.wxml-->
+<view class="auth-container">
+  <view class="auth-card">
+    <image class="auth-logo" src="/images/logo.png"></image>
+    <text class="auth-title">微餐捷点餐</text>
+    <text class="auth-desc">请授权用户信息，享受便捷点餐服务</text>
+    
+    <button class="auth-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">
+      微信一键登录
+    </button>
+    
+    <text class="auth-tip">授权后即可开始点餐</text>
+  </view>
+</view>

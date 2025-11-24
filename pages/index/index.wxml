@@ -1,0 +1,9 @@
+<!--index.wxml-->
+<view class="container">
+  <!-- 顶部轮播图 -->
+  <swiper class="banner" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <image src="{{item.imageUrl}}" mode="aspectFill" class="banner-image" />
+    </swiper-item>
+  </swiper>
+</view>
