@@ -44,6 +44,7 @@
       }
     ]
   },
+  "entryPagePath": "pages/index/index",
   "networkTimeout": {
     "request": 10000
   },

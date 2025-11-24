@@ -1,4 +1,3 @@
-/* pages/auth/auth.wxss */
 .auth-container {
   height: 100vh;
   display: flex;
@@ -44,10 +43,127 @@
   background: #07c160;
   color: white;
   border-radius: 50rpx;
-  margin-bottom: 30rpx;
+  margin-bottom: 20rpx;
+  width: 100%;
+}
+
+.guest-btn {
+  background: #ff6b35;
 }
 
 .auth-tip {
   font-size: 24rpx;
   color: #999;
+  margin-top: 30rpx;
+  display: block;
+}
+
+/* 弹窗样式保持不变 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 40rpx;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 20rpx;
+  width: 100%;
+  max-width: 600rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 60rpx 40rpx 40rpx;
+  text-align: center;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.modal-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.phone-display {
+  padding: 60rpx 40rpx;
+  text-align: center;
+  background: #f8f8f8;
+  margin: 20rpx;
+  border-radius: 12rpx;
+}
+
+.phone-number {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  letter-spacing: 4rpx;
+}
+
+.phone-tip-text {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.modal-buttons {
+  display: flex;
+  padding: 0 40rpx 40rpx;
+  gap: 20rpx;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.cancel-btn {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.cancel-btn:active {
+  background: #e0e0e0;
+}
+
+.confirm-btn {
+  background: #07c160;
+  color: white;
+}
+
+.confirm-btn:active {
+  background: #06ae56;
+}
+
+.modal-footer {
+  padding: 0 40rpx 40rpx;
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.4;
 }
