@@ -5,6 +5,7 @@
     "pages/menu/menu",
     "pages/cart/cart",
     "pages/profile/profile",
+    "pages/edit-profile/edit-profile",
     "pages/order/order"
   ],
   "window": {

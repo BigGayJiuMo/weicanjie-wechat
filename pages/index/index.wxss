@@ -7,7 +7,7 @@
 .navbar {
   background: linear-gradient(135deg, #ff6b35, #ff8e53);
   padding: 20rpx 30rpx;
-  padding-top: 180rpx;
+  padding-top: 85rpx;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -15,14 +15,13 @@
 
 .navbar-content {
   display: flex;
-  align-items: center;
-  justify-content: center;
+
 }
 
 /* 搜索容器 */
 .search-container {
   width: 100%;
-  max-width: 700rpx;
+  max-width: 500rpx;
 }
 
 .search-box {

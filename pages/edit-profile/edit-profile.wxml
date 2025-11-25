@@ -1,0 +1,85 @@
+<!--pages/edit-profile/edit-profile.wxml-->
+<view class="container">
+    <!-- 顶部导航栏 -->
+    <view class="navbar">
+        <view class="navbar-content">
+            <view class="nav-left" bindtap="onBack">
+                <image class="back-icon" src="/images/back.png"></image>
+                <text class="nav-title">编辑资料</text>
+            </view>
+        </view>
+    </view>
+
+    <!-- 个人资料卡片 -->
+    <view class="card">
+        <view class="card-header">
+            <text class="card-title">个人资料</text>
+        </view>
+        
+        <!-- 头像设置 -->
+        <view class="item">
+            <view class="item-left">
+                <text class="item-label">头像</text>
+            </view>
+            <view class="item-right">
+                <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+                    <image src="{{avatarUrl}}" class="avatar-preview"></image>
+                </button>
+            </view>
+        </view>
+        
+        <!-- 昵称设置 -->
+        <view class="item" bindtap="onNicknameTap">
+            <view class="item-left">
+                <text class="item-label">昵称</text>
+            </view>
+            <view class="item-right">
+                <text class="nickname-text">{{nickname}}</text>
+                <image class="arrow" src="/images/arrow-right.png"></image>
+            </view>
+        </view>
+
+        <!-- 手机号显示 -->
+        <view class="item">
+            <view class="item-left">
+                <text class="item-label">手机号</text>
+            </view>
+            <view class="item-right">
+                <text class="phone-text">{{displayPhone}}</text>
+            </view>
+        </view>
+    </view>
+
+    <!-- 昵称修改弹窗 -->
+    <view wx:if="{{showNicknameModal}}" class="modal">
+        <view class="modal-content">
+            <view class="modal-header">
+                <text class="modal-title">修改昵称</text>
+                <view class="word-count-section">
+                    <text class="word-count {{isOverLength ? 'over-length' : ''}}">{{newNickname.length}}/7</text>
+                    <text class="over-length-tip" wx:if="{{isOverLength}}">字数超出</text>
+                </view>
+            </view>
+            <view class="modal-body">
+                <input 
+                    class="nickname-input" 
+                    value="{{newNickname}}" 
+                    placeholder="请输入昵称" 
+                    maxlength="7"
+                    bindinput="onNicknameModalInput"
+                    focus="{{nicknameInputFocus}}"
+                />
+            </view>
+            <view class="modal-footer">
+                <button class="cancel-btn" bindtap="cancelNickname">取消</button>
+                <button class="confirm-btn {{isOverLength ? 'disabled' : ''}}" bindtap="confirmNickname" disabled="{{isOverLength}}">确定</button>
+            </view>
+        </view>
+    </view>
+
+    <!-- 提示框 -->
+    <view wx:if="{{showToast}}" class="toast" animation="{{toastAnimation}}">
+        <image class="toast-icon" src="/images/success.png"></image>
+        <text>{{toastMessage}}</text>
+    </view>
+</view>

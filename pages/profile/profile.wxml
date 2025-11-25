@@ -1,2 +1,119 @@
 <!--pages/profile/profile.wxml-->
-<text>pages/profile/profile.wxml</text>
+<view class="profile-container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-info">
+      <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" bindtap="onAvatarTap"></image>
+      <view class="user-details">
+        <text class="user-name">{{userInfo.nickname || '微信用户'}}</text>
+        <text class="user-phone">{{userInfo.displayPhone || '未绑定手机号'}}</text>
+      </view>
+    </view>
+    <view class="user-stats">
+      <view class="stat-item" bindtap="onMyFavorites">
+        <text class="stat-number">{{favoriteCount}}</text>
+        <text class="stat-label">收藏</text>
+      </view>
+      <view class="stat-item" bindtap="onOrderHistory">
+        <text class="stat-number">{{orderCount}}</text>
+        <text class="stat-label">订单</text>
+      </view>
+      <view class="stat-item" bindtap="onMyReviews">
+        <text class="stat-number">{{reviewCount}}</text>
+        <text class="stat-label">评价</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-title">我的服务</view>
+    
+    <view class="menu-list">
+      <!-- 收藏 -->
+      <view class="menu-item" bindtap="onMyFavorites">
+        <view class="menu-left">
+          <image class="menu-icon" src="/images/icon-favorite.png"></image>
+          <text class="menu-text">我的收藏</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-badge" wx:if="{{favoriteCount > 0}}">{{favoriteCount}}</text>
+          <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
+      </view>
+
+      <!-- 历史 -->
+      <view class="menu-item" bindtap="onOrderHistory">
+        <view class="menu-left">
+          <image class="menu-icon" src="/images/icon-history.png"></image>
+          <text class="menu-text">订单历史</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-badge" wx:if="{{orderCount > 0}}">{{orderCount}}</text>
+          <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
+      </view>
+
+      <!-- 客服 -->
+      <view class="menu-item" bindtap="onCustomerService">
+        <view class="menu-left">
+          <image class="menu-icon" src="/images/icon-service.png"></image>
+          <text class="menu-text">联系客服</text>
+        </view>
+        <view class="menu-right">
+          <text class="service-tip">24小时在线</text>
+          <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
+      </view>
+
+      <!-- 评价 -->
+      <view class="menu-item" bindtap="onMyReviews">
+        <view class="menu-left">
+          <image class="menu-icon" src="/images/icon-review.png"></image>
+          <text class="menu-text">我的评价</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-badge" wx:if="{{reviewCount > 0}}">{{reviewCount}}</text>
+          <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
+      </view>
+
+      <!-- 设置 -->
+      <view class="menu-item" bindtap="onSettings">
+        <view class="menu-left">
+          <image class="menu-icon" src="/images/icon-settings.png"></image>
+          <text class="menu-text">设置</text>
+        </view>
+        <view class="menu-right">
+          <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录/退出按钮 -->
+  <view class="action-section" wx:if="{{isGuest}}">
+    <button class="login-btn" bindtap="onLogin">立即登录</button>
+  </view>
+
+  <view class="action-section" wx:else>
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+
+  <!-- 客服电话弹窗 -->
+  <view wx:if="{{showServiceModal}}" class="modal-mask" bindtap="hideServiceModal">
+    <view class="modal-container" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">联系客服</text>
+      </view>
+      <view class="modal-content">
+        <text class="service-phone">400-123-4567</text>
+        <text class="service-time">服务时间：24小时</text>
+      </view>
+      <view class="modal-buttons">
+        <button class="modal-btn cancel-btn" bindtap="hideServiceModal">取消</button>
+        <button class="modal-btn confirm-btn" bindtap="onCallService">拨打</button>
+      </view>
+    </view>
+  </view>
+</view>
