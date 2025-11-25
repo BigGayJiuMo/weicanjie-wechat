@@ -163,18 +163,11 @@ Page({
         const length = value.length;
         const isOverLength = length > 7;
         
-        // 限制输入长度不超过7个字符
-        if (isOverLength) {
-            this.setData({
-                newNickname: value.substring(0, 7),
-                isOverLength: true
-            });
-        } else {
-            this.setData({
-                newNickname: value,
-                isOverLength: false
-            });
-        }
+        // 不截断输入，允许输入到10个字符，但超过7个时显示警告
+        this.setData({
+            newNickname: value,
+            isOverLength: isOverLength
+        });
     },
 
     // 确认修改昵称

@@ -3,8 +3,8 @@
     <!-- 顶部导航栏 -->
     <view class="navbar">
         <view class="navbar-content">
-            <view class="nav-left" bindtap="onBack">
-                <image class="back-icon" src="/images/back.png"></image>
+            <view class="nav-left">
+                <image class="back-icon" bindtap="onBack" src="/images/back.png"></image>
                 <text class="nav-title">编辑资料</text>
             </view>
         </view>
@@ -35,7 +35,6 @@
             </view>
             <view class="item-right">
                 <text class="nickname-text">{{nickname}}</text>
-                <image class="arrow" src="/images/arrow-right.png"></image>
             </view>
         </view>
 
@@ -65,7 +64,7 @@
                     class="nickname-input" 
                     value="{{newNickname}}" 
                     placeholder="请输入昵称" 
-                    maxlength="7"
+                    maxlength="10"
                     bindinput="onNicknameModalInput"
                     focus="{{nicknameInputFocus}}"
                 />
