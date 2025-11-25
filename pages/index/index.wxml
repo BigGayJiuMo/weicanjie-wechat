@@ -1,5 +1,26 @@
 <!--index.wxml-->
 <view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="navbar">
+    <view class="navbar-content">
+      <!-- 搜索框 -->
+      <view class="search-container">
+        <view class="search-box">
+          <input 
+            class="search-input" 
+            placeholder="搜索菜品、餐厅..." 
+            placeholder-class="search-placeholder"
+            bindinput="onSearchInput"
+            bindconfirm="onSearchConfirm"
+            bindtap="onSearchTap"
+            value="{{searchKeyword}}"
+          />
+          <image class="search-icon" src="/images/search.png" bindtap="onSearchConfirm"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 顶部轮播图 -->
   <swiper class="banner" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}">
     <swiper-item wx:for="{{banners}}" wx:key="id">

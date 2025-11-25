@@ -11,7 +11,8 @@
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#ff6b35",
     "navigationBarTitleText": "微餐捷",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "white",
+    "navigationStyle": "custom"
   },
   "tabBar": {
     "color": "#999999",
