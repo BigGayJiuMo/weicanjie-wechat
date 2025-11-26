@@ -11,7 +11,7 @@
 .navbar {
   background: white;
   padding: 20rpx 30rpx;
-  padding-top: 85rpx; /* 适配微信顶部状态栏 */
+  padding-top: 95rpx; 
   position: sticky;
   top: 0;
   z-index: 100;
@@ -174,15 +174,13 @@
   display: flex;
   height: 800rpx; /* 固定高度，确保分类和菜品区域同步滚动 */
   background: white;
-  margin: 20rpx;
-  border-radius: 20rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
 /* 左侧分类导航 */
 .category-sidebar {
-  width: 150rpx;
+  width: 180rpx;
   background-color: #f8f9fa;
   border-right: 1rpx solid #e9ecef;
   flex-shrink: 0;
@@ -359,7 +357,6 @@
   font-size: 36rpx;
   font-weight: bold;
   transition: all 0.3s ease;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
   cursor: pointer;
   user-select: none; /* 防止文字被选中 */
 }

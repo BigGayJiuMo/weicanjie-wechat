@@ -56,63 +56,69 @@
         </view>
         </view>
 
+        
         <!-- 分类导航和菜品展示 -->
         <view class="menu-content" wx:if="{{categories && categories.length > 0}}">
-        <!-- 左侧分类导航 - 固定在左侧 -->
-        <view class="category-sidebar">
-            <view 
-            class="category-tab {{activeCategoryId === category.id ? 'active' : ''}}" 
-            wx:for="{{categories}}" 
-            wx:key="id"
-            bindtap="onCategoryTap"
-            data-category="{{category}}"
-            >
-            <text class="tab-text">{{category.name}}</text>
+            <!-- 左侧分类导航 -->
+            <view class="category-sidebar">
+                <view 
+                    class="category-tab {{activeCategoryId === item.id ? 'active' : ''}}" 
+                    wx:for="{{categories}}" 
+                    wx:key="id"
+                    bindtap="onCategoryTap"
+                    data-category="{{item}}"
+                >
+                    <text class="tab-text">{{item.name}}</text>
+                </view>
             </view>
-        </view>
 
-        <!-- 右侧菜品列表 - 可滚动 -->
-        <scroll-view class="dishes-content" scroll-y="true" scroll-into-view="{{scrollToView}}">
-            <view class="category-section" wx:for="{{categories}}" wx:key="id" id="category-{{item.id}}">
-            <view class="section-header">
-                <text class="section-title">{{item.name}}</text>
-            </view>
-            <view class="dishes-list">
-                <view class="dish-card" wx:for="{{item.dishes}}" wx:key="id">
-                <image class="dish-image" src="{{item.imageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
-                <view class="dish-details">
-                    <!-- 菜名单独一行 -->
-                    <view class="dish-header">
-                    <text class="dish-name">{{item.name}}</text>
+            <!-- 右侧菜品列表 - 添加滚动监听 -->
+            <scroll-view 
+                class="dishes-content" 
+                scroll-y="true" 
+                scroll-into-view="{{scrollToView}}"
+                bindscroll="onDishesScroll"
+                scroll-with-animation="{{true}}"
+                id="dishes-scroll"
+            >
+                <view class="category-section" wx:for="{{categories}}" wx:key="id" id="category-{{item.id}}">
+                    <view class="section-header">
+                        <text class="section-title">{{item.name}}</text>
                     </view>
-                    <text class="dish-description">{{item.description || '美味可口'}}</text>
-                    <!-- 价格和数量控制器在同一行 -->
-                    <view class="dish-controls">
-                    <text class="dish-price">¥{{item.price}}</text>
-                    <view class="controls-right">
-                        <view class="stock-info" wx:if="{{item.stock < 10 && item.stock > 0}}">
-                        <text class="stock-text">仅剩{{item.stock}}份</text>
+                    <view class="dishes-list">
+                        <view class="dish-card" wx:for="{{item.dishes}}" wx:key="id">
+                            <image class="dish-image" src="{{item.imageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
+                            <view class="dish-details">
+                                <view class="dish-header">
+                                    <text class="dish-name">{{item.name}}</text>
+                                </view>
+                                <text class="dish-description">{{item.description || '美味可口'}}</text>
+                                <view class="dish-controls">
+                                    <text class="dish-price">¥{{item.price}}</text>
+                                    <view class="controls-right">
+                                        <view class="stock-info" wx:if="{{item.stock < 10 && item.stock > 0}}">
+                                            <text class="stock-text">仅剩{{item.stock}}份</text>
+                                        </view>
+                                        <view class="sold-out" wx:if="{{item.stock <= 0}}">
+                                            <text class="sold-out-text">已售罄</text>
+                                        </view>
+                                        <view class="quantity-control" wx:if="{{item.stock > 0}}">
+                                            <view class="quantity-btn minus" wx:if="{{cartItems[item.id] > 0}}" bindtap="onDecreaseQuantity" data-dish="{{item}}">-</view>
+                                            <text class="quantity-text" wx:if="{{cartItems[item.id] > 0}}">{{cartItems[item.id]}}</text>
+                                            <view class="quantity-btn plus" bindtap="onIncreaseQuantity" data-dish="{{item}}">+</view>
+                                        </view>
+                                    </view>
+                                </view>
+                            </view>
                         </view>
-                        <view class="sold-out" wx:if="{{item.stock <= 0}}">
-                        <text class="sold-out-text">已售罄</text>
-                        </view>
-                        <view class="quantity-control" wx:if="{{item.stock > 0}}">
-                        <view class="quantity-btn minus" wx:if="{{getDishQuantity(item.id) > 0}}" bindtap="onDecreaseQuantity" data-dish="{{item}}">-</view>
-                        <text class="quantity-text" wx:if="{{getDishQuantity(item.id) > 0}}">{{getDishQuantity(item.id)}}</text>
-                        <view class="quantity-btn plus" bindtap="onIncreaseQuantity" data-dish="{{item}}">+</view>
-                        </view>
-                    </view>
                     </view>
                 </view>
-                </view>
-            </view>
-            </view>
-        </scroll-view>
+            </scroll-view>
         </view>
 
         <!-- 加载状态 -->
         <view class="loading-container" wx:if="{{loading}}">
-        <text class="loading-text">加载中...</text>
+            <text class="loading-text">加载中...</text>
         </view>
     </scroll-view>
 

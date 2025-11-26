@@ -8,10 +8,12 @@ Page({
     scrollToView: '',
     categoryScrollTop: 0,
     loading: true,
-    cartItems: {}, // 购物车商品 {dishId: quantity}
+    cartItems: {},
     totalQuantity: 0,
-    totalPrice: 0
-    // 删除 bannerImages 相关代码
+    totalPrice: 0,
+    categoryPositions: [], // 存储每个分类的位置信息
+    isScrolling: false, // 防止滚动冲突
+    scrollTimer: null // 滚动计时器
   },
 
   onLoad: function (options) {
@@ -37,7 +39,6 @@ Page({
     const app = getApp();
     this.setData({ loading: true });
     
-    // 获取餐厅详情（包含分类和菜品）
     wx.request({
       url: app.globalData.baseUrl + '/restaurant/' + id,
       method: 'GET',
@@ -46,10 +47,6 @@ Page({
         if (res.data.code === 200) {
           const restaurant = res.data.data;
           const categories = restaurant.categories || [];
-          // 调试：打印第一个分类的第一个菜品，检查数据结构
-            if (categories.length > 0 && categories[0].dishes && categories[0].dishes.length > 0) {
-                console.log('菜品数据结构:', categories[0].dishes[0]);
-            }
           const activeCategoryId = categories.length > 0 ? categories[0].id : null;
           
           this.setData({
@@ -57,6 +54,9 @@ Page({
             categories: categories,
             activeCategoryId: activeCategoryId,
             loading: false
+          }, () => {
+            // 数据加载完成后，计算分类位置
+            this.calculateCategoryPositions();
           });
         } else {
           console.error('获取餐厅详情失败:', res.data.message);
@@ -74,6 +74,94 @@ Page({
         this.loadMockData(id);
       }
     });
+  },
+
+  // 计算每个分类的位置信息
+  calculateCategoryPositions: function() {
+    const query = wx.createSelectorQuery();
+    const { categories } = this.data;
+    
+    query.select('#dishes-scroll').boundingClientRect();
+    
+    categories.forEach((category, index) => {
+      query.select(`#category-${category.id}`).boundingClientRect();
+    });
+    
+    query.exec((res) => {
+      if (!res || res.length === 0) return;
+      
+      const scrollViewRect = res[0]; // 滚动容器位置
+      const categoryPositions = [];
+      
+      // 从索引1开始，因为索引0是滚动容器
+      for (let i = 1; i < res.length; i++) {
+        const categoryRect = res[i];
+        if (categoryRect) {
+          categoryPositions.push({
+            categoryId: categories[i-1].id,
+            top: categoryRect.top - scrollViewRect.top // 相对滚动容器的位置
+          });
+        }
+      }
+      
+      this.setData({ categoryPositions });
+      console.log('分类位置信息:', categoryPositions);
+    });
+  },
+
+  // 右侧菜品列表滚动事件
+  onDishesScroll: function(e) {
+    if (this.data.isScrolling) return;
+    
+    const scrollTop = e.detail.scrollTop;
+    const { categoryPositions, categories } = this.data;
+    
+    if (!categoryPositions || categoryPositions.length === 0) return;
+    
+    // 防抖处理
+    if (this.data.scrollTimer) {
+      clearTimeout(this.data.scrollTimer);
+    }
+    
+    const scrollTimer = setTimeout(() => {
+      let activeCategoryId = categories[0].id; // 默认第一个分类
+      
+      // 从后往前查找，找到第一个 scrollTop 大于等于分类位置的分类
+      for (let i = categoryPositions.length - 1; i >= 0; i--) {
+        if (scrollTop >= categoryPositions[i].top - 100) { // 提前100rpx切换，提升体验
+          activeCategoryId = categoryPositions[i].categoryId;
+          break;
+        }
+      }
+      
+      // 更新激活的分类
+      if (this.data.activeCategoryId !== activeCategoryId) {
+        this.setData({ activeCategoryId });
+      }
+    }, 50);
+    
+    this.setData({ scrollTimer });
+  },
+
+  // 分类点击事件
+  onCategoryTap: function(e) {
+    const category = e.currentTarget.dataset.category;
+    if (!category || !category.id) {
+      console.error('分类数据错误:', category);
+      return;
+    }
+    
+    // 设置滚动标志，防止滚动冲突
+    this.setData({ 
+      isScrolling: true,
+      activeCategoryId: category.id,
+      scrollToView: 'category-' + category.id
+    });
+    
+    // 500ms后取消滚动标志
+    setTimeout(() => {
+      this.setData({ isScrolling: false });
+    }, 500);
   },
 
   // 获取营业状态文本
@@ -96,28 +184,6 @@ Page({
     return classMap[status] || 'status-closed';
   },
 
-  // 分类点击事件
-  onCategoryTap: function(e) {
-    const category = e.currentTarget.dataset.category;
-    this.setData({
-      activeCategoryId: category.id,
-      scrollToView: 'category-' + category.id
-    });
-  },
-
-  // 菜品点击事件
-  onDishTap: function(e) {
-    const dish = e.currentTarget.dataset.dish;
-    wx.showModal({
-      title: dish.name,
-      content: dish.description || '暂无描述',
-      showCancel: false,
-      confirmText: '知道了',
-      confirmColor: '#ff6b35'
-    });
-  },
-
-  
   // 增加菜品数量
   onIncreaseQuantity: function(e) {
     const dish = e.currentTarget.dataset.dish;
@@ -132,7 +198,6 @@ Page({
       return;
     }
     
-    // 更新购物车
     cartItems[dish.id] = currentQuantity + 1;
     this.updateCart(cartItems);
   },
@@ -145,7 +210,6 @@ Page({
     
     if (currentQuantity <= 0) return;
     
-    // 更新购物车
     if (currentQuantity === 1) {
       delete cartItems[dish.id];
     } else {
@@ -154,20 +218,12 @@ Page({
     this.updateCart(cartItems);
   },
 
-  // 获取菜品数量
-  getDishQuantity: function(dishId) {
-    // 确保 dishId 是字符串，因为对象的键通常是字符串
-    const key = dishId.toString();
-    return this.data.cartItems[key] || 0;
-  },
   // 根据ID查找菜品
-findDishById: function(dishId) {
+  findDishById: function(dishId) {
     const { categories } = this.data;
-    // 将 dishId 转换为数字进行比较
     const id = parseInt(dishId);
     for (let category of categories) {
       for (let dish of category.dishes) {
-        // 确保比较时类型一致
         if (parseInt(dish.id) === id) {
           return dish;
         }
@@ -175,15 +231,15 @@ findDishById: function(dishId) {
     }
     return null;
   },
+
   // 更新购物车状态
-updateCart: function(cartItems) {
+  updateCart: function(cartItems) {
     let totalQuantity = 0;
     let totalPrice = 0;
     
-    // 计算总数量和总价格
     Object.keys(cartItems).forEach(dishId => {
       const quantity = cartItems[dishId];
-      const dish = this.findDishById(dishId); // 直接传递字符串
+      const dish = this.findDishById(dishId);
       if (dish) {
         totalQuantity += quantity;
         totalPrice += dish.price * quantity;
@@ -196,6 +252,7 @@ updateCart: function(cartItems) {
       totalPrice: totalPrice
     });
   },
+
   // 去结算
   onCheckout: function() {
     if (this.data.totalQuantity === 0) {
@@ -206,7 +263,6 @@ updateCart: function(cartItems) {
       return;
     }
     
-    // 检查登录状态
     const app = getApp();
     if (app.globalData.isGuest) {
       wx.showModal({
@@ -226,7 +282,6 @@ updateCart: function(cartItems) {
       return;
     }
     
-    // 跳转到结算页面
     const orderData = {
       restaurant: this.data.restaurant,
       cartItems: this.data.cartItems,
@@ -242,5 +297,14 @@ updateCart: function(cartItems) {
   // 返回上一页
   onBack: function() {
     wx.navigateBack();
+  },
+
+  // 页面显示时重新计算位置（确保数据正确）
+  onShow: function() {
+    if (this.data.categories && this.data.categories.length > 0) {
+      setTimeout(() => {
+        this.calculateCategoryPositions();
+      }, 500);
+    }
   }
 });
