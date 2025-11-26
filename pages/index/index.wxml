@@ -3,7 +3,11 @@
   <!-- 顶部导航栏 -->
   <view class="navbar">
     <view class="navbar-content">
-      <!-- 搜索框 -->
+      <!-- 第一行：首页标题 -->
+      <view class="nav-header">
+        <text class="nav-title">首页</text>
+      </view>
+      <!-- 第二行：搜索框 -->
       <view class="search-container">
         <view class="search-box">
           <input

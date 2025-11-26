@@ -92,7 +92,7 @@
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  background: #07c160;
+  background: linear-gradient(135deg, #ff6b35, #ff8e53);
   color: white;
   border-radius: 50rpx;
   font-size: 32rpx;
@@ -122,9 +122,9 @@
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  border: 2rpx solid #07c160;
+  border: 2rpx solid #ff6b35;
   border-radius: 50rpx;
-  color: #07c160;
+  color: #ff6b35;
   font-size: 32rpx;
   margin-bottom: 30rpx;
   background: white;
@@ -171,8 +171,8 @@
 }
 
 .checkbox.checked {
-  background: #07c160;
-  border-color: #07c160;
+  background: #ff6b35;
+  border-color: #ff6b35;
 }
 
 .checkmark {
@@ -190,7 +190,7 @@
 }
 
 .agreement-link {
-  color: #07c160;
+  color: #ff6b35;
   white-space: nowrap;
 }
 
@@ -204,7 +204,7 @@
 }
 
 .other-phone-link {
-  color: #07c160;
+  color: #ff6b35;
   font-size: 28rpx;
   text-decoration: underline;
 }
@@ -235,7 +235,7 @@
 }
 
 .phone-input:focus, .verify-code-input:focus {
-  border-color: #07c160;
+  border-color: #ff6b35;
   background-color: #fff;
 }
 
@@ -251,7 +251,7 @@
 }
 
 .get-code-btn {
-  background: #07c160;
+  background: #ff6b35;
   color: white;
   border: none;
   border-radius: 12rpx;
@@ -364,12 +364,12 @@
 }
 
 .confirm-btn {
-  background: #07c160;
+  background: #ff6b35;
   color: white;
 }
 
 .confirm-btn:active {
-  background: #06ae56;
+  background: #ff6b35;
 }
 
 .modal-footer {

@@ -5,19 +5,26 @@ Page({
     restaurant: null,
     categories: [],
     activeCategoryId: null,
-    scrollToView: '',
-    categoryScrollTop: 0,
     loading: true,
     cartItems: {},
     totalQuantity: 0,
     totalPrice: 0,
-    categoryPositions: [], // 存储每个分类的位置信息
-    isScrolling: false, // 防止滚动冲突
-    scrollTimer: null // 滚动计时器
+    categoryPositions: [],
+    scrollTimer: null, 
+    dishesScrollTop: 0, 
+    isManualScroll: false,
+    isGuest: false 
   },
 
   onLoad: function (options) {
     const { id } = options;
+    
+    // 检查登录状态
+    const app = getApp();
+    this.setData({
+      isGuest: app.globalData.isGuest
+    });
+    
     if (id) {
       this.setData({ restaurantId: id });
       this.loadRestaurantDetail(id);
@@ -31,6 +38,21 @@ Page({
           }, 1500);
         }
       });
+    }
+  },
+
+  onShow: function() {
+    // 每次页面显示时检查登录状态
+    const app = getApp();
+    this.setData({
+      isGuest: app.globalData.isGuest
+    });
+    
+    if (this.data.categories && this.data.categories.length > 0) {
+      this.setData({ isManualScroll: true });
+      setTimeout(() => {
+        this.calculateCategoryPositions();
+      }, 500);
     }
   },
 
@@ -56,7 +78,9 @@ Page({
             loading: false
           }, () => {
             // 数据加载完成后，计算分类位置
-            this.calculateCategoryPositions();
+            setTimeout(() => {
+              this.calculateCategoryPositions();
+            }, 300);
           });
         } else {
           console.error('获取餐厅详情失败:', res.data.message);
@@ -80,6 +104,8 @@ Page({
   calculateCategoryPositions: function() {
     const query = wx.createSelectorQuery();
     const { categories } = this.data;
+    
+    if (categories.length === 0) return;
     
     query.select('#dishes-scroll').boundingClientRect();
     
@@ -111,12 +137,10 @@ Page({
 
   // 右侧菜品列表滚动事件
   onDishesScroll: function(e) {
-    if (this.data.isScrolling) return;
-    
     const scrollTop = e.detail.scrollTop;
-    const { categoryPositions, categories } = this.data;
+    const { categoryPositions, categories, isManualScroll } = this.data;
     
-    if (!categoryPositions || categoryPositions.length === 0) return;
+    if (!categoryPositions || categoryPositions.length === 0 || !isManualScroll) return;
     
     // 防抖处理
     if (this.data.scrollTimer) {
@@ -128,7 +152,7 @@ Page({
       
       // 从后往前查找，找到第一个 scrollTop 大于等于分类位置的分类
       for (let i = categoryPositions.length - 1; i >= 0; i--) {
-        if (scrollTop >= categoryPositions[i].top - 100) { // 提前100rpx切换，提升体验
+        if (scrollTop >= categoryPositions[i].top - 50) { // 提前50rpx切换
           activeCategoryId = categoryPositions[i].categoryId;
           break;
         }
@@ -143,7 +167,7 @@ Page({
     this.setData({ scrollTimer });
   },
 
-  // 分类点击事件
+  // 分类点击事件 - 直接跳转而不是滚动
   onCategoryTap: function(e) {
     const category = e.currentTarget.dataset.category;
     if (!category || !category.id) {
@@ -151,17 +175,28 @@ Page({
       return;
     }
     
-    // 设置滚动标志，防止滚动冲突
-    this.setData({ 
-      isScrolling: true,
-      activeCategoryId: category.id,
-      scrollToView: 'category-' + category.id
-    });
+    const { categoryPositions } = this.data;
+    const position = categoryPositions.find(item => item.categoryId === category.id);
     
-    // 500ms后取消滚动标志
-    setTimeout(() => {
-      this.setData({ isScrolling: false });
-    }, 500);
+    if (position) {
+      // 设置手动滚动标志为false，防止滚动事件触发分类切换
+      this.setData({ 
+        isManualScroll: false,
+        activeCategoryId: category.id,
+        dishesScrollTop: position.top
+      });
+      
+      // 300ms后恢复手动滚动检测
+      setTimeout(() => {
+        this.setData({ isManualScroll: true });
+      }, 300);
+    } else {
+      // 如果没有找到位置信息，直接切换分类
+      this.setData({ 
+        activeCategoryId: category.id,
+        isManualScroll: true
+      });
+    }
   },
 
   // 获取营业状态文本
@@ -184,9 +219,16 @@ Page({
     return classMap[status] || 'status-closed';
   },
 
-  // 增加菜品数量
+  // 增加菜品数量 - 添加登录检查
   onIncreaseQuantity: function(e) {
     const dish = e.currentTarget.dataset.dish;
+    
+    // 检查登录状态
+    if (this.data.isGuest) {
+      this.showLoginModal('添加菜品');
+      return;
+    }
+    
     const { cartItems } = this.data;
     const currentQuantity = cartItems[dish.id] || 0;
     
@@ -202,7 +244,7 @@ Page({
     this.updateCart(cartItems);
   },
 
-  // 减少菜品数量
+  // 减少菜品数量 - 游客也可以减少（从购物车移除）
   onDecreaseQuantity: function(e) {
     const dish = e.currentTarget.dataset.dish;
     const { cartItems } = this.data;
@@ -233,10 +275,11 @@ Page({
   },
 
   // 更新购物车状态
-  updateCart: function(cartItems) {
+updateCart: function(cartItems) {
     let totalQuantity = 0;
     let totalPrice = 0;
     
+    // 计算总数量和总价格
     Object.keys(cartItems).forEach(dishId => {
       const quantity = cartItems[dishId];
       const dish = this.findDishById(dishId);
@@ -245,15 +288,18 @@ Page({
         totalPrice += dish.price * quantity;
       }
     });
+
+    // ！！！核心改动：在这里格式化价格
+    const formattedTotalPrice = totalPrice.toFixed(2);
     
     this.setData({
       cartItems: cartItems,
       totalQuantity: totalQuantity,
-      totalPrice: totalPrice
+      totalPrice: totalPrice, // 保留原始数值，可能后续计算会用到
+      formattedTotalPrice: formattedTotalPrice // 新增：存储格式化后的字符串
     });
   },
-
-  // 去结算
+  // 去结算 - 修复登录检查
   onCheckout: function() {
     if (this.data.totalQuantity === 0) {
       wx.showToast({
@@ -263,22 +309,9 @@ Page({
       return;
     }
     
-    const app = getApp();
-    if (app.globalData.isGuest) {
-      wx.showModal({
-        title: '提示',
-        content: '需要登录后才能下单',
-        confirmText: '去登录',
-        cancelText: '取消',
-        confirmColor: '#ff6b35',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '/pages/auth/auth'
-            });
-          }
-        }
-      });
+    // 检查登录状态
+    if (this.data.isGuest) {
+      this.showLoginModal('下单结算');
       return;
     }
     
@@ -294,17 +327,41 @@ Page({
     });
   },
 
+  // 显示登录提示弹窗
+  showLoginModal: function(action) {
+    wx.showModal({
+      title: '登录提示',
+      content: `${action}需要登录后才能使用，是否立即登录？`,
+      confirmText: '去登录',
+      cancelText: '稍后再说',
+      confirmColor: '#ff6b35',
+      success: (res) => {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/auth/auth'
+          });
+        }
+      }
+    });
+  },
+
   // 返回上一页
   onBack: function() {
     wx.navigateBack();
   },
 
-  // 页面显示时重新计算位置（确保数据正确）
+  // 页面显示时重新计算位置
   onShow: function() {
     if (this.data.categories && this.data.categories.length > 0) {
+      this.setData({ isManualScroll: true });
       setTimeout(() => {
         this.calculateCategoryPositions();
       }, 500);
     }
-  }
+  },
+
+  // 页面准备好后初始化
+  onReady: function() {
+    this.setData({ isManualScroll: true });
+  },
 });

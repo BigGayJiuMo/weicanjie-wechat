@@ -56,10 +56,8 @@
 /* 餐厅信息卡片 */
 .restaurant-info-card {
   background: white;
-  margin: 20rpx;
   border-radius: 20rpx;
   padding: 30rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 }
 
 .restaurant-header {
@@ -117,8 +115,6 @@
   justify-content: space-around;
   margin-bottom: 24rpx;
   padding: 20rpx 0;
-  border-top: 1rpx solid #f0f0f0;
-  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .meta-item {
@@ -180,7 +176,7 @@
 
 /* 左侧分类导航 */
 .category-sidebar {
-  width: 180rpx;
+  width: 160rpx;
   background-color: #f8f9fa;
   border-right: 1rpx solid #e9ecef;
   flex-shrink: 0;
@@ -249,6 +245,7 @@
   display: flex;
   padding: 30rpx;
   transition: all 0.3s ease;
+  padding-bottom: 50rpx;
   background: #ffffff;
 }
 
@@ -262,8 +259,8 @@
 }
 
 .dish-image {
-  width: 180rpx;
-  height: 180rpx;
+  width: 150rpx;
+  height: 150rpx;
   border-radius: 16rpx;
   margin-right: 30rpx;
   flex-shrink: 0;
@@ -315,6 +312,8 @@
   font-weight: bold;
   color: #ff4757;
   flex-shrink: 0;
+  margin-top: 10rpx;
+  margin-bottom: 10rpx;
 }
 
 /* 右侧控制区域（库存信息 + 数量控制器） */
@@ -347,9 +346,9 @@
 
 /* 数量按钮（加减号）- 使用view实现 */
 .quantity-btn {
-  width: 48rpx;
-  height: 48rpx;
-  line-height: 44rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 36rpx;
   text-align: center;
   border-radius: 50%;
   color: white;
@@ -359,6 +358,7 @@
   transition: all 0.3s ease;
   cursor: pointer;
   user-select: none; /* 防止文字被选中 */
+  margin-top: 10rpx;
 }
 
 /* 加号按钮样式 */
@@ -449,14 +449,25 @@
 /* 价格信息 */
 .price-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rpx;
 }
 
 .total-price {
   font-size: 36rpx;
   font-weight: bold;
   color: #333;
-  display: block;
-  margin-bottom: 4rpx;
+}
+
+.no-items {
+  font-size: 28rpx;
+  color: #999;
 }
 
 .delivery-fee {
@@ -464,8 +475,9 @@
   color: #666;
 }
 
-/* 结算按钮 - 也使用view实现 */
+/* 结算按钮 */
 .checkout-btn {
+  width: 200rpx;
   background: #ff6b35;
   color: white;
   border: none;

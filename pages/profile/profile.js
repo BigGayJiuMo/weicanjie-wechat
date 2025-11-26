@@ -262,11 +262,11 @@ Page({
   // 显示登录提示
   showLoginTip: function () {
     wx.showModal({
-      title: '提示',
-      content: '此功能需要登录后才能使用',
-      confirmText: '去登录',
-      cancelText: '取消',
-      confirmColor: '#ff6b35',
+        title: '登录提示',
+        content: `此功能需要登录后才能使用，是否立即登录？`,
+        confirmText: '去登录',
+        cancelText: '稍后再说',
+        confirmColor: '#ff6b35',
       success: (res) => {
         if (res.confirm) {
           wx.navigateTo({

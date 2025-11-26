@@ -112,15 +112,8 @@ Page({
       });
       return;
     }
-
-    // 检查登录状态
-    const app = getApp();
-    if (app.globalData.isGuest) {
-      this.onNeedLogin();
-      return;
-    }
-
-    // 执行搜索
+  
+    // 直接执行搜索，游客也可以搜索
     this.performSearch(keyword);
   },
 
@@ -206,10 +199,11 @@ Page({
     const app = getApp();
     if (app.globalData.isGuest) {
       wx.showModal({
-        title: '提示',
-        content: '此功能需要登录后才能使用',
+        title: '登录提示',
+        content: `此功能需要登录后才能使用，是否立即登录？`,
         confirmText: '去登录',
-        cancelText: '取消',
+        cancelText: '稍后再说',
+        confirmColor: '#ff6b35',
         success: (res) => {
           if (res.confirm) {
             wx.navigateTo({

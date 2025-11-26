@@ -1,71 +1,71 @@
 {
-  "pages": [
-    "pages/index/index",
-    "pages/auth/auth",
-    "pages/menu/menu",
-    "pages/cart/cart",
-    "pages/profile/profile",
-    "pages/edit-profile/edit-profile",
-    "pages/order/order",
-    "pages/agreement/user-agreement",
-    "pages/agreement/privacy-policy",
-    "pages/restaurant-detail/restaurant-detail"
-  ],
-  "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#ff6b35",
-    "navigationBarTitleText": "微餐捷",
-    "navigationBarTextStyle": "white",
-    "navigationStyle": "custom"
-  },
-  "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#7dc5eb",
-    "backgroundColor": "#ffffff",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "images/home.png",
-        "selectedIconPath": "images/home-active.png"
-      },
-      {
-        "pagePath": "pages/menu/menu",
-        "text": "分类",
-        "iconPath": "images/menu.png",
-        "selectedIconPath": "images/menu-active.png"
-      },
-      {
-        "pagePath": "pages/cart/cart",
-        "text": "订单",
-        "iconPath": "images/cart.png",
-        "selectedIconPath": "images/cart-active.png"
-      },
-      {
-        "pagePath": "pages/profile/profile",
-        "text": "我的",
-        "iconPath": "images/profile.png",
-        "selectedIconPath": "images/profile-active.png"
-      }
-    ]
-  },
-  "entryPagePath": "pages/index/index",
-  "networkTimeout": {
-    "request": 10000
-  },
-  "style": "v2",
-  "renderer": "skyline",
-  "rendererOptions": {
-    "skyline": {
-      "defaultDisplayBlock": true,
-      "defaultContentBox": true,
-      "tagNameStyleIsolation": "legacy",
-      "disableABTest": true,
-      "sdkVersionBegin": "3.0.0",
-      "sdkVersionEnd": "15.255.255"
-    }
-  },
-  "componentFramework": "glass-easel",
-  "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+    "pages": [
+        "pages/index/index",
+        "pages/auth/auth",
+        "pages/menu/menu",
+        "pages/cart/cart",
+        "pages/profile/profile",
+        "pages/edit-profile/edit-profile",
+        "pages/order/order",
+        "pages/agreement/user-agreement",
+        "pages/agreement/privacy-policy",
+        "pages/restaurant-detail/restaurant-detail"
+    ],
+    "window": {
+        "backgroundTextStyle": "light",
+        "navigationBarBackgroundColor": "#ff6b35",
+        "navigationBarTitleText": "微餐捷",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+    },
+    "tabBar": {
+        "color": "#999999",
+        "selectedColor": "#7dc5eb",
+        "backgroundColor": "#ffffff",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "首页",
+                "iconPath": "images/home.png",
+                "selectedIconPath": "images/home-active.png"
+            },
+            {
+                "pagePath": "pages/menu/menu",
+                "text": "分类",
+                "iconPath": "images/menu.png",
+                "selectedIconPath": "images/menu-active.png"
+            },
+            {
+                "pagePath": "pages/cart/cart",
+                "text": "订单",
+                "iconPath": "images/cart.png",
+                "selectedIconPath": "images/cart-active.png"
+            },
+            {
+                "pagePath": "pages/profile/profile",
+                "text": "我的",
+                "iconPath": "images/profile.png",
+                "selectedIconPath": "images/profile-active.png"
+            }
+        ]
+    },
+    "entryPagePath": "pages/index/index",
+    "networkTimeout": {
+        "request": 10000
+    },
+    "style": "v2",
+    "renderer": "skyline",
+    "rendererOptions": {
+        "skyline": {
+            "defaultDisplayBlock": true,
+            "defaultContentBox": true,
+            "tagNameStyleIsolation": "legacy",
+            "disableABTest": true,
+            "sdkVersionBegin": "3.0.0",
+            "sdkVersionEnd": "15.255.255"
+        }
+    },
+    "componentFramework": "glass-easel",
+    "sitemapLocation": "sitemap.json",
+    "lazyCodeLoading": "requiredComponents"
 }
