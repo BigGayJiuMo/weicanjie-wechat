@@ -13,17 +13,12 @@ Page({
     scrollTimer: null, 
     dishesScrollTop: 0, 
     isManualScroll: false,
-    isGuest: false 
+    isGuest: true, // 默认为游客
+    userInfo: null
   },
 
   onLoad: function (options) {
     const { id } = options;
-    
-    // 检查登录状态
-    const app = getApp();
-    this.setData({
-      isGuest: app.globalData.isGuest
-    });
     
     if (id) {
       this.setData({ restaurantId: id });
@@ -43,10 +38,7 @@ Page({
 
   onShow: function() {
     // 每次页面显示时检查登录状态
-    const app = getApp();
-    this.setData({
-      isGuest: app.globalData.isGuest
-    });
+    this.checkLoginStatus();
     
     if (this.data.categories && this.data.categories.length > 0) {
       this.setData({ isManualScroll: true });
@@ -54,6 +46,42 @@ Page({
         this.calculateCategoryPositions();
       }, 500);
     }
+  },
+
+  // 检查登录状态
+  checkLoginStatus: function() {
+    const app = getApp();
+    const userInfo = app.globalData.userInfo;
+    
+    if (userInfo) {
+      this.setData({
+        userInfo: userInfo,
+        isGuest: false
+      });
+    } else {
+      this.setData({
+        userInfo: null,
+        isGuest: true
+      });
+    }
+  },
+
+  // 显示登录提示
+  showLoginTip: function(action = '此功能') {
+    wx.showModal({
+      title: '登录提示',
+      content: `${action}需要登录后才能使用，是否立即登录？`,
+      confirmText: '去登录',
+      cancelText: '稍后再说',
+      confirmColor: '#ff6b35',
+      success: (res) => {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/auth/auth'
+          });
+        }
+      }
+    });
   },
 
   // 加载餐厅详情
@@ -225,7 +253,7 @@ Page({
     
     // 检查登录状态
     if (this.data.isGuest) {
-      this.showLoginModal('添加菜品');
+      this.showLoginTip('添加菜品');
       return;
     }
     
@@ -275,7 +303,7 @@ Page({
   },
 
   // 更新购物车状态
-updateCart: function(cartItems) {
+  updateCart: function(cartItems) {
     let totalQuantity = 0;
     let totalPrice = 0;
     
@@ -289,7 +317,7 @@ updateCart: function(cartItems) {
       }
     });
 
-    // ！！！核心改动：在这里格式化价格
+    // 格式化价格
     const formattedTotalPrice = totalPrice.toFixed(2);
     
     this.setData({
@@ -299,6 +327,7 @@ updateCart: function(cartItems) {
       formattedTotalPrice: formattedTotalPrice // 新增：存储格式化后的字符串
     });
   },
+
   // 去结算 - 修复登录检查
   onCheckout: function() {
     if (this.data.totalQuantity === 0) {
@@ -311,7 +340,7 @@ updateCart: function(cartItems) {
     
     // 检查登录状态
     if (this.data.isGuest) {
-      this.showLoginModal('下单结算');
+      this.showLoginTip('下单结算');
       return;
     }
     
@@ -327,41 +356,82 @@ updateCart: function(cartItems) {
     });
   },
 
-  // 显示登录提示弹窗
-  showLoginModal: function(action) {
-    wx.showModal({
-      title: '登录提示',
-      content: `${action}需要登录后才能使用，是否立即登录？`,
-      confirmText: '去登录',
-      cancelText: '稍后再说',
-      confirmColor: '#ff6b35',
-      success: (res) => {
-        if (res.confirm) {
-          wx.navigateTo({
-            url: '/pages/auth/auth'
-          });
-        }
-      }
-    });
-  },
-
   // 返回上一页
   onBack: function() {
     wx.navigateBack();
-  },
-
-  // 页面显示时重新计算位置
-  onShow: function() {
-    if (this.data.categories && this.data.categories.length > 0) {
-      this.setData({ isManualScroll: true });
-      setTimeout(() => {
-        this.calculateCategoryPositions();
-      }, 500);
-    }
   },
 
   // 页面准备好后初始化
   onReady: function() {
     this.setData({ isManualScroll: true });
   },
+
+  // 开发环境模拟数据
+  loadMockData: function(id) {
+    // 模拟数据加载
+    setTimeout(() => {
+      const mockRestaurant = {
+        id: id,
+        name: '模拟餐厅',
+        logoUrl: '/images/default-restaurant.png',
+        businessStatus: 1,
+        avgRating: 4.5,
+        monthlySales: 1234,
+        minOrderAmount: 20,
+        deliveryFee: 5,
+        description: '这是一家模拟餐厅，用于开发测试',
+        address: '模拟地址 123号'
+      };
+
+      const mockCategories = [
+        {
+          id: 1,
+          name: '热销推荐',
+          dishes: [
+            {
+              id: 1,
+              name: '模拟菜品1',
+              price: 38,
+              stock: 10,
+              imageUrl: '/images/default-dish.png',
+              description: '美味模拟菜品1'
+            },
+            {
+              id: 2,
+              name: '模拟菜品2',
+              price: 42,
+              stock: 5,
+              imageUrl: '/images/default-dish.png',
+              description: '美味模拟菜品2'
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: '主食',
+          dishes: [
+            {
+              id: 3,
+              name: '模拟主食',
+              price: 25,
+              stock: 8,
+              imageUrl: '/images/default-dish.png',
+              description: '美味模拟主食'
+            }
+          ]
+        }
+      ];
+
+      this.setData({
+        restaurant: mockRestaurant,
+        categories: mockCategories,
+        activeCategoryId: mockCategories[0].id,
+        loading: false
+      }, () => {
+        setTimeout(() => {
+          this.calculateCategoryPositions();
+        }, 300);
+      });
+    }, 1000);
+  }
 });
