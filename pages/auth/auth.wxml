@@ -10,7 +10,7 @@
         </view>
         <view class="nav-right"></view>
     </view>
-    </view>
+</view>
 
     <view class="auth-container">
     <view class="auth-card">
@@ -36,8 +36,8 @@
         
         <!-- 用户协议勾选 -->
         <view class="agreement-section">
-        <view class="checkbox-container" bindtap="toggleAgreement">
-            <view class="checkbox {{agreementChecked ? 'checked' : ''}}">
+        <view class="checkbox-container" >
+            <view bindtap="toggleAgreement" class="checkbox  {{agreementChecked ? 'checked' : ''}}">
             <text class="checkmark" wx:if="{{agreementChecked}}">✓</text>
             </view>
             <text class="agreement-text">

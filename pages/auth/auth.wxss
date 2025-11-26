@@ -1,8 +1,8 @@
 /* 导航栏样式 */
 .navbar {
-  background: linear-gradient(135deg, #ff6b35, #ff8e53);
+  background: white;
   padding: 20rpx 30rpx;
-  padding-top: 85rpx;
+  padding-top: 95rpx;
   position: fixed;
   top: 0;
   left: 0;
@@ -33,7 +33,7 @@
 .nav-title {
   font-size: 36rpx;
   font-weight: bold;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .auth-container {
@@ -41,7 +41,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #ff6b35, #ff8e53);
+  background: white;
   padding: 40rpx;
   padding-top: 0rpx; /* 为导航栏留出空间 */
   box-sizing: border-box;
@@ -52,10 +52,10 @@
   border-radius: 20rpx;
   padding: 60rpx 40rpx;
   text-align: center;
-  box-shadow: 0 10rpx 30rpx rgba(0,0,0,0.1);
+  /* box-shadow: 0 10rpx 30rpx rgba(0,0,0,0.1); */
   width: 100%;
   position: relative;
-  margin-top: 60rpx; /* 调整卡片位置 */
+  margin-top: 0rpx; /* 调整卡片位置 */
 }
 
 .auth-logo {

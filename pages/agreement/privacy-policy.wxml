@@ -1,17 +1,16 @@
 <!--pages/agreement/privacy-policy.wxml-->
-<view class="container">
-  <view class="navbar">
+<view class="navbar">
     <view class="navbar-content">
-      <view class="nav-left">
-        <image class="back-icon" bindtap="onBack" src="/images/back.png"></image>
-        <text class="nav-title">隐私政策</text>
-      </view>
+        <view class="nav-left">
+            <image class="back-icon" bindtap="onBack" src="/images/back.png"></image>
+            <view class="nav-center">
+                <text class="nav-title">隐私政策</text>
+            </view>
+        </view>
     </view>
-  </view>
-
-  <view class="content">
+</view>
+<view class="content">
     <text class="title">微餐捷隐私政策</text>
     <text class="section">我们非常重视您的隐私保护...</text>
     <!-- 这里添加完整的隐私政策内容 -->
-  </view>
 </view>

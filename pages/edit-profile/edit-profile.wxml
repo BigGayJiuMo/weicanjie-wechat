@@ -4,7 +4,7 @@
     <view class="navbar">
         <view class="navbar-content">
             <view class="nav-left">
-                <image class="back-icon" bindtap="onBack" src="/images/back.png"></image>
+                <image class="back-icon" bindtap="onBack" src="/images/back1.png"></image>
                 <text class="nav-title">编辑资料</text>
             </view>
         </view>
