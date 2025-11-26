@@ -1,6 +1,8 @@
 /**index.wxss**/
 .container {
   padding: 0;
+  background: #f5f5f5;
+  min-height: 100vh;
 }
 
 /* 导航栏样式 */
@@ -11,11 +13,11 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-shrink: 0;
 }
 
 .navbar-content {
   display: flex;
-
 }
 
 /* 搜索容器 */
@@ -57,9 +59,211 @@
 
 .banner {
   height: 400rpx;
+  flex-shrink: 0;
 }
 
 .banner-image {
   width: 100%;
   height: 100%;
+}
+
+/* 餐厅列表滚动区域 - 关键修改：使用固定高度 */
+.restaurant-scroll {
+  height: calc(100vh - 180rpx); /* 屏幕高度减去导航栏和轮播图的高度 */
+  flex: 1;
+}
+
+/* 餐厅列表 */
+.restaurant-list {
+  padding: 20rpx;
+}
+
+.restaurant-item {
+  background: white;
+  border-radius: 20rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.restaurant-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 修改：餐厅主体布局 - 图片和信息横向排列 */
+.restaurant-body {
+  display: flex;
+  padding: 30rpx;
+}
+
+/* 修改：餐厅图片样式 - 放在左侧 */
+.restaurant-image {
+  width: 250rpx;
+  height: 250rpx;
+  border-radius: 12rpx;
+  margin-right: 24rpx;
+  margin-top: 8rpx;
+  flex-shrink: 0; /* 防止图片被压缩 */
+  /* background-color: aqua; */
+}
+
+/* 修改：餐厅内容区域 - 占据剩余空间 */
+.restaurant-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.restaurant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.restaurant-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.restaurant-status {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+  flex-shrink: 0; /* 防止状态标签被压缩 */
+}
+
+.status-open {
+  background: #e8f5e8;
+  color: #07c160;
+}
+
+.status-closed {
+  background: #fef0f0;
+  color: #ff4757;
+}
+
+.status-break {
+  background: #fff7e6;
+  color: #ff8c00;
+}
+
+.restaurant-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.rating-star {
+  color: #ff6b35;
+  font-size: 24rpx;
+  margin-right: 8rpx;
+}
+
+.rating-score {
+  font-size: 26rpx;
+  color: #ff6b35;
+  margin-right: 16rpx;
+  font-weight: bold;
+}
+
+.rating-count {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.restaurant-info {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+  flex-wrap: wrap; /* 允许在小屏幕上换行 */
+}
+
+.info-item {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.restaurant-desc {
+  margin-bottom: 20rpx;
+  flex: 1; /* 描述区域占据可用空间 */
+}
+
+.desc-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.restaurant-tags {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap; /* 允许标签换行 */
+}
+
+.tag {
+  font-size: 22rpx;
+  color: #ff6b35;
+  background: #fff0e8;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #ffd8c8;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.retry-btn {
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 44rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.retry-btn::after {
+  border: none;
 }

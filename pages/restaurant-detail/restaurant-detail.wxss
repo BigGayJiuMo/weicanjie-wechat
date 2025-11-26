@@ -1,0 +1,515 @@
+/* 页面整体容器 */
+.container {
+  padding: 0;
+  background: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 导航栏样式 */
+.navbar {
+  background: white;
+  padding: 20rpx 30rpx;
+  padding-top: 85rpx; /* 适配微信顶部状态栏 */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left, .nav-right {
+  width: 80rpx;
+  text-align: center;
+}
+
+.nav-center {
+  flex: 1;
+  text-align: center;
+}
+
+.back-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 页面滚动区域（包含餐厅信息和菜单） */
+.page-scroll {
+  flex: 1;
+  height: calc(100vh - 200rpx); /* 屏幕高度 - 导航栏高度 - 购物车栏高度 */
+  overflow-y: auto; /* 允许垂直滚动 */
+}
+
+/* 餐厅信息卡片 */
+.restaurant-info-card {
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.restaurant-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.restaurant-logo {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+  margin-right: 24rpx;
+  object-fit: cover; /* 确保图片不变形 */
+}
+
+.restaurant-basic {
+  flex: 1;
+}
+
+.restaurant-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+/* 餐厅营业状态样式 */
+.restaurant-status {
+  display: inline-block;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.status-open {
+  background: #e8f5e8;
+  color: #07c160;
+}
+
+.status-closed {
+  background: #fef0f0;
+  color: #ff4757;
+}
+
+.status-break {
+  background: #fff7e6;
+  color: #ff8c00;
+}
+
+/* 餐厅元信息（评分、月售等） */
+.restaurant-meta {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 24rpx;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.meta-label {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.meta-value {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 餐厅描述 */
+.restaurant-desc {
+  margin-bottom: 20rpx;
+}
+
+.desc-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* 餐厅地址 */
+.restaurant-address {
+  display: flex;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.address-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 12rpx;
+}
+
+.address-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 菜单内容区域（分类导航 + 菜品列表） */
+.menu-content {
+  display: flex;
+  height: 800rpx; /* 固定高度，确保分类和菜品区域同步滚动 */
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* 左侧分类导航 */
+.category-sidebar {
+  width: 150rpx;
+  background-color: #f8f9fa;
+  border-right: 1rpx solid #e9ecef;
+  flex-shrink: 0;
+  overflow-y: auto; /* 分类过多时可滚动 */
+}
+
+.category-tab {
+  padding: 30rpx 20rpx;
+  text-align: center;
+  border-bottom: 1rpx solid #e9ecef;
+  transition: all 0.3s ease;
+  position: relative;
+  background: #f8f9fa;
+  color: #333;
+}
+
+/* 激活的分类样式 */
+.category-tab.active {
+  background: white;
+  color: #ff6b35;
+  font-weight: 600;
+  border-left: 6rpx solid #ff6b35;
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.1);
+}
+
+.tab-text {
+  font-size: 28rpx;
+  line-height: 1.4;
+  display: block;
+  font-weight: 500;
+}
+
+/* 右侧菜品内容区域 */
+.dishes-content {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto; /* 菜品过多时可滚动 */
+}
+
+/* 菜品分类标题 */
+.category-section {
+  margin-bottom: 40rpx;
+}
+
+.section-header {
+  padding: 30rpx 30rpx 20rpx;
+  background: #ffffff;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+}
+
+/* 菜品列表 */
+.dishes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* 菜品卡片 */
+.dish-card {
+  display: flex;
+  padding: 30rpx;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+/* 菜品卡片点击反馈 */
+.dish-card:active {
+  background: #f8f9fa;
+}
+
+.dish-card:last-child {
+  border-bottom: none;
+}
+
+.dish-image {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 16rpx;
+  margin-right: 30rpx;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  background-color: #f0f0f0;
+  object-fit: cover; /* 确保图片不变形 */
+}
+
+.dish-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 菜名单独一行 */
+.dish-header {
+  margin-bottom: 8rpx;
+}
+
+.dish-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+.dish-description {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* 最多显示1行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 菜品控制栏（价格 + 库存状态 + 数量控制器） */
+.dish-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 垂直居中对齐 */
+}
+
+/* 价格样式 */
+.dish-price {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ff4757;
+  flex-shrink: 0;
+}
+
+/* 右侧控制区域（库存信息 + 数量控制器） */
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+/* 库存不足提示 */
+.stock-info {
+  font-size: 24rpx;
+  color: #ff6b35;
+  font-weight: 500;
+}
+
+/* 已售罄提示 */
+.sold-out {
+  font-size: 24rpx;
+  color: #999;
+  font-weight: 500;
+}
+
+/* 数量控制器（优化后样式） */
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10rpx; /* 按钮与数字间距 */
+}
+
+/* 数量按钮（加减号）- 使用view实现 */
+.quantity-btn {
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 50%;
+  color: white;
+  border: none;
+  font-size: 36rpx;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  user-select: none; /* 防止文字被选中 */
+}
+
+/* 加号按钮样式 */
+.quantity-btn.plus {
+  background: #ff6b35;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 53, 0.3);
+}
+
+/* 减号按钮样式（增强辨识度） */
+.quantity-btn.minus {
+  background: #f8f9fa;
+  color: #666;
+  border: 1rpx solid #e0e0e0; /* 浅边框避免与背景融合 */
+}
+
+/* 按钮点击反馈 */
+.quantity-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 数量文本 */
+.quantity-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  min-width: 40rpx; /* 确保数字有足够显示空间 */
+  text-align: center;
+  line-height: 56rpx; /* 与按钮高度一致，垂直居中 */
+}
+
+/* 购物车底部栏 */
+.cart-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.cart-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+/* 购物车图标容器 */
+.cart-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-icon {
+  width: 60rpx;
+  height: 60rpx;
+}
+
+/* 购物车商品总数 */
+.total-quantity {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  background: #ff6b35;
+  color: white;
+  font-size: 20rpx;
+  font-weight: bold;
+  padding: 8rpx;
+  border-radius: 50%;
+  min-width: 24rpx;
+  height: 24rpx;
+  text-align: center;
+  line-height: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 价格信息 */
+.price-info {
+  flex: 1;
+}
+
+.total-price {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.delivery-fee {
+  font-size: 22rpx;
+  color: #666;
+}
+
+/* 结算按钮 - 也使用view实现 */
+.checkout-btn {
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 24rpx 40rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+  text-align: center;
+  cursor: pointer;
+  user-select: none; /* 防止文字被选中 */
+}
+
+/* 结算按钮禁用状态 */
+.checkout-btn.disabled {
+  background: #cccccc;
+  color: #999999;
+  box-shadow: none;
+}
+
+/* 按钮点击反馈 */
+.checkout-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
+}
+
+.checkout-btn.disabled:active {
+  transform: none;
+  box-shadow: none;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}

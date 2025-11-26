@@ -6,9 +6,9 @@
       <!-- 搜索框 -->
       <view class="search-container">
         <view class="search-box">
-          <input 
-            class="search-input" 
-            placeholder="搜索菜品、餐厅..." 
+          <input
+            class="search-input"
+            placeholder="搜索餐厅..."
             placeholder-class="search-placeholder"
             bindinput="onSearchInput"
             bindconfirm="onSearchConfirm"
@@ -20,11 +20,71 @@
       </view>
     </view>
   </view>
+  
+  <!-- 餐厅列表滚动区域 - 使用固定高度确保滚动 -->
+  <scroll-view class="restaurant-scroll" scroll-y="true" enable-back-to-top="true">
+    <!-- 顶部轮播图 -->
+    <swiper class="banner" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}">
+      <swiper-item wx:for="{{banners}}" wx:key="id">
+        <image src="{{item.imageUrl}}" mode="aspectFill" class="banner-image" />
+      </swiper-item>
+    </swiper>
+    
+    <view class="restaurant-list">
+      <view 
+        class="restaurant-item" 
+        wx:for="{{restaurants}}" 
+        wx:key="id"
+        bindtap="onRestaurantTap"
+        data-restaurant="{{item}}"
+      >
+        <!-- 将图片和信息放在同一行 -->
+        <view class="restaurant-body">
+          <image class="restaurant-image" src="{{item.logoUrl || '/images/default-restaurant.png'}}" mode="aspectFill"></image>
+          <view class="restaurant-content">
+            <view class="restaurant-header">
+              <text class="restaurant-name">{{item.name}}</text>
+              <view class="restaurant-status {{getStatusClass(item.businessStatus)}}">
+                {{getStatusText(item.businessStatus)}}
+              </view>
+            </view>
+            
+            <view class="restaurant-rating">
+              <text class="rating-star">★</text>
+              <text class="rating-score">{{item.avgRating || 5.0}}</text>
+              <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+            </view>
+            
+            <view class="restaurant-info">
+              <text class="info-item">起送¥{{item.minOrderAmount || 0}}</text>
+              <text class="info-item">配送¥{{item.deliveryFee || 0}}</text>
+              <text class="info-item">{{item.deliveryTime || '30分钟'}}</text>
+            </view>
+            
+            <view class="restaurant-desc">
+              <text class="desc-text">{{item.description || '用心做好每一道菜'}}</text>
+            </view>
+            
+            <view class="restaurant-tags">
+              <text class="tag" wx:if="{{item.avgRating >= 4.5}}">高分好评</text>
+              <text class="tag" wx:if="{{item.monthlySales > 1000}}">人气爆款</text>
+              <text class="tag">放心吃</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
 
-  <!-- 顶部轮播图 -->
-  <swiper class="banner" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}">
-    <swiper-item wx:for="{{banners}}" wx:key="id">
-      <image src="{{item.imageUrl}}" mode="aspectFill" class="banner-image" />
-    </swiper-item>
-  </swiper>
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-container" wx:if="{{!loading && (!restaurants || restaurants.length === 0)}}">
+      <image class="empty-image" src="/images/empty-restaurant.png"></image>
+      <text class="empty-text">暂无餐厅数据</text>
+      <button class="retry-btn" bindtap="loadRestaurants">重新加载</button>
+    </view>
+  </scroll-view>
 </view>

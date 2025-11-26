@@ -1,0 +1,136 @@
+<!--pages/restaurant-detail/restaurant-detail.wxml-->
+<view class="container">
+    <!-- 顶部导航栏 -->
+    <view class="navbar">
+        <view class="navbar-content">
+        <view class="nav-left">
+            <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+        </view>
+        <view class="nav-center">
+            <text class="nav-title">餐厅详情</text>
+        </view>
+        <view class="nav-right"></view>
+        </view>
+    </view>
+
+    <!-- 整个页面滚动区域 - 使用scroll-view实现滚动 -->
+    <scroll-view class="page-scroll" scroll-y="true" enable-back-to-top="true">
+        <!-- 餐厅基本信息 -->
+        <view class="restaurant-info-card" wx:if="{{restaurant}}">
+        <view class="restaurant-header">
+            <image class="restaurant-logo" src="{{restaurant.logoUrl || '/images/default-restaurant.png'}}"></image>
+            <view class="restaurant-basic">
+            <view class="restaurant-name">{{restaurant.name}}</view>
+            <view class="restaurant-status {{getStatusClass(restaurant.businessStatus)}}">
+                {{getStatusText(restaurant.businessStatus)}}
+            </view>
+            </view>
+        </view>
+
+        <view class="restaurant-meta">
+            <view class="meta-item">
+            <text class="meta-label">评分</text>
+            <text class="meta-value">{{restaurant.avgRating || 5.0}}</text>
+            </view>
+            <view class="meta-item">
+            <text class="meta-label">月售</text>
+            <text class="meta-value">{{restaurant.monthlySales || 0}}</text>
+            </view>
+            <view class="meta-item">
+            <text class="meta-label">起送</text>
+            <text class="meta-value">¥{{restaurant.minOrderAmount || 0}}</text>
+            </view>
+            <view class="meta-item">
+            <text class="meta-label">配送</text>
+            <text class="meta-value">¥{{restaurant.deliveryFee || 0}}</text>
+            </view>
+        </view>
+
+        <view class="restaurant-desc">
+            <text class="desc-text">{{restaurant.description || '用心做好每一道菜'}}</text>
+        </view>
+
+        <view class="restaurant-address">
+            <image class="address-icon" src="/images/location.png"></image>
+            <text class="address-text">{{restaurant.address || '地址信息'}}</text>
+        </view>
+        </view>
+
+        <!-- 分类导航和菜品展示 -->
+        <view class="menu-content" wx:if="{{categories && categories.length > 0}}">
+        <!-- 左侧分类导航 - 固定在左侧 -->
+        <view class="category-sidebar">
+            <view 
+            class="category-tab {{activeCategoryId === category.id ? 'active' : ''}}" 
+            wx:for="{{categories}}" 
+            wx:key="id"
+            bindtap="onCategoryTap"
+            data-category="{{category}}"
+            >
+            <text class="tab-text">{{category.name}}</text>
+            </view>
+        </view>
+
+        <!-- 右侧菜品列表 - 可滚动 -->
+        <scroll-view class="dishes-content" scroll-y="true" scroll-into-view="{{scrollToView}}">
+            <view class="category-section" wx:for="{{categories}}" wx:key="id" id="category-{{item.id}}">
+            <view class="section-header">
+                <text class="section-title">{{item.name}}</text>
+            </view>
+            <view class="dishes-list">
+                <view class="dish-card" wx:for="{{item.dishes}}" wx:key="id">
+                <image class="dish-image" src="{{item.imageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
+                <view class="dish-details">
+                    <!-- 菜名单独一行 -->
+                    <view class="dish-header">
+                    <text class="dish-name">{{item.name}}</text>
+                    </view>
+                    <text class="dish-description">{{item.description || '美味可口'}}</text>
+                    <!-- 价格和数量控制器在同一行 -->
+                    <view class="dish-controls">
+                    <text class="dish-price">¥{{item.price}}</text>
+                    <view class="controls-right">
+                        <view class="stock-info" wx:if="{{item.stock < 10 && item.stock > 0}}">
+                        <text class="stock-text">仅剩{{item.stock}}份</text>
+                        </view>
+                        <view class="sold-out" wx:if="{{item.stock <= 0}}">
+                        <text class="sold-out-text">已售罄</text>
+                        </view>
+                        <view class="quantity-control" wx:if="{{item.stock > 0}}">
+                        <view class="quantity-btn minus" wx:if="{{getDishQuantity(item.id) > 0}}" bindtap="onDecreaseQuantity" data-dish="{{item}}">-</view>
+                        <text class="quantity-text" wx:if="{{getDishQuantity(item.id) > 0}}">{{getDishQuantity(item.id)}}</text>
+                        <view class="quantity-btn plus" bindtap="onIncreaseQuantity" data-dish="{{item}}">+</view>
+                        </view>
+                    </view>
+                    </view>
+                </view>
+                </view>
+            </view>
+            </view>
+        </scroll-view>
+        </view>
+
+        <!-- 加载状态 -->
+        <view class="loading-container" wx:if="{{loading}}">
+        <text class="loading-text">加载中...</text>
+        </view>
+    </scroll-view>
+
+    <!-- 购物车底部栏 - 始终显示 -->
+    <view class="cart-bar">
+        <view class="cart-info">
+        <view class="cart-icon-container">
+            <image class="cart-icon" src="/images/cart.png"></image>
+            <text class="total-quantity" wx:if="{{totalQuantity > 0}}">{{totalQuantity}}</text>
+        </view>
+        <view class="price-info">
+            <text class="total-price" wx:if="{{totalQuantity > 0}}">¥{{totalPrice.toFixed(2)}}</text>
+            <text class="total-price" wx:else>未选择商品</text>
+            <text class="delivery-fee">另需配送费¥{{restaurant ? restaurant.deliveryFee || 0 : 0}}</text>
+        </view>
+        </view>
+        <view class="checkout-btn {{totalQuantity === 0 ? 'disabled' : ''}}" bindtap="onCheckout">
+        {{totalQuantity === 0 ? '请选择商品' : '去结算'}}
+        </view>
+    </view>
+</view>
