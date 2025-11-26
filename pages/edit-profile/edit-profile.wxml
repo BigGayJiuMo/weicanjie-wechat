@@ -39,7 +39,7 @@
         </view>
 
         <!-- 手机号显示 -->
-        <view class="item">
+        <view class="item" bindtap="onPhoneTap">
             <view class="item-left">
                 <text class="item-label">手机号</text>
             </view>
@@ -55,7 +55,7 @@
             <view class="modal-header">
                 <text class="modal-title">修改昵称</text>
                 <view class="word-count-section">
-                    <text class="word-count {{isOverLength ? 'over-length' : ''}}">{{newNickname.length}}/7</text>
+                    <text class="word-count {{isOverLength ? 'over-length' : ''}}">{{newNickname.length}}/9</text>
                     <text class="over-length-tip" wx:if="{{isOverLength}}">字数超出</text>
                 </view>
             </view>
@@ -64,7 +64,7 @@
                     class="nickname-input" 
                     value="{{newNickname}}" 
                     placeholder="请输入昵称" 
-                    maxlength="10"
+                    maxlength="15"
                     bindinput="onNicknameModalInput"
                     focus="{{nicknameInputFocus}}"
                 />
@@ -72,6 +72,48 @@
             <view class="modal-footer">
                 <button class="cancel-btn" bindtap="cancelNickname">取消</button>
                 <button class="confirm-btn {{isOverLength ? 'disabled' : ''}}" bindtap="confirmNickname" disabled="{{isOverLength}}">确定</button>
+            </view>
+        </view>
+    </view>
+
+    <!-- 手机号修改弹窗 -->
+    <view wx:if="{{showPhoneModal}}" class="modal">
+        <view class="modal-content">
+            <view class="modal-header">
+                <text class="modal-title">更换手机号</text>
+            </view>
+            <view class="modal-body">
+                <!-- 手机号输入 -->
+                <view class="input-item">
+                    <input 
+                        class="phone-input" 
+                        value="{{newPhone}}" 
+                        placeholder="请输入新手机号" 
+                        maxlength="11"
+                        type="number"
+                        bindinput="onPhoneInput"
+                        focus="{{phoneInputFocus}}"
+                    />
+                </view>
+                
+                <!-- 验证码输入 -->
+                <view class="input-item verify-code-item">
+                    <input 
+                        class="verify-code-input" 
+                        value="{{verifyCode}}" 
+                        placeholder="请输入验证码" 
+                        maxlength="4"
+                        type="number"
+                        bindinput="onVerifyCodeInput"
+                    />
+                    <button class="get-code-btn {{!canGetCode ? 'disabled' : ''}}" bindtap="getVerifyCode" disabled="{{!canGetCode}}">
+                        {{countdown > 0 ? countdown + 's后重新获取' : '获取验证码'}}
+                    </button>
+                </view>
+            </view>
+            <view class="modal-footer">
+                <button class="cancel-btn" bindtap="cancelChangePhone">取消</button>
+                <button class="confirm-btn {{!canConfirmPhone ? 'disabled' : ''}}" bindtap="confirmChangePhone" disabled="{{!canConfirmPhone}}">确定</button>
             </view>
         </view>
     </view>

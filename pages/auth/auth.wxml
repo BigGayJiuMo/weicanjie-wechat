@@ -1,22 +1,51 @@
 <!--pages/auth/auth.wxml-->
-<view class="auth-container">
-  <view class="auth-card">
-    <image class="auth-logo" src="/images/logo.png"></image>
-    <text class="auth-title">微餐捷点餐</text>
-    <text class="auth-desc">请授权用户信息，享受便捷点餐服务</text>
-    
-    <!-- 用户信息授权按钮 -->
-    <button class="auth-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">
-      微信一键登录
-    </button>
-    
-    <!-- 游客模式按钮 -->
-    <button class="auth-btn guest-btn" bindtap="onGuestMode">
-      游客模式进入
-    </button>
-    
-    <text class="auth-tip">授权后即可开始点餐</text>
-  </view>
+<!-- 新增导航栏 -->
+<view class="navbar">
+    <view class="navbar-content">
+        <view class="nav-left">
+        <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+        </view>
+        <view class="nav-center">
+        <text class="nav-title">登录</text>
+        </view>
+        <view class="nav-right"></view>
+    </view>
+    </view>
+
+    <view class="auth-container">
+    <view class="auth-card">
+        <image class="auth-logo" src="/images/logo.png"></image>
+        <text class="auth-title">微餐捷点餐</text>
+        <text class="auth-desc">请授权用户信息，享受便捷点餐服务</text>
+        
+        <!-- 手机号一键登录 - 使用view实现 -->
+        <view class="auth-btn-container">
+        <view class="auth-btn">手机号一键登录</view>
+        <button class="auth-btn-transparent" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo"></button>
+        </view>
+        
+        <!-- 其他手机号登录按钮 -->
+        <view class="other-phone-btn" bindtap="onOtherPhoneLogin">
+        其他手机号登录
+        </view>
+        
+        <!-- 游客模式 -->
+        <view class="guest-link" bindtap="onGuestMode">
+        暂不登录
+        </view>
+        
+        <!-- 用户协议勾选 -->
+        <view class="agreement-section">
+        <view class="checkbox-container" bindtap="toggleAgreement">
+            <view class="checkbox {{agreementChecked ? 'checked' : ''}}">
+            <text class="checkmark" wx:if="{{agreementChecked}}">✓</text>
+            </view>
+            <text class="agreement-text">
+            我已阅读并同意 <text class="agreement-link" bindtap="onUserAgreementTap" data-type="user">用户服务协议</text> 、<text class="agreement-link" bindtap="onUserAgreementTap" data-type="privacy">隐私政策</text>
+            </text>
+        </view>
+        </view>
+    </view>
 </view>
 
 <!-- 手机号授权弹窗 -->
@@ -41,8 +70,68 @@
       </button>
     </view>
     
+    <!-- 新增：使用其他号码链接 -->
+    <view class="other-phone-link-section">
+      <view class="other-phone-link" bindtap="onSwitchToOtherPhone">
+        使用其他号码
+      </view>
+    </view>
+    
     <view class="modal-footer">
       <text class="footer-text">授权后，我们将使用该手机号为您提供服务</text>
+    </view>
+  </view>
+</view>
+
+<!-- 其他手机号登录弹窗 -->
+<view wx:if="{{showOtherPhoneModal}}" class="modal-mask">
+  <view class="modal-container other-phone-modal">
+    <view class="modal-header">
+      <text class="modal-title">其他手机号登录</text>
+      <text class="modal-subtitle">请输入手机号获取验证码</text>
+    </view>
+    
+    <view class="modal-body">
+      <!-- 手机号输入 -->
+      <view class="input-item">
+        <input 
+          class="phone-input" 
+          placeholder="请输入手机号" 
+          maxlength="11"
+          type="number"
+          value="{{otherPhoneNumber}}"
+          bindinput="onOtherPhoneInput"
+          focus="{{otherPhoneFocus}}"
+        />
+      </view>
+      
+      <!-- 验证码输入 -->
+      <view class="input-item verify-code-item">
+        <input 
+          class="verify-code-input" 
+          placeholder="请输入验证码" 
+          maxlength="4"
+          type="number"
+          value="{{otherVerifyCode}}"
+          bindinput="onOtherVerifyCodeInput"
+        />
+        <button class="get-code-btn {{!canGetOtherCode ? 'disabled' : ''}}" 
+                bindtap="getOtherVerifyCode" 
+                disabled="{{!canGetOtherCode}}">
+          {{otherCountdown > 0 ? otherCountdown + 's后重新获取' : '获取验证码'}}
+        </button>
+      </view>
+    </view>
+    
+    <view class="modal-buttons">
+      <button class="modal-btn cancel-btn" bindtap="onCancelOtherPhone">
+        取消
+      </button>
+      <button class="modal-btn confirm-btn {{!canConfirmOtherPhone ? 'disabled' : ''}}" 
+              bindtap="onConfirmOtherPhone" 
+              disabled="{{!canConfirmOtherPhone}}">
+        登录
+      </button>
     </view>
   </view>
 </view>

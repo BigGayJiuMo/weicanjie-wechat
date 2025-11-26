@@ -13,7 +13,19 @@ Page({
         nicknameInputFocus: false,
         isSavingAvatar: false,
         isSavingNickname: false,
-        isOverLength: false // 新增：是否超出长度限制
+        isOverLength: false, // 是否超出长度限制
+        
+        // 手机号修改相关
+        showPhoneModal: false,
+        newPhone: '',
+        verifyCode: '',
+        generatedCode: '', // 生成的验证码
+        countdown: 0, // 倒计时秒数
+        countdownTimer: null, // 倒计时计时器
+        canGetCode: true, // 是否可以获取验证码
+        phoneInputFocus: false,
+        isSavingPhone: false,
+        canConfirmPhone: false // 是否可以确认修改手机号
     },
 
     onLoad: function (options) {
@@ -161,9 +173,9 @@ Page({
     onNicknameModalInput: function(e) {
         const value = e.detail.value;
         const length = value.length;
-        const isOverLength = length > 7;
+        const isOverLength = length > 9;
         
-        // 不截断输入，允许输入到10个字符，但超过7个时显示警告
+        // 不截断输入，允许输入到15个字符，但超过9个时显示警告
         this.setData({
             newNickname: value,
             isOverLength: isOverLength
@@ -184,8 +196,8 @@ Page({
         }
         
         // 检查昵称长度是否超过7个字
-        if (nickname.length > 7) {
-            this.showToast('昵称不能超过7个字');
+        if (nickname.length > 9) {
+            this.showToast('昵称不能超过9个字');
             return;
         }
         
@@ -270,6 +282,211 @@ Page({
             nicknameInputFocus: false,
             isOverLength: false // 重置超出长度状态
         });
+    },
+
+    // 点击手机号
+    onPhoneTap: function() {
+        this.setData({
+            showPhoneModal: true,
+            newPhone: '',
+            verifyCode: '',
+            phoneInputFocus: true,
+            canGetCode: true,
+            canConfirmPhone: false
+        });
+    },
+
+    // 手机号输入
+    onPhoneInput: function(e) {
+        const value = e.detail.value;
+        this.setData({
+            newPhone: value,
+            canGetCode: value.length === 11 // 手机号格式正确才能获取验证码
+        });
+    },
+
+    // 验证码输入
+    onVerifyCodeInput: function(e) {
+        const value = e.detail.value;
+        this.setData({
+            verifyCode: value,
+            canConfirmPhone: value.length === 4 && this.data.newPhone.length === 11
+        });
+    },
+
+    // 获取验证码
+    getVerifyCode: function() {
+        if (!this.data.canGetCode || this.data.countdown > 0) {
+            return;
+        }
+
+        // 验证手机号格式
+        const phone = this.data.newPhone;
+        if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+            this.showToast('请输入正确的手机号');
+            return;
+        }
+
+        // 生成4位随机验证码
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+        
+        console.log('生成的验证码:', code); // 在控制台输出验证码，方便测试
+        
+        this.setData({
+            generatedCode: code,
+            canGetCode: false,
+            countdown: 60
+        });
+
+        // 开始倒计时
+        this.startCountdown();
+        
+        // 模拟发送验证码（实际项目中应该调用短信服务）
+        this.showToast('验证码已发送: ' + code);
+    },
+
+    // 开始倒计时
+    startCountdown: function() {
+        const timer = setInterval(() => {
+            if (this.data.countdown > 1) {
+                this.setData({
+                    countdown: this.data.countdown - 1
+                });
+            } else {
+                // 倒计时结束
+                clearInterval(timer);
+                this.setData({
+                    countdown: 0,
+                    canGetCode: true
+                });
+            }
+        }, 1000);
+        
+        this.setData({
+            countdownTimer: timer
+        });
+    },
+
+    // 确认修改手机号
+    confirmChangePhone: function() {
+        if (!this.data.canConfirmPhone || this.data.isSavingPhone) {
+            return;
+        }
+
+        const phone = this.data.newPhone.trim();
+        const verifyCode = this.data.verifyCode.trim();
+
+        // 验证手机号格式
+        if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+            this.showToast('请输入正确的手机号');
+            return;
+        }
+
+        // 验证验证码
+        if (verifyCode !== this.data.generatedCode) {
+            this.showToast('验证码错误');
+            return;
+        }
+
+        this.setData({
+            isSavingPhone: true
+        });
+
+        // 保存手机号到数据库
+        this.savePhoneToDatabase(phone);
+    },
+
+    // 保存手机号到数据库
+    savePhoneToDatabase: function(phone) {
+        const app = getApp();
+        const userInfo = this.data.userInfo;
+        
+        if (!userInfo || !userInfo.id) {
+            this.showToast('用户信息不完整');
+            this.setData({ 
+                isSavingPhone: false
+            });
+            return;
+        }
+
+        console.log('保存手机号到数据库:', {
+            userId: userInfo.id,
+            phone: phone
+        });
+        
+        wx.request({
+            url: app.globalData.baseUrl + '/user/bindPhone',
+            method: 'POST',
+            header: {
+                'content-type': 'application/json'
+            },
+            data: {
+                userId: userInfo.id,
+                phone: phone
+            },
+            success: (res) => {
+                this.setData({ 
+                    isSavingPhone: false,
+                    showPhoneModal: false
+                });
+                console.log('更新手机号响应:', res.data);
+                
+                if (res.data.code === 200) {
+                    // 更新本地存储和全局数据
+                    const updatedUserInfo = {...userInfo, phone: phone};
+                    wx.setStorageSync('userInfo', updatedUserInfo);
+                    app.globalData.userInfo = updatedUserInfo;
+                    
+                    // 更新页面显示
+                    const processedInfo = this.processUserInfo(updatedUserInfo);
+                    this.setData({
+                        userInfo: processedInfo,
+                        displayPhone: processedInfo.displayPhone
+                    });
+                    
+                    this.showToast('手机号更新成功');
+                    
+                    // 清除倒计时
+                    if (this.data.countdownTimer) {
+                        clearInterval(this.data.countdownTimer);
+                    }
+                } else {
+                    console.error('手机号更新失败:', res.data);
+                    this.showToast('手机号更新失败: ' + (res.data.message || '未知错误'));
+                }
+            },
+            fail: (err) => {
+                this.setData({ 
+                    isSavingPhone: false
+                });
+                console.error('更新手机号请求失败:', err);
+                this.showToast('网络错误，请重试');
+            }
+        });
+    },
+
+    // 取消修改手机号
+    cancelChangePhone: function() {
+        this.setData({
+            showPhoneModal: false,
+            phoneInputFocus: false
+        });
+        
+        // 清除倒计时
+        if (this.data.countdownTimer) {
+            clearInterval(this.data.countdownTimer);
+            this.setData({
+                countdown: 0,
+                canGetCode: true
+            });
+        }
+    },
+
+    // 页面卸载时清除计时器
+    onUnload: function() {
+        if (this.data.countdownTimer) {
+            clearInterval(this.data.countdownTimer);
+        }
     },
 
     // 显示提示
