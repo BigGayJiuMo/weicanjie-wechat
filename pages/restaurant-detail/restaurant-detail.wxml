@@ -96,7 +96,7 @@
                                     <text class="dish-price">¥{{item.price}}</text>
                                     <view class="controls-right">
                                         <view class="stock-info" wx:if="{{item.stock < 10 && item.stock > 0}}">
-                                            <text class="stock-text">仅剩{{item.stock}}份</text>
+                                            <text class="stock-text">仅剩{{item.stock - (cartItems[item.id] || 0)}}份</text>
                                         </view>
                                         <view class="sold-out" wx:if="{{item.stock <= 0}}">
                                             <text class="sold-out-text">已售罄</text>
@@ -123,7 +123,7 @@
     </scroll-view>
 
     <!-- 购物车底部栏 - 始终显示 -->
-    <view class="cart-bar">
+    <view class="cart-bar" bindtap="onCartBarTap">
         <view class="cart-info">
             <view class="cart-icon-container">
                 <image class="cart-icon" src="/images/cart.png"></image>
@@ -137,8 +137,139 @@
                 <text class="delivery-fee" wx:if="{{totalQuantity > 0}}">另需配送费¥{{restaurant ? restaurant.deliveryFee || 0 : 0}}</text>
             </view>
         </view>
-        <view class="checkout-btn {{totalQuantity === 0 ? 'disabled' : ''}}" bindtap="onCheckout">
+        <!-- 修改去结算按钮 -->
+        <view class="checkout-btn {{totalQuantity === 0 ? 'disabled' : ''}}" catchtap="onCheckout" hover-class="none">
             {{totalQuantity === 0 ? '请选择商品' : '去结算'}}
         </view>
     </view>
+    <!-- 购物车详情面板 -->
+    <view class="order-panel-mask {{showOrderPanel ? 'active' : ''}}" catchtap="hideOrderPanel">
+        <view class="order-panel {{showOrderPanel ? 'active' : ''}}" catchtap="stopPropagation">
+            <!-- 面板头部 -->
+            <view class="panel-header">
+                <text class="panel-title">已选商品</text>
+                <view class="clear-cart" bindtap="clearCart" wx:if="{{totalQuantity > 0}}">
+                    <text class="clear-text">清空</text>
+                </view>
+            </view>
+            
+            <!-- 购物车商品列表 -->
+            <scroll-view class="order-items-scroll" scroll-y="true">
+                <view class="order-items-list">
+                    <view class="order-dish-card" wx:for="{{orderItems}}" wx:key="id">
+                        <image class="order-dish-image" src="{{item.imageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
+                        <view class="order-dish-details">
+                            <view class="order-dish-header">
+                                <text class="order-dish-name">{{item.name}}</text>
+                                <text class="order-dish-price">¥{{item.price}}</text>
+                            </view>
+                            <view class="order-dish-controls">
+                                <view class="order-quantity-control">
+                                    <view class="order-quantity-btn minus" bindtap="onOrderDecreaseQuantity" data-dish="{{item}}">-</view>
+                                    <text class="order-quantity-text">{{item.quantity}}</text>
+                                    <view class="order-quantity-btn plus" bindtap="onOrderIncreaseQuantity" data-dish="{{item}}" wx:if="{{item.stock > item.quantity}}">+</view>
+                                    <view class="order-quantity-btn plus disabled" wx:else>+</view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </scroll-view>
+            
+            <!-- 购物车订单汇总 -->
+            <view class="order-summary" wx:if="{{totalQuantity > 0}}">
+                <view class="summary-row">
+                    <text class="summary-label">菜品小计</text>
+                    <text class="summary-value">¥{{formattedSubTotal}}</text>
+                </view>
+                <view class="summary-row">
+                    <text class="summary-label">配送费</text>
+                    <text class="summary-value">¥{{deliveryFee}}</text>
+                </view>
+                <view class="summary-row total">
+                    <text class="summary-label">合计</text>
+                    <text class="summary-value">¥{{formattedTotalPrice}}</text>
+                </view>
+            </view>
+        </view>
+    </view>
+<!-- 结算面板 -->
+<view class="checkout-panel-mask {{showCheckoutPanel ? 'active' : ''}}" catchtap="hideCheckoutPanel">
+    <view class="back-header">
+        <!-- 返回按钮 -->
+        <view class="checkout-back-btn" bindtap="hideCheckoutPanel">
+            <image class="back-icon1" src="/images/back4.png"></image>
+        </view>
+        <!-- 温馨提示 -->
+        <view class="checkout-tips">
+            <image class="tips-icon" src="/images/horn.png"></image>
+            <text class="tips-text">温馨提示：请适量点餐、避免浪费</text>
+        </view>
+    </view>
+    <view class="checkout-panel {{showCheckoutPanel ? 'active' : ''}}" catchtap="stopPropagation">
+        <!-- 面板头部 - 显示餐厅名称 -->
+        <view class="checkout-header">
+            <view class="checkout-restaurant-info">
+                <view class="checkout-restaurant-details">
+                    <text class="checkout-restaurant-name">{{restaurant.name}}</text>
+                    <text class="checkout-restaurant-status {{getStatusClass(restaurant.businessStatus)}}">
+                        {{getStatusText(restaurant.businessStatus)}}
+                    </text>
+                </view>
+            </view>
+        </view>
+        
+        <!-- 直接显示的内容区域 - 去除滚动 -->
+        <view class="checkout-content">
+            <!-- 订单商品列表 - 只显示，不能修改数量 -->
+            <view class="checkout-items-section">
+                <view class="checkout-items-list">
+                    <view class="checkout-dish-item" wx:for="{{checkoutItems}}" wx:key="id">
+                        <image class="checkout-dish-image" src="{{item.imageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
+                        <view class="checkout-dish-info">
+                            <view class="checkout-dish-main">
+                                <text class="checkout-dish-name">{{item.name}}</text>
+                                <text class="checkout-dish-price">¥{{item.price}}</text>
+                            </view>
+                            <view class="checkout-dish-quantity">
+                                <text class="quantity-label">✖</text>
+                                <text class="quantity-value">{{item.quantity}}</text>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            
+            <!-- 订单费用明细 -->
+            <view class="checkout-summary">
+                <view class="checkout-summary-title">
+                    <text class="summary-title">费用明细</text>
+                </view>
+                <view class="checkout-summary-row">
+                    <text class="summary-label">菜品小计</text>
+                    <text class="summary-value">¥{{formattedSubTotal}}</text>
+                </view>
+                <view class="checkout-summary-row">
+                    <text class="summary-label">配送费</text>
+                    <text class="summary-value">¥{{deliveryFee}}</text>
+                </view>
+                <view class="checkout-summary-row total">
+                    <text class="summary-label">合计</text>
+                    <text class="summary-value total-amount">¥{{formattedTotalPrice}}</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 提交订单底部栏 -->
+        <view class="checkout-footer">
+            <view class="checkout-total-section">
+                <text class="total-label">总计:</text>
+                <text class="total-price-large">¥{{formattedTotalPrice}}</text>
+            </view>
+            <view class="submit-order-btn {{totalQuantity === 0 ? 'disabled' : ''}}" bindtap="onSubmitOrder">
+                提交订单
+            </view>
+        </view>
+    </view>
+</view>
 </view>

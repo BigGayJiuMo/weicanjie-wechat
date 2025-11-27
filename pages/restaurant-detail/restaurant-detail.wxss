@@ -403,7 +403,7 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 5000;
 }
 
 .cart-info {
@@ -477,19 +477,22 @@
 
 /* 结算按钮 */
 .checkout-btn {
-  width: 200rpx;
-  background: #ff6b35;
-  color: white;
-  border: none;
-  border-radius: 50rpx;
-  padding: 24rpx 40rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
-  transition: all 0.3s ease;
-  text-align: center;
-  cursor: pointer;
-  user-select: none; /* 防止文字被选中 */
+    width: 200rpx;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 50rpx;
+    padding: 24rpx 40rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
+    transition: all 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    user-select: none; /* 防止文字被选中 */
+    margin: 0;
+    line-height: normal;
+    -webkit-tap-highlight-color: transparent; /* 去除点击高亮 */
 }
 
 /* 结算按钮禁用状态 */
@@ -501,8 +504,8 @@
 
 /* 按钮点击反馈 */
 .checkout-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
+    transform: scale(0.98);
+    box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
 }
 
 .checkout-btn.disabled:active {
@@ -521,4 +524,539 @@
 .loading-text {
   font-size: 28rpx;
   color: #999;
+}
+/* 购物车面板样式 */
+.order-panel-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 100rpx; /* 调整为购物车栏高度，让面板在购物车栏上方 */
+  background: rgba(0, 0, 0, 0);
+  z-index: 999;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.order-panel-mask.active {
+  background: rgba(0, 0, 0, 0.5);
+  visibility: visible;
+}
+
+.order-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 100rpx; /* 调整为购物车栏高度，让面板在购物车栏上方 */
+  background: white;
+  border-radius: 24rpx 24rpx 0 0;
+  z-index: 9999;
+  transition: all 0.3s ease;
+  height: 60vh; 
+  max-height: 60vh;/* 调整最大高度，避免超出屏幕 */
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%); /* 初始位置在屏幕外 */
+}
+
+.order-panel.active {
+  transform: translateY(0); /* 激活时回到正常位置 */
+}
+
+/* 面板头部 */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.panel-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.clear-cart {
+  padding: 12rpx 24rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+}
+
+.clear-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 购物车商品列表 */
+.order-items-scroll {
+  flex: 1;
+  max-height: 600rpx;
+}
+
+.order-items-list {
+  padding: 20rpx 30rpx;
+}
+
+/* 购物车菜品卡片 */
+.order-dish-card {
+  display: flex;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f8f9fa;
+}
+
+.order-dish-card:last-child {
+  border-bottom: none;
+}
+
+.order-dish-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.order-dish-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.order-dish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.order-dish-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.order-dish-price {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #ff4757;
+  flex-shrink: 0;
+}
+
+.order-dish-controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 订单数量控制器 */
+.order-quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.order-quantity-btn {
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 50%;
+  color: white;
+  border: none;
+  font-size: 32rpx;
+  font-weight: bold;
+  background: #ff6b35;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 53, 0.3);
+}
+
+.order-quantity-btn.minus {
+  background: #f8f9fa;
+  color: #666;
+  border: 1rpx solid #e0e0e0;
+  box-shadow: none;
+}
+
+.order-quantity-btn.disabled {
+  background: #cccccc;
+  color: #999999;
+  box-shadow: none;
+}
+
+.order-quantity-text {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  min-width: 40rpx;
+  text-align: center;
+}
+
+/* 购物车订单汇总 */
+.order-summary {
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-row.total {
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.summary-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.summary-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.summary-row.total .summary-label {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.summary-row.total .summary-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ff4757;
+}
+/* 结算面板样式 */
+.checkout-panel-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    z-index: 9999;
+    visibility: hidden;
+}
+
+.checkout-panel-mask.active {
+    background: rgba(0, 0, 0, 0.5);
+    visibility: visible;
+}
+
+.checkout-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    border-radius: 24rpx 24rpx 0 0;
+    z-index: 10000;
+    transition: all 0.2s ease;
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+}
+
+.checkout-panel.active {
+    opacity: 1;
+}
+
+/* 结算面板头部 */
+.back-header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10vh;
+    max-height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx 30rpx;
+    z-index: 9999;
+    /* background: transparent; */
+}
+.back-icon1{
+    width: 36rpx;
+    height: 36rpx;
+}
+
+/* 温馨提示 */
+.checkout-tips {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30rpx;
+    padding: 16rpx 24rpx;
+    margin: 0 20rpx;
+    margin-right: 20%;
+}
+
+.tips-icon {
+    width: 28rpx;
+    height: 28rpx;
+    margin-right: 12rpx;
+}
+
+.tips-text {
+    font-size: 24rpx;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.checkout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx 30rpx;
+    border-bottom: 1rpx solid #f0f0f0;
+    background: white;
+    flex-shrink: 0;
+    border-radius: 24rpx 24rpx 0 0;
+}
+
+.checkout-restaurant-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.checkout-restaurant-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.checkout-restaurant-name {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8rpx;
+}
+
+.checkout-restaurant-status {
+    font-size: 22rpx;
+    padding: 4rpx 12rpx;
+    border-radius: 12rpx;
+    align-self: flex-start;
+}
+
+/* 结算内容区域 - 去除滚动 */
+.checkout-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 结算商品列表区域 */
+.checkout-items-section {
+    flex: 1;
+    padding: 20rpx 30rpx;
+    overflow: hidden;
+}
+
+.checkout-items-list {
+    max-height: 400rpx;
+    overflow-y: auto;
+}
+
+.checkout-dish-item {
+    display: flex;
+    padding: 24rpx 0;
+    border-bottom: 1rpx solid #f8f9fa;
+}
+
+.checkout-dish-item:last-child {
+    border-bottom: none;
+}
+
+.checkout-dish-image {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 12rpx;
+    margin-right: 20rpx;
+    flex-shrink: 0;
+}
+
+.checkout-dish-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.checkout-dish-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16rpx;
+}
+
+.checkout-dish-name {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    margin-right: 20rpx;
+}
+
+.checkout-dish-price {
+    font-size: 28rpx;
+    font-weight: bold;
+    color: #ff4757;
+    flex-shrink: 0;
+}
+
+.checkout-dish-quantity {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-label {
+    font-size: 26rpx;
+    color: #666;
+}
+
+.quantity-value {
+    font-size: 28rpx;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 结算费用明细 */
+.checkout-summary {
+    padding: 30rpx;
+    border-top: 1rpx solid #f0f0f0;
+    border-bottom: 1rpx solid #f0f0f0;
+    background: #fafafa;
+    margin-bottom: 20rpx;
+}
+
+.checkout-summary-title {
+    margin-bottom: 20rpx;
+}
+
+.summary-title {
+    font-size: 28rpx;
+    font-weight: bold;
+    color: #333;
+}
+
+.checkout-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16rpx;
+}
+
+.checkout-summary-row:last-child {
+    margin-bottom: 0;
+}
+
+.checkout-summary-row.total {
+    padding-top: 16rpx;
+    border-top: 1rpx solid #e0e0e0;
+}
+
+.checkout-summary-row.total .summary-label {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #333;
+}
+
+.checkout-summary-row.total .summary-value {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #ff4757;
+}
+
+.total-amount {
+    font-size: 32rpx;
+    font-weight: bold;
+}
+
+/* 结算底部栏 */
+.checkout-footer {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 20rpx 30rpx;
+    border-top: 1rpx solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.checkout-total-section {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+}
+
+.total-label {
+    font-size: 28rpx;
+    color: #666;
+}
+
+.total-price-large {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #ff4757;
+}
+
+/* 提交订单按钮 */
+.submit-order-btn {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 50rpx;
+    padding: 24rpx 48rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
+    transition: all 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    min-width: 200rpx;
+    margin: 0;
+    line-height: normal;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.submit-order-btn.disabled {
+    background: #cccccc;
+    color: #999999;
+    box-shadow: none;
+}
+
+.submit-order-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
+}
+
+.submit-order-btn.disabled:active {
+    transform: none;
+    box-shadow: none;
 }

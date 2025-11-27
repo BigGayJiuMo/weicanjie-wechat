@@ -273,7 +273,7 @@ Page({
       content: `您将使用手机号 ${phone} 登录微餐捷`,
       confirmText: '确认登录',
       cancelText: '取消',
-      confirmColor: '#07c160',
+      confirmColor: '#ff6b35',
       success: (res) => {
         if (res.confirm) {
           // 用户确认登录，开始登录流程
