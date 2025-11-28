@@ -5,6 +5,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    height: 100vh; /* 添加固定高度 */
 }
 
 /* 导航栏样式 */
@@ -46,11 +47,13 @@
     color: #333;
 }
 
-/* 页面滚动区域 */
+/* 页面滚动区域 - 修复高度问题 */
 .page-scroll {
     flex: 1;
-    padding: 20rpx;
-    padding-bottom: 160rpx;
+    height: calc(100vh - 200rpx); /* 计算可用高度 */
+    padding-bottom: 120rpx;
+    box-sizing: border-box; /* 确保padding包含在高度内 */
+    overflow-y: auto; /* 确保可以滚动 */
 }
 
 /* 卡片样式 */
@@ -60,8 +63,9 @@
 .payment-method-card {
     background: white;
     border-radius: 20rpx;
-    margin-bottom: 20rpx;
+    margin: 20rpx; /* 修改为上下边距 */
     padding: 30rpx;
+    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
@@ -92,6 +96,8 @@
 }
 
 .order-status {
+    height: 70rpx;
+    line-height: 25rpx;
     font-size: 24rpx;
     padding: 8rpx 16rpx;
     border-radius: 20rpx;
@@ -140,6 +146,12 @@
 .product-item {
     display: flex;
     align-items: center;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #f5f5f5;
+}
+
+.product-item:last-child {
+    border-bottom: none;
 }
 
 .product-image {
@@ -221,7 +233,7 @@
 .method-item {
     display: flex;
     align-items: center;
-    padding: 20rpx 0;
+    padding: 20rpx;
     border-bottom: 1rpx solid #f0f0f0;
 }
 
@@ -263,6 +275,7 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
 
 .payment-info {
@@ -295,11 +308,16 @@
     text-align: center;
     cursor: pointer;
     user-select: none;
+    transition: all 0.3s ease;
 }
 
 .cancel-btn {
     background: #f0f0f0;
     color: #666;
+}
+
+.cancel-btn:active {
+    background: #e0e0e0;
 }
 
 .pay-btn {
@@ -308,6 +326,21 @@
     box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
 }
 
+.pay-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
+}
+/* 禁用状态的支付按钮样式 */
+.pay-btn.disabled {
+    background: #cccccc !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+}
+
+.pay-btn.disabled:active {
+    transform: none !important;
+    box-shadow: none !important;
+}
 /* 弹窗样式 */
 .modal-mask {
     position: fixed;
@@ -324,6 +357,7 @@
 }
 
 .modal-container {
+    padding: 0 20rpx 20rpx 20rpx;
     background: white;
     border-radius: 20rpx;
     width: 100%;
@@ -375,6 +409,7 @@
     font-size: 28rpx;
     text-align: center;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .modal-btn.primary {
@@ -382,9 +417,17 @@
     color: white;
 }
 
+.modal-btn.primary:active {
+    background: #e55a2b;
+}
+
 .modal-btn.secondary {
     background: #f0f0f0;
     color: #666;
+}
+
+.modal-btn.secondary:active {
+    background: #e0e0e0;
 }
 
 .modal-btn.cancel {
@@ -392,9 +435,17 @@
     color: #666;
 }
 
+.modal-btn.cancel:active {
+    background: #e0e0e0;
+}
+
 .modal-btn.confirm {
     background: #ff6b35;
     color: white;
+}
+
+.modal-btn.confirm:active {
+    background: #e55a2b;
 }
 
 .modal-header {
@@ -407,4 +458,9 @@
     font-weight: bold;
     color: #333;
     margin: 0;
+}
+
+/* 确保内容足够长时可以滚动 */
+.page-content {
+    min-height: 800rpx; /* 确保有足够的内容高度 */
 }

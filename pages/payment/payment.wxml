@@ -29,10 +29,6 @@
                     <text class="detail-value">{{order.orderNumber}}</text>
                 </view>
                 <view class="detail-item">
-                    <text class="detail-label">下单时间</text>
-                    <text class="detail-value">{{formatTime(order.createdTime)}}</text>
-                </view>
-                <view class="detail-item">
                     <text class="detail-label">餐厅名称</text>
                     <text class="detail-value">{{restaurant.name}}</text>
                 </view>
@@ -46,10 +42,10 @@
             </view>
             <view class="products-list">
                 <view class="product-item" wx:for="{{orderItems}}" wx:key="id">
-                    <image class="product-image" src="{{item.dishImageUrl || '/images/default-dish.png'}}"></image>
+                    <image class="product-image" src="{{item.dishImageUrl || item.imageUrl || '/images/default-dish.png'}}"></image>
                     <view class="product-info">
-                        <text class="product-name">{{item.dishName}}</text>
-                        <text class="product-price">¥{{item.dishPrice}}</text>
+                        <text class="product-name">{{item.dishName || item.name}}</text>
+                        <text class="product-price">¥{{item.dishPrice || item.price}}</text>
                     </view>
                     <view class="product-quantity">
                         <text class="quantity">×{{item.quantity}}</text>
@@ -57,7 +53,6 @@
                 </view>
             </view>
         </view>
-
         <!-- 金额明细 -->
         <view class="amount-card">
             <view class="card-header">
@@ -102,26 +97,9 @@
         </view>
         <view class="payment-buttons">
             <view class="cancel-btn" bindtap="onCancelPayment">取消支付</view>
-            <view class="pay-btn" bindtap="onConfirmPayment">立即支付</view>
-        </view>
-    </view>
-
-    <!-- 支付成功弹窗 -->
-    <view wx:if="{{showSuccessModal}}" class="modal-mask" catchtap="hideSuccessModal">
-        <view class="modal-container success-modal" catchtap="stopPropagation">
-            <view class="modal-icon">
-                <image src="/images/success.png"></image>
-            </view>
-            <view class="modal-title">支付成功</view>
-            <view class="modal-content">
-                <text>订单号：{{order.orderNumber}}</text>
-                <text>支付金额：¥{{totalAmount}}</text>
-                <!-- 使用预先生成的支付时间 -->
-                <text>支付时间：{{paymentTime}}</text>
-            </view>
-            <view class="modal-buttons">
-                <view class="modal-btn primary" bindtap="onViewOrder">查看订单</view>
-                <view class="modal-btn secondary" bindtap="onBackToHome">返回首页</view>
+            <!-- 修复：直接绑定事件，在JS中处理重复点击 -->
+            <view class="pay-btn {{isPaying ? 'disabled' : ''}}" bindtap="onConfirmPayment">
+                {{isPaying ? '支付中...' : '立即支付'}}
             </view>
         </view>
     </view>
