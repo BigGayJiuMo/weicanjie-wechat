@@ -44,6 +44,10 @@
             <text class="meta-label">配送</text>
             <text class="meta-value">¥{{restaurant.deliveryFee || 0}}</text>
             </view>
+            <view class="meta-item">
+            <text class="meta-label">打包</text>
+            <text class="meta-value">¥{{restaurant.packingFee || 0}}</text>
+            </view>
         </view>
 
         <view class="restaurant-desc">
@@ -90,17 +94,17 @@
                             <view class="dish-details">
                                 <view class="dish-header">
                                     <text class="dish-name">{{item.name}}</text>
+                                    <view class="stock-info" wx:if="{{item.stock < 10 && item.stock > 0}}">
+                                        <text class="stock-text">仅剩{{item.stock - (cartItems[item.id] || 0)}}份</text>
+                                    </view>
+                                    <view class="sold-out" wx:if="{{item.stock <= 0}}">
+                                        <text class="sold-out-text">已售罄</text>
+                                    </view>
                                 </view>
                                 <text class="dish-description">{{item.description || '美味可口'}}</text>
                                 <view class="dish-controls">
-                                    <text class="dish-price">¥{{item.price}}</text>
+                                    <text class="dish-price">¥{{item.formattedPrice}}</text>
                                     <view class="controls-right">
-                                        <view class="stock-info" wx:if="{{item.stock < 10 && item.stock > 0}}">
-                                            <text class="stock-text">仅剩{{item.stock - (cartItems[item.id] || 0)}}份</text>
-                                        </view>
-                                        <view class="sold-out" wx:if="{{item.stock <= 0}}">
-                                            <text class="sold-out-text">已售罄</text>
-                                        </view>
                                         <view class="quantity-control" wx:if="{{item.stock > 0}}">
                                             <view class="quantity-btn minus" wx:if="{{cartItems[item.id] > 0}}" bindtap="onDecreaseQuantity" data-dish="{{item}}">-</view>
                                             <text class="quantity-text" wx:if="{{cartItems[item.id] > 0}}">{{cartItems[item.id]}}</text>
@@ -161,9 +165,10 @@
                         <view class="order-dish-details">
                             <view class="order-dish-header">
                                 <text class="order-dish-name">{{item.name}}</text>
-                                <text class="order-dish-price">¥{{item.price}}</text>
+                                <text class="order-dish-price">¥{{item.formattedPrice}}</text>
                             </view>
                             <view class="order-dish-controls">
+                                <view class="item-total-price">¥{{item.subtotal}}</view>
                                 <view class="order-quantity-control">
                                     <view class="order-quantity-btn minus" bindtap="onOrderDecreaseQuantity" data-dish="{{item}}">-</view>
                                     <text class="order-quantity-text">{{item.quantity}}</text>
@@ -185,6 +190,10 @@
                 <view class="summary-row">
                     <text class="summary-label">配送费</text>
                     <text class="summary-value">¥{{deliveryFee}}</text>
+                </view>
+                <view class="summary-row">
+                <text class="summary-label">打包费</text>
+                <text class="summary-value">¥{{packingFee}}</text>
                 </view>
                 <view class="summary-row total">
                     <text class="summary-label">合计</text>
@@ -229,9 +238,10 @@
                         <view class="checkout-dish-info">
                             <view class="checkout-dish-main">
                                 <text class="checkout-dish-name">{{item.name}}</text>
-                                <text class="checkout-dish-price">¥{{item.price}}</text>
+                                <text class="checkout-dish-price">¥{{item.subtotal}}</text>
                             </view>
                             <view class="checkout-dish-quantity">
+                                <!-- <view class="item-total-price">¥{{item.subtotal}}</view> -->
                                 <text class="quantity-label">✖</text>
                                 <text class="quantity-value">{{item.quantity}}</text>
                             </view>
@@ -252,6 +262,10 @@
                 <view class="checkout-summary-row">
                     <text class="summary-label">配送费</text>
                     <text class="summary-value">¥{{deliveryFee}}</text>
+                </view>
+                <view class="checkout-summary-row">
+                <text class="summary-label">打包费</text>
+                <text class="summary-value">¥{{packingFee}}</text>
                 </view>
                 <view class="checkout-summary-row total">
                     <text class="summary-label">合计</text>

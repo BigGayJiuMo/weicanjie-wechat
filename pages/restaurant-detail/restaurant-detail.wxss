@@ -259,8 +259,8 @@
 }
 
 .dish-image {
-  width: 150rpx;
-  height: 150rpx;
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 16rpx;
   margin-right: 30rpx;
   flex-shrink: 0;
@@ -278,14 +278,19 @@
 
 /* 菜名单独一行 */
 .dish-header {
-  margin-bottom: 8rpx;
+    display: flex; /* 启用 Flexbox */
+    align-items: center; /* 垂直居中对齐 */
+    flex-wrap: wrap; /* 允许换行，以防内容过长 */
+    margin-bottom: 8rpx;
 }
 
 .dish-name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.4;
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    flex-grow: 1; /* 占据剩余空间 */
+    margin-right: 10rpx; /* 与右边元素保持一点距离 */
 }
 
 .dish-description {
@@ -325,16 +330,18 @@
 
 /* 库存不足提示 */
 .stock-info {
-  font-size: 24rpx;
-  color: #ff6b35;
-  font-weight: 500;
+    font-size: 22rpx; /* 可以稍微调小字体以适应 */
+    color: #ff6b35;
+    font-weight: 500;
+    white-space: nowrap; /* 防止内部文字换行 */
 }
 
 /* 已售罄提示 */
 .sold-out {
-  font-size: 24rpx;
-  color: #999;
-  font-weight: 500;
+    font-size: 22rpx; /* 同样调小字体 */
+    color: #999;
+    font-weight: 500;
+    white-space: nowrap; /* 防止内部文字换行 */
 }
 
 /* 数量控制器（优化后样式） */
@@ -462,7 +469,7 @@
 .total-price {
   font-size: 36rpx;
   font-weight: bold;
-  color: #333;
+  color: #ff4757;
 }
 
 .no-items {
@@ -626,18 +633,18 @@
 }
 
 .order-dish-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16rpx;
 }
 
 .order-dish-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #333;
-  flex: 1;
-  margin-right: 20rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    margin-right: 20rpx;
 }
 
 .order-dish-price {
@@ -649,14 +656,23 @@
 
 .order-dish-controls {
   display: flex;
+  justify-content: space-between; 
   justify-content: flex-end;
 }
 
 /* 订单数量控制器 */
 .order-quantity-control {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    justify-content: flex-end; /* 数量控制器靠右 */
+}
+
+.item-total-price {
+    font-size: 28rpx;
+    font-weight: bold;
+    color: #ff4757;
+    margin-right: auto;
 }
 
 .order-quantity-btn {
@@ -926,6 +942,8 @@
 .checkout-dish-quantity {
     display: flex;
     align-items: center;
+    justify-content: flex-end; /* 数量信息靠右 */
+    gap: 8rpx; /* 添加间距 */
 }
 
 .quantity-label {
