@@ -1,2 +1,92 @@
-<!--pages/cart/cart.wxml-->
-<text>pages/cart/cart.wxml</text>
+<!-- pages/cart/cart.wxml -->
+<view class="container">
+    <!-- 顶部导航栏 -->
+    <view class="navbar">
+        <view class="navbar-content">
+            <view class="nav-left">
+                <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+            </view>
+            <view class="nav-center">
+                <text class="nav-title">购物车</text>
+            </view>
+            <view class="nav-right"></view>
+        </view>
+    </view>
+
+    <!-- 购物车内容区域 -->
+    <scroll-view class="cart-scroll" scroll-y="true" wx:if="{{cartData && cartData.length > 0}}">
+        <!-- 按餐厅分组的购物车商品 -->
+        <view class="restaurant-cart-section" wx:for="{{cartData}}" wx:key="restaurantId">
+            <!-- 餐厅头部 -->
+            <view class="restaurant-header">
+                <view class="restaurant-selector">
+                    <view class="checkbox {{item.selected ? 'checked' : ''}}" bindtap="toggleRestaurantSelection" data-restaurant="{{item}}">
+                        <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>
+                    </view>
+                </view>
+                <text class="restaurant-name">{{item.restaurantName}}</text>
+                <view class="delete-restaurant" bindtap="deleteRestaurantCart" data-restaurant="{{item}}">
+                    <image class="delete-icon" src="/images/delete.png"></image>
+                </view>
+            </view>
+
+            <!-- 该餐厅的商品列表 -->
+            <view class="cart-items">
+                <view class="cart-item" wx:for="{{item.items}}" wx:key="id">
+                    <view class="item-selector">
+                        <view class="checkbox {{item.selected ? 'checked' : ''}}" bindtap="toggleItemSelection" data-item="{{item}}" data-restaurant="{{item.restaurantId}}">
+                            <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>
+                        </view>
+                    </view>
+                    <image class="item-image" src="{{item.dishImageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
+                    <view class="item-details">
+                        <view class="item-header">
+                            <text class="item-name">{{item.dishName || item.name}}</text>
+                            <text class="item-price">¥{{item.dishPrice || item.price}}</text>
+                        </view>
+                        <view class="item-controls">
+                            <view class="item-total-price">
+                                ¥{{item.totalPrice || '0.00'}}
+                            </view>
+                            <view class="quantity-control">
+                                <view class="quantity-btn minus" bindtap="decreaseQuantity" data-item="{{item}}">-</view>
+                                <text class="quantity-text">{{item.quantity}}</text>
+                                <view class="quantity-btn plus" bindtap="increaseQuantity" data-item="{{item}}">+</view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </scroll-view>
+
+    <!-- 空购物车状态 -->
+    <view class="empty-cart" wx:if="{{!cartData || cartData.length === 0}}">
+        <image class="empty-icon" src="/images/cart.png"></image>
+        <text class="empty-text">购物车是空的</text>
+        <view class="browse-btn" bindtap="goToRestaurants">
+            <text class="browse-text">去逛逛</text>
+        </view>
+    </view>
+
+    <!-- 底部结算栏 -->
+    <view class="checkout-bar" wx:if="{{cartData && cartData.length > 0}}">
+        <view class="checkout-left">
+            <view class="all-selector">
+                <view class="checkbox {{allSelected ? 'checked' : ''}}" bindtap="toggleAllSelection">
+                    <view class="checkbox-inner {{allSelected ? 'checked' : ''}}"></view>
+                </view>
+                <text class="all-select-text">全选</text>
+            </view>
+        </view>
+        <view class="checkout-right">
+            <view class="total-price-section">
+                <text class="total-label">合计:</text>
+                <text class="total-price">¥{{totalPrice}}</text>
+            </view>
+            <view class="checkout-btn {{totalPrice === '0.00' ? 'disabled' : ''}}" bindtap="onCheckout">
+                一键结算({{selectedCount}})
+            </view>
+        </view>
+    </view>
+</view>

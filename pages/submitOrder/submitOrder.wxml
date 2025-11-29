@@ -1,0 +1,102 @@
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left" bindtap="onBack">
+      <image class="back-icon" src="/images/back.png"></image>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">提交订单</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<!-- 中间：可滚动订单内容 -->
+<scroll-view scroll-y="true" class="scroll-area">
+
+  <!-- 多餐厅循环 -->
+  <view class="restaurant-card" wx:for="{{orderList}}" wx:key="restaurantId">
+
+    <!-- 餐厅标题 -->
+    <view class="restaurant-header">
+      <text class="restaurant-title">{{item.restaurantName}}</text>
+    </view>
+
+    <!-- 菜品列表 -->
+    <view class="cart-items">
+      <view class="cart-item" 
+            wx:for="{{item.items}}" 
+            wx:key="id" 
+            wx:for-item="dish">
+
+        <image class="item-image" 
+               src="{{dish.dishImageUrl || dish.imageUrl || '/images/default-dish.png'}}" 
+               mode="aspectFill"></image>
+
+        <view class="item-details">
+
+          <!-- 左：菜名 + 单价 -->
+          <view class="item-header">
+            <text class="item-name">{{dish.dishName || dish.name}}</text>
+            <text class="item-price">¥{{dish.dishPrice || dish.price}}</text>
+          </view>
+
+          <!-- 右：数量 + 小计 -->
+          <view class="item-controls">
+            <view class="item-total-price">
+              ¥{{dish.totalPrice}}
+            </view>
+            <view class="item-total-price">
+              ×{{dish.quantity}}
+            </view>
+          </view>
+
+        </view>
+
+      </view>
+    </view>
+
+    <!-- 金额明细 -->
+    <view class="amount-info">
+      <view class="amount-line">
+        <text>打包费</text>
+        <text>¥{{item.packingFee}}</text>
+      </view>
+      <view class="amount-line">
+        <text>配送费</text>
+        <text>¥{{item.deliveryFee}}</text>
+      </view>
+      <view class="amount-line">
+        <text>优惠</text>
+        <text class="discount">-¥{{item.discount}}</text>
+      </view>
+
+      <!-- 小计 -->
+      <view class="total-line">
+        <text>小计</text>
+        <text class="total-num">¥{{item.subTotal}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 底部空白占位 -->
+  <view style="height: 160rpx"></view>
+
+</scroll-view>
+
+<!-- 底部栏 -->
+<view class="bottom-bar">
+  <view class="bottom-left">
+    <text class="order-count">共 {{orderCount}} 单</text>
+    <text class="total-amount">¥{{totalAmount}}</text>
+  </view>
+
+  <view class="submit-btn" bindtap="submitOrder">
+    提交订单
+  </view>
+</view>
+
+</view>

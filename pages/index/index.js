@@ -49,10 +49,8 @@ Page({
         } else {
           console.error('获取餐厅列表失败:', res.data.message);
           this.setData({ loading: false });
-          wx.showToast({
-            title: '加载失败',
-            icon: 'none'
-          });
+          // 如果后端失败，使用模拟数据
+          this.loadMockData();
         }
       },
       fail: (err) => {
@@ -61,6 +59,62 @@ Page({
         // 开发环境使用模拟数据
         this.loadMockData();
       }
+    });
+  },
+
+  // 加载模拟数据
+  loadMockData: function() {
+    const mockRestaurants = [
+      {
+        id: 1,
+        name: '美味餐厅',
+        description: '用心做好每一道菜，给您家的感觉',
+        logoUrl: '/images/restaurant1.jpg',
+        avgRating: 4.8,
+        monthlySales: 1560,
+        minOrderAmount: 20.00,
+        deliveryFee: 3.00,
+        deliveryTime: '30-45分钟',
+        businessStatus: 1,
+        address: '北京市朝阳区光华路1号'
+      },
+      {
+        id: 2,
+        name: '鲜味小馆',
+        description: '新鲜食材，健康烹饪',
+        logoUrl: '/images/restaurant2.jpg',
+        avgRating: 4.6,
+        monthlySales: 980,
+        minOrderAmount: 25.00,
+        deliveryFee: 4.00,
+        deliveryTime: '35-50分钟',
+        businessStatus: 1,
+        address: '上海市浦东新区张江高科技园区'
+      },
+      {
+        id: 3,
+        name: '川湘菜馆',
+        description: '正宗川湘风味，辣得过瘾',
+        logoUrl: '/images/restaurant3.jpg',
+        avgRating: 4.9,
+        monthlySales: 2100,
+        minOrderAmount: 15.00,
+        deliveryFee: 5.00,
+        deliveryTime: '25-40分钟',
+        businessStatus: 1,
+        address: '广州市天河区天河路385号'
+      }
+    ];
+
+    this.setData({
+      restaurants: mockRestaurants,
+      loading: false
+    });
+    
+    wx.showToast({
+      title: '使用模拟数据',
+      icon: 'none',
+      duration: 2000
     });
   },
 
@@ -131,15 +185,12 @@ Page({
 
     const app = getApp();
     wx.request({
-      url: app.globalData.baseUrl + '/search/restaurants',
+      url: app.globalData.baseUrl + '/restaurant/all',
       method: 'GET',
-      data: {
-        keyword: keyword
-      },
       success: (res) => {
         wx.hideLoading();
         if (res.data.code === 200) {
-          this.handleSearchResults(res.data.data);
+          this.handleSearchResults(res.data.data, keyword);
         } else {
           wx.showToast({
             title: '搜索失败: ' + (res.data.message || '未知错误'),
@@ -156,26 +207,10 @@ Page({
   },
 
   // 处理搜索结果
-  handleSearchResults: function(results) {
-    if (results && results.length > 0) {
-      // 显示搜索结果
-      this.setData({
-        restaurants: results
-      });
-    } else {
-      wx.showToast({
-        title: '未找到相关餐厅',
-        icon: 'none'
-      });
-    }
-  },
-
-  // 开发环境模拟搜索结果
-  mockSearchResults: function(keyword) {
-    // 模拟过滤餐厅
-    const filteredRestaurants = this.data.restaurants.filter(restaurant => 
+  handleSearchResults: function(restaurants, keyword) {
+    const filteredRestaurants = restaurants.filter(restaurant => 
       restaurant.name.includes(keyword) || 
-      restaurant.description.includes(keyword)
+      (restaurant.description && restaurant.description.includes(keyword))
     );
 
     if (filteredRestaurants.length > 0) {
@@ -194,23 +229,26 @@ Page({
     }
   },
 
-  // 游客模式下点击需要登录的功能
-  onNeedLogin: function() {
-    const app = getApp();
-    if (app.globalData.isGuest) {
-      wx.showModal({
-        title: '登录提示',
-        content: `此功能需要登录后才能使用，是否立即登录？`,
-        confirmText: '去登录',
-        cancelText: '稍后再说',
-        confirmColor: '#ff6b35',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '/pages/auth/auth'
-            });
-          }
-        }
+  // 开发环境模拟搜索结果
+  mockSearchResults: function(keyword) {
+    // 模拟过滤餐厅
+    const filteredRestaurants = this.data.restaurants.filter(restaurant => 
+      restaurant.name.includes(keyword) || 
+      (restaurant.description && restaurant.description.includes(keyword))
+    );
+
+    if (filteredRestaurants.length > 0) {
+      this.setData({
+        restaurants: filteredRestaurants
+      });
+      wx.showToast({
+        title: `找到${filteredRestaurants.length}家餐厅`,
+        icon: 'success'
+      });
+    } else {
+      wx.showToast({
+        title: '未找到相关餐厅',
+        icon: 'none'
       });
     }
   }

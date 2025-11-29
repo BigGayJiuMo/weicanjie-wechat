@@ -11,6 +11,7 @@ Page({
       totalPrice: 0,
       subTotal: 0,
       deliveryFee: 0,
+      packingFee: 0,
       categoryPositions: [],
       scrollTimer: null, 
       dishesScrollTop: 0, 
@@ -116,47 +117,58 @@ Page({
   
     // 加载餐厅详情
     loadRestaurantDetail: function (id) {
-      const app = getApp();
-      this.setData({ loading: true });
-      
-      wx.request({
-        url: app.globalData.baseUrl + '/restaurant/' + id,
-        method: 'GET',
-        success: (res) => {
-          console.log('餐厅详情响应:', res.data);
-          if (res.data.code === 200) {
-            const restaurant = res.data.data;
-            const categories = restaurant.categories || [];
-            const activeCategoryId = categories.length > 0 ? categories[0].id : null;
-            
-            this.setData({
-              restaurant: restaurant,
-              categories: categories,
-              activeCategoryId: activeCategoryId,
-              loading: false
-            }, () => {
-              // 数据加载完成后，计算分类位置
-              setTimeout(() => {
-                this.calculateCategoryPositions();
-              }, 300);
-            });
-          } else {
-            console.error('获取餐厅详情失败:', res.data.message);
+        const app = getApp();
+        this.setData({ loading: true });
+        
+        wx.request({
+          url: app.globalData.baseUrl + '/restaurant/' + id,
+          method: 'GET',
+          success: (res) => {
+            console.log('餐厅详情响应:', res.data);
+            if (res.data.code === 200) {
+              const restaurant = res.data.data;
+              const categories = restaurant.categories || [];
+              
+              // 处理菜品价格格式，确保显示两位小数
+              categories.forEach(category => {
+                if (category.dishes && category.dishes.length > 0) {
+                  category.dishes.forEach(dish => {
+                    // 确保价格是数字类型，然后格式化为两位小数
+                    dish.formattedPrice = Number(dish.price).toFixed(2);
+                  });
+                }
+              });
+              
+              const activeCategoryId = categories.length > 0 ? categories[0].id : null;
+              
+              this.setData({
+                restaurant: restaurant,
+                categories: categories,
+                activeCategoryId: activeCategoryId,
+                loading: false
+              }, () => {
+                // 数据加载完成后，计算分类位置
+                setTimeout(() => {
+                  this.calculateCategoryPositions();
+                }, 300);
+              });
+            } else {
+              console.error('获取餐厅详情失败:', res.data.message);
+              this.setData({ loading: false });
+              wx.showToast({
+                title: '加载失败',
+                icon: 'none'
+              });
+            }
+          },
+          fail: (err) => {
+            console.error('请求餐厅详情失败:', err);
             this.setData({ loading: false });
-            wx.showToast({
-              title: '加载失败',
-              icon: 'none'
-            });
+            // 开发环境使用模拟数据
+            this.loadMockData(id);
           }
-        },
-        fail: (err) => {
-          console.error('请求餐厅详情失败:', err);
-          this.setData({ loading: false });
-          // 开发环境使用模拟数据
-          this.loadMockData(id);
-        }
-      });
-    },
+        });
+      },
   
     // 计算每个分类的位置信息
     calculateCategoryPositions: function() {
@@ -374,27 +386,53 @@ Page({
     
     // 生成购物车商品列表
     generateOrderItems: function() {
-      const { cartItems, categories } = this.data;
-      const orderItems = [];
-      
-      // 遍历购物车中的商品
-      Object.keys(cartItems).forEach(dishId => {
-        const quantity = cartItems[dishId];
-        const dish = this.findDishById(dishId);
-        
-        if (dish && quantity > 0) {
-          orderItems.push({
-            id: dish.id,
-            name: dish.name,
-            price: dish.price,
-            imageUrl: dish.imageUrl,
-            stock: dish.stock,
-            quantity: quantity
-          });
-        }
-      });
-      
-      return orderItems;
+        const { cartItems } = this.data;
+        const orderItems = [];
+    
+        Object.keys(cartItems).forEach(dishId => {
+            const quantity = cartItems[dishId];
+            const dish = this.findDishById(dishId);
+    
+            if (dish && quantity > 0) {
+                orderItems.push({
+                    id: dish.id,
+                    name: dish.name,
+                    price: dish.price,
+                    formattedPrice: Number(dish.price).toFixed(2), // 新增：格式化单价
+                    imageUrl: dish.imageUrl,
+                    stock: dish.stock,
+                    quantity: quantity,
+                    subtotal: (dish.price * quantity).toFixed(2)
+                });
+            }
+        });
+    
+        return orderItems;
+    },
+    
+    // 生成结算商品列表
+    generateCheckoutItems: function() {
+        const { cartItems } = this.data;
+        const checkoutItems = [];
+    
+        Object.keys(cartItems).forEach(dishId => {
+            const quantity = cartItems[dishId];
+            const dish = this.findDishById(dishId);
+    
+            if (dish && quantity > 0) {
+                checkoutItems.push({
+                    id: dish.id,
+                    name: dish.name,
+                    price: dish.price,
+                    formattedPrice: Number(dish.price).toFixed(2), // 新增：格式化单价
+                    imageUrl: dish.imageUrl,
+                    quantity: quantity,
+                    subtotal: (dish.price * quantity).toFixed(2)
+                });
+            }
+        });
+    
+        return checkoutItems;
     },
     
     // 购物车面板中增加数量
@@ -487,7 +525,7 @@ Page({
     let totalQuantity = 0;
     let totalPrice = 0;
     
-    // 计算总数量和总价格（不含配送费）
+    // 计算总数量和总价格（不含配送费和打包费）
     Object.keys(cartItems).forEach(dishId => {
       const quantity = cartItems[dishId];
       const dish = this.findDishById(dishId);
@@ -497,24 +535,27 @@ Page({
       }
     });
     
-    // 获取配送费
-    const deliveryFee = this.data.restaurant ? (this.data.restaurant.deliveryFee || 0) : 0;
+    // 获取配送费和打包费
+    const restaurant = this.data.restaurant;
+    const deliveryFee = restaurant ? (restaurant.deliveryFee || 0) : 0;
+    const packingFee = restaurant ? (restaurant.packingFee || 0) : 0; // 新增打包费
     
-    // 计算含配送费的总金额
-    const totalAmountWithDelivery = totalPrice + deliveryFee;
+    // 计算含配送费和打包费的总金额
+    const totalAmountWithFees = totalPrice + deliveryFee + packingFee;
     
     // 格式化价格
-    const formattedTotalPrice = totalAmountWithDelivery.toFixed(2);
+    const formattedTotalPrice = totalAmountWithFees.toFixed(2);
     const formattedSubTotal = totalPrice.toFixed(2); // 菜品小计
     
     this.setData({
       cartItems: cartItems,
       totalQuantity: totalQuantity,
-      totalPrice: totalAmountWithDelivery, // 总金额包含配送费
-      subTotal: totalPrice, // 新增：菜品小计（不含配送费）
-      deliveryFee: deliveryFee, // 新增：配送费
+      totalPrice: totalAmountWithFees, // 总金额包含配送费和打包费
+      subTotal: totalPrice, // 菜品小计（不含配送费和打包费）
+      deliveryFee: deliveryFee,
+      packingFee: packingFee, // 新增：打包费
       formattedTotalPrice: formattedTotalPrice,
-      formattedSubTotal: formattedSubTotal // 新增：格式化的小计
+      formattedSubTotal: formattedSubTotal
     });
     
     // 防抖保存到服务器，避免频繁请求
@@ -533,6 +574,7 @@ Page({
       }
     }, 500); // 500ms防抖
   },
+
   // 添加重试机制
   saveCartToServer: function(cartItems, retryCount = 0) {
     if (this.data.isGuest) {
@@ -618,27 +660,27 @@ Page({
   
   // 生成结算商品列表
   generateCheckoutItems: function() {
-      const { cartItems, categories } = this.data;
-      const checkoutItems = [];
-      
-      // 遍历购物车中的商品
-      Object.keys(cartItems).forEach(dishId => {
-          const quantity = cartItems[dishId];
-          const dish = this.findDishById(dishId);
-          
-          if (dish && quantity > 0) {
-              checkoutItems.push({
-                  id: dish.id,
-                  name: dish.name,
-                  price: dish.price,
-                  imageUrl: dish.imageUrl,
-                  quantity: quantity
-              });
-          }
-      });
-      
-      return checkoutItems;
-  },
+    const { cartItems } = this.data;
+    const checkoutItems = [];
+
+    Object.keys(cartItems).forEach(dishId => {
+        const quantity = cartItems[dishId];
+        const dish = this.findDishById(dishId);
+
+        if (dish && quantity > 0) {
+            checkoutItems.push({
+                id: dish.id,
+                name: dish.name,
+                price: dish.price,
+                imageUrl: dish.imageUrl,
+                quantity: quantity,
+                subtotal: (dish.price * quantity).toFixed(2) // 新增：小计
+            });
+        }
+    });
+
+    return checkoutItems;
+},
   // 提交订单
   onSubmitOrder: function() {
       if (this.data.totalQuantity === 0) {
@@ -672,22 +714,24 @@ Page({
   },
   // 准备订单数据
   prepareOrderData: function() {
-      const app = getApp();
-      const orderItems = this.generateOrderItemsForSubmit();
-      
-      return {
-          order: {
-              userId: this.data.userInfo.id,
-              restaurantId: this.data.restaurantId,
-              totalAmount: this.data.totalPrice
-          },
-          items: orderItems,
-          restaurant: this.data.restaurant,
-          orderItems: orderItems,
-          subTotal: this.data.subTotal,
-          deliveryFee: this.data.deliveryFee,
-          totalAmount: this.data.totalPrice
-      };
+    const app = getApp();
+    const orderItems = this.generateOrderItemsForSubmit();
+    
+    return {
+        order: {
+            userId: this.data.userInfo.id,
+            restaurantId: this.data.restaurantId,
+            totalAmount: this.data.totalPrice,
+            packingFee: this.data.packingFee // 新增打包费
+        },
+        items: orderItems,
+        restaurant: this.data.restaurant,
+        orderItems: orderItems,
+        subTotal: this.data.subTotal,
+        deliveryFee: this.data.deliveryFee,
+        packingFee: this.data.packingFee, // 新增打包费
+        totalAmount: this.data.totalPrice
+    };
   },
   
   // 生成提交订单的订单项数据

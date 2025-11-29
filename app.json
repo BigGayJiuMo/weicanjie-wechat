@@ -10,7 +10,8 @@
         "pages/agreement/user-agreement",
         "pages/agreement/privacy-policy",
         "pages/restaurant-detail/restaurant-detail",
-        "pages/payment/payment"
+        "pages/payment/payment",
+        "pages/submitOrder/submitOrder"
     ],
     "window": {
         "backgroundTextStyle": "light",
