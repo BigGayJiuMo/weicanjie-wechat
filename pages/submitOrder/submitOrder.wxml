@@ -61,6 +61,10 @@
     <!-- 金额明细 -->
     <view class="amount-info">
       <view class="amount-line">
+        <text>菜品小计</text>
+        <text>¥{{item.dishSubTotal}}</text>
+      </view>
+      <view class="amount-line">
         <text>打包费</text>
         <text>¥{{item.packingFee}}</text>
       </view>
@@ -90,10 +94,9 @@
 <!-- 底部栏 -->
 <view class="bottom-bar">
   <view class="bottom-left">
-    <text class="order-count">共 {{orderCount}} 单</text>
     <text class="total-amount">¥{{totalAmount}}</text>
+    <text class="order-count">共 {{orderCount}} 单</text>
   </view>
-
   <view class="submit-btn" bindtap="submitOrder">
     提交订单
   </view>

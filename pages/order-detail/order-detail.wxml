@@ -1,0 +1,204 @@
+<!--pages/order-detail/order-detail.wxml.wxml-->
+<view class="container">
+    <!-- 顶部导航栏 -->
+    <view class="navbar">
+        <view class="navbar-content">
+            <view class="nav-left">
+                <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+            </view>
+            <view class="nav-center">
+                <text class="nav-title">订单详情</text>
+            </view>
+            <view class="nav-right"></view>
+        </view>
+    </view>
+
+    <!-- 页面内容 -->
+    <scroll-view class="page-scroll" scroll-y="true">
+        <!-- 订单状态 -->
+        <view class="status-card" wx:if="{{order}}">
+            <view class="status-icon">
+                <image src="{{statusInfo.icon}}"></image>
+            </view>
+            <view class="status-info">
+                <text class="status-text">{{statusInfo.text}}</text>
+                <text class="status-desc">{{statusInfo.desc}}</text>
+            </view>
+        </view>
+
+        <!-- 配送信息 -->
+        <view class="delivery-card" wx:if="{{order && order.status >= 3}}">
+            <view class="card-header">
+                <text class="card-title">配送信息</text>
+            </view>
+            <view class="delivery-info">
+                <view class="delivery-item">
+                    <text class="delivery-label">配送员</text>
+                    <text class="delivery-value">张师傅</text>
+                </view>
+                <view class="delivery-item">
+                    <text class="delivery-label">联系电话</text>
+                    <text class="delivery-value">138****1234</text>
+                </view>
+                <view class="delivery-item">
+                    <text class="delivery-label">预计送达</text>
+                    <text class="delivery-value">{{estimateDeliveryTime}}</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 餐厅信息 -->
+        <view class="restaurant-card" wx:if="{{restaurant}}">
+            <view class="card-header">
+                <text class="card-title">餐厅信息</text>
+            </view>
+            <view class="restaurant-info">
+                <image class="restaurant-logo" src="{{restaurant.logoUrl || '/images/default-restaurant.png'}}"></image>
+                <view class="restaurant-details">
+                    <text class="restaurant-name">{{restaurant.name}}</text>
+                    <text class="restaurant-address">{{restaurant.address}}</text>
+                    <text class="restaurant-phone">{{restaurant.contactPhone}}</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 订单商品 -->
+<view class="products-card" wx:if="{{orderItems && orderItems.length > 0}}">
+    <view class="card-header">
+        <text class="card-title">订单商品</text>
+        <text class="product-count">共{{orderItems.length}}件</text>
+    </view>
+    <view class="products-list">
+        <view class="product-item" wx:for="{{orderItems}}" wx:key="id" wx:for-item="item" wx:for-index="index">
+            <image class="product-image" src="{{getProductImage(item)}}"></image>
+            <view class="product-info">
+                <text class="product-name">{{getProductName(item)}}</text>
+                <text class="product-price">¥{{getProductPrice(item)}}</text>
+            </view>
+            <view class="product-quantity">
+                <text class="quantity">×{{item.quantity || 1}}</text>
+            </view>
+        </view>
+    </view>
+</view>
+
+<!-- 如果没有商品，显示提示 -->
+<view class="empty-products" wx:if="{{order && (!orderItems || orderItems.length === 0)}}">
+    <view class="empty-card">
+        <image class="empty-icon" src="/images/empty-cart.png"></image>
+        <text class="empty-text">暂无商品信息</text>
+    </view>
+</view>
+
+        <!-- 订单信息 -->
+        <view class="order-info-card" wx:if="{{order}}">
+            <view class="card-header">
+                <text class="card-title">订单信息</text>
+            </view>
+            <view class="order-details">
+                <view class="detail-item">
+                    <text class="detail-label">订单号</text>
+                    <text class="detail-value">{{order.orderNumber}}</text>
+                </view>
+                <view class="detail-item">
+                    <text class="detail-label">下单时间</text>
+                    <text class="detail-value">{{order.createdTime}}</text>
+                </view>
+                <view class="detail-item" wx:if="{{order.payTime}}">
+                    <text class="detail-label">支付时间</text>
+                    <text class="detail-value">{{order.payTime}}</text>
+                </view>
+                <view class="detail-item">
+                    <text class="detail-label">支付方式</text>
+                    <text class="detail-value">微信支付</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 金额明细 -->
+        <view class="amount-card" wx:if="{{order}}">
+            <view class="card-header">
+                <text class="card-title">金额明细</text>
+            </view>
+            <view class="amount-details">
+                <view class="amount-item">
+                    <text class="amount-label">商品金额</text>
+                    <text class="amount-value">¥{{subTotal}}</text>
+                </view>
+                <view class="amount-item">
+                    <text class="amount-label">配送费</text>
+                    <text class="amount-value">¥{{deliveryFee}}</text>
+                </view>
+                <view class="amount-item">
+                    <text class="amount-label">打包费</text>
+                    <text class="amount-value">¥{{packingFee}}</text>
+                </view>
+                <view class="amount-item" wx:if="{{order.discount && order.discount > 0}}">
+                    <text class="amount-label">优惠</text>
+                    <text class="amount-value discount">-¥{{order.discount}}</text>
+                </view>
+                <view class="amount-item total">
+                    <text class="amount-label">实付金额</text>
+                    <text class="amount-value total-amount">¥{{order.totalAmount}}</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 支付按钮（仅待支付状态显示） -->
+        <view class="payment-section" wx:if="{{order && order.status === 1}}">
+            <view class="payment-tips">
+                <text class="tips-text">请在30分钟内完成支付，超时订单将自动取消</text>
+            </view>
+            <view class="payment-btn {{isPaying ? 'disabled' : ''}}" bindtap="onPayNow">
+                {{isPaying ? '支付中...' : '立即支付 ¥' + order.totalAmount}}
+            </view>
+        </view>
+
+        <!-- 加载状态 -->
+        <view class="loading-container" wx:if="{{loading}}">
+            <text class="loading-text">加载中...</text>
+        </view>
+
+        <!-- 空状态 -->
+        <view class="empty-container" wx:if="{{!loading && !order}}">
+            <image class="empty-image" src="/images/empty-order.png"></image>
+            <text class="empty-text">订单不存在</text>
+            <button class="retry-btn" bindtap="loadOrderDetail">重新加载</button>
+        </view>
+    </scroll-view>
+
+    <!-- 底部操作栏 -->
+    <view class="action-bar" wx:if="{{order && !loading}}">
+        <view class="action-buttons">
+            <view class="action-btn secondary" bindtap="onContactService" wx:if="{{order.status === 3}}">
+                联系骑手
+            </view>
+            <view class="action-btn secondary" bindtap="onContactService" wx:if="{{order.status !== 3}}">
+                联系客服
+            </view>
+            <view class="action-btn primary" bindtap="onReorder" wx:if="{{order.status === 4 || order.status === 5}}">
+                再次下单
+            </view>
+            <view class="action-btn primary" bindtap="onCancelOrder" wx:if="{{order.status === 1}}">
+                取消订单
+            </view>
+        </view>
+    </view>
+
+    <!-- 支付确认弹窗 -->
+    <view wx:if="{{showPaymentModal}}" class="modal-mask" catchtap="hidePaymentModal">
+        <view class="modal-container" catchtap="stopPropagation">
+            <view class="modal-header">
+                <text class="modal-title">确认支付</text>
+            </view>
+            <view class="modal-content">
+                <text class="payment-amount-large">¥{{order.totalAmount}}</text>
+                <text class="payment-desc">请确认支付金额</text>
+            </view>
+            <view class="modal-buttons">
+                <view class="modal-btn cancel" bindtap="onCancelPayment">取消支付</view>
+                <view class="modal-btn confirm" bindtap="onConfirmPayment">确认支付</view>
+            </view>
+        </view>
+    </view>
+</view>
