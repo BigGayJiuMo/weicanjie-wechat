@@ -27,38 +27,43 @@ Page({
     },
   
     onLoad: function (options) {
-      const { id } = options;
-      
-      if (id) {
-        this.setData({ restaurantId: id });
-        this.loadRestaurantDetail(id);
+        this.checkLoginStatus();
+
+        const { id } = options;
         
-        // 加载用户购物车数据
-        setTimeout(() => {
-          this.loadUserCart();
-        }, 500);
-      } else {
-        wx.showToast({
-          title: '餐厅ID不存在',
-          icon: 'none',
-          success: () => {
-            setTimeout(() => {
-              wx.navigateBack();
-            }, 1500);
-          }
-        });
-      }
+        if (id) {
+          this.setData({ restaurantId: id });
+          this.loadRestaurantDetail(id);
+          
+          // 加载用户购物车数据
+          setTimeout(() => {
+            this.loadUserCart();
+          }, 500);
+        } else {
+          wx.showToast({
+            title: '餐厅ID不存在',
+            icon: 'none',
+            success: () => {
+              setTimeout(() => {
+                wx.navigateBack();
+              }, 1500);
+            }
+          });
+        }
     },
   
     onShow: function() {
-      this.checkLoginStatus();
-      
-      if (this.data.categories && this.data.categories.length > 0) {
-        this.setData({ isManualScroll: true });
-        setTimeout(() => {
-          this.calculateCategoryPositions();
-        }, 500);
-      }
+        this.checkLoginStatus();
+        if (!this.data.isGuest && this.data.restaurant) {
+            this.uploadHistoryToServer(this.data.restaurant.id);
+        }
+    
+        if (this.data.categories && this.data.categories.length > 0) {
+            this.setData({ isManualScroll: true });
+            setTimeout(() => {
+                this.calculateCategoryPositions();
+            }, 500);
+        }
     },
     
     onUnload: function() {
@@ -100,7 +105,34 @@ Page({
         }
       });
     },
-  
+    uploadHistoryToServer: function (restaurantId) {
+        if (this.data.isGuest) {
+            // 未登录不记录历史
+            return;
+        }
+    
+        const app = getApp();
+        const userId = this.data.userInfo.id;
+    
+        wx.request({
+            url: app.globalData.baseUrl + '/history/record',
+            method: 'POST',
+            header: {
+                // 用表单方式传，配合后端 @RequestParam
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            data: {
+                userId: userId,
+                restaurantId: restaurantId
+            },
+            success: (res) => {
+                console.log('浏览历史已记录到服务器:', res.data);
+            },
+            fail: (err) => {
+                console.error('记录浏览历史失败:', err);
+            }
+        });
+    },
     loadRestaurantDetail: function (id) {
         const app = getApp();
         this.setData({ loading: true });
@@ -149,7 +181,7 @@ Page({
             this.loadMockData(id);
           }
         });
-      },
+    },
       checkFavoriteStatus: function(restaurantId) {
         const app = getApp();
         if (this.data.isGuest) {
