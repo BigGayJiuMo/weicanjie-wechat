@@ -5,13 +5,17 @@
         "pages/menu/menu",
         "pages/cart/cart",
         "pages/profile/profile",
+        "pages/orders/orders",
+        "pages/reviews/reviews",
+        "pages/favorites/favorites",
+        "pages/settings/settings",
         "pages/edit-profile/edit-profile",
-        "pages/order/order",
         "pages/agreement/user-agreement",
         "pages/agreement/privacy-policy",
         "pages/restaurant-detail/restaurant-detail",
         "pages/order-detail/order-detail",
-        "pages/submitOrder/submitOrder"
+        "pages/submitOrder/submitOrder",
+        "pages/history/history"
     ],
     "window": {
         "backgroundTextStyle": "light",

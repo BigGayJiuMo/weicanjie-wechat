@@ -1078,3 +1078,15 @@
     transform: none;
     box-shadow: none;
 }
+.restaurant-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.favorite-icon {
+    width: 48rpx;
+    height: 48rpx;
+    margin-left: 20rpx;
+    cursor: pointer;
+}

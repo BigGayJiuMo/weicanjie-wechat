@@ -340,9 +340,7 @@ Page({
             icon: 'success',
             success: () => {
               setTimeout(() => {
-                wx.switchTab({
-                  url: '/pages/index/index'
-                });
+                wx.navigateBack();
               }, 1500);
             }
           });
@@ -491,9 +489,7 @@ Page({
                   icon: 'success',
                   success: () => {
                     setTimeout(() => {
-                      wx.switchTab({
-                        url: '/pages/index/index'
-                      });
+                        wx.navigateBack();
                     }, 1500);
                   }
                 });
@@ -557,9 +553,7 @@ Page({
       icon: 'success',
       success: () => {
         setTimeout(() => {
-          wx.switchTab({
-            url: '/pages/index/index'
-          });
+            wx.navigateBack();
         }, 1500);
       }
     });

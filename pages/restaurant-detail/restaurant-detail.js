@@ -150,7 +150,72 @@ Page({
           }
         });
       },
-  
+      checkFavoriteStatus: function(restaurantId) {
+        const app = getApp();
+        if (this.data.isGuest) {
+            this.setData({ isFavorite: false });
+            return;
+        }
+    
+        const userId = this.data.userInfo.id;
+    
+        wx.request({
+            url: app.globalData.baseUrl + `/favorite/check`,
+            method: 'GET',
+            data: {
+                userId: userId,
+                restaurantId: restaurantId
+            },
+            success: (res) => {
+                if (res.data.code === 200) {
+                    this.setData({
+                        isFavorite: res.data.data === true
+                    });
+                }
+            }
+        });
+    },
+    toggleFavorite: function() {
+        if (this.data.isGuest) {
+            this.showLoginTip('收藏餐厅');
+            return;
+        }
+    
+        const app = getApp();
+        const userId = this.data.userInfo.id;
+        const restaurantId = this.data.restaurantId;
+    
+        const isCurrentlyFav = this.data.isFavorite;
+    
+        wx.request({
+            url: app.globalData.baseUrl + (isCurrentlyFav ? '/favorite/remove' : '/favorite/add'),
+            method: 'POST',
+            header: {
+                "content-type": "application/json"
+            },
+            data: {
+                userId: userId,
+                restaurantId: restaurantId
+            },
+            success: (res) => {
+                if (res.data.code === 200) {
+                    this.setData({
+                        isFavorite: !isCurrentlyFav
+                    });
+    
+                    wx.showToast({
+                        title: isCurrentlyFav ? '已取消收藏' : '收藏成功',
+                        icon: 'success'
+                    });
+                } else {
+                    wx.showToast({
+                        title: res.data.message || '操作失败',
+                        icon: 'none'
+                    });
+                }
+            }
+        });
+    },
     calculateCategoryPositions: function() {
       const query = wx.createSelectorQuery();
       const { categories } = this.data;

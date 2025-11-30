@@ -20,11 +20,18 @@
         <view class="restaurant-header">
             <image class="restaurant-logo" src="{{restaurant.logoUrl || '/images/default-restaurant.png'}}"></image>
             <view class="restaurant-basic">
-            <view class="restaurant-name">{{restaurant.name}}</view>
+            <view class="restaurant-name-row">
+                <text class="restaurant-name">{{restaurant.name}}</text>
+                <image 
+                    class="favorite-icon"
+                    src="{{isFavorite ? '/images/fav-on.png' : '/images/fav-off.png'}}"
+                    bindtap="toggleFavorite"
+                ></image>
+            </view>
             <view class="restaurant-status {{getStatusClass(restaurant.businessStatus)}}">
                 {{getStatusText(restaurant.businessStatus)}}
             </view>
-            </view>
+        </view>
         </view>
 
         <view class="restaurant-meta">

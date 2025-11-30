@@ -86,7 +86,7 @@
 <!-- 如果没有商品，显示提示 -->
 <view class="empty-products" wx:if="{{order && (!orderItems || orderItems.length === 0)}}">
     <view class="empty-card">
-        <image class="empty-icon" src="/images/empty-cart.png"></image>
+        <image class="empty-icon" src="/images/cart.png"></image>
         <text class="empty-text">暂无商品信息</text>
     </view>
 </view>
@@ -162,7 +162,7 @@
 
         <!-- 空状态 -->
         <view class="empty-container" wx:if="{{!loading && !order}}">
-            <image class="empty-image" src="/images/empty-order.png"></image>
+            <image class="empty-image" src="/images/icon-order.png"></image>
             <text class="empty-text">订单不存在</text>
             <button class="retry-btn" bindtap="loadOrderDetail">重新加载</button>
         </view>

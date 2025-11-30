@@ -174,7 +174,17 @@ Page({
       url: '/pages/reviews/reviews'
     });
   },
-
+  // 历史浏览
+    onHistoryBrowse: function () {
+    if (this.data.isGuest) {
+      this.showLoginTip();
+      return;
+    }
+  
+    wx.navigateTo({
+      url: '/pages/history/history'
+    });
+  },
   // 设置
   onSettings: function () {
     wx.navigateTo({

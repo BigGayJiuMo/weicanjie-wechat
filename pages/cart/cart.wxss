@@ -327,17 +327,18 @@
   text-align: center;
   cursor: pointer;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    transition: all 0.2s ease;
 }
-
+.checkout-btn:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
 .checkout-btn.disabled {
   background: #cccccc;
   color: #999999;
   box-shadow: none;
-}
-
-.checkout-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
 }
 
 .checkout-btn.disabled:active {

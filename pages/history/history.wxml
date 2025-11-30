@@ -1,0 +1,17 @@
+<!--pages/history/history.wxml-->
+<view class="container">
+  <view class="title">历史浏览</view>
+
+  <view wx:if="{{historyList.length === 0}}" class="empty">
+    <image class="empty-icon" src="/images/empty-history.png"></image>
+    <text class="empty-text">暂无浏览记录</text>
+  </view>
+
+  <view wx:for="{{historyList}}" wx:key="id" class="history-item">
+    <image class="item-img" src="{{item.imageUrl}}"></image>
+    <view class="item-info">
+      <text class="item-name">{{item.name}}</text>
+      <text class="item-time">{{item.browseTime}}</text>
+    </view>
+  </view>
+</view>
