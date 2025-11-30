@@ -70,13 +70,14 @@
     </view>
     <view class="products-list">
         <view class="product-item" wx:for="{{orderItems}}" wx:key="id" wx:for-item="item" wx:for-index="index">
-            <image class="product-image" src="{{getProductImage(item)}}"></image>
+            <image class="product-image" src="{{item.uiImage}}"></image>
             <view class="product-info">
-                <text class="product-name">{{getProductName(item)}}</text>
-                <text class="product-price">¥{{getProductPrice(item)}}</text>
+                <text class="product-name">{{item.uiName}}</text>
+                <text class="product-price">¥{{item.uiPrice}}</text>
             </view>
+
             <view class="product-quantity">
-                <text class="quantity">×{{item.quantity || 1}}</text>
+                <text class="quantity">×{{item.quantity}}</text>
             </view>
         </view>
     </view>

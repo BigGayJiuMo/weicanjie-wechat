@@ -65,16 +65,6 @@ Page({
       if (this.data.saveCartTimer) {
         clearTimeout(this.data.saveCartTimer);
       }
-      
-      if (!this.data.isGuest && Object.keys(this.data.cartItems).length > 0) {
-        this.saveCartToServer(this.data.cartItems);
-      }
-    },
-    
-    onHide: function() {
-      if (!this.data.isGuest && Object.keys(this.data.cartItems).length > 0) {
-        this.saveCartToServer(this.data.cartItems);
-      }
     },
     
     checkLoginStatus: function() {
@@ -541,73 +531,46 @@ Page({
       }, 500);
     },
 
-    saveCartToServer: function(cartItems, retryCount = 0) {
-      if (this.data.isGuest) {
-        console.log('游客模式，不保存购物车');
-        return;
-      }
+    saveCartToServer(cartItems) {
+        if (this.data.isGuest) return;
     
-      const app = getApp();
-      const userId = this.data.userInfo.id;
-      const restaurantId = this.data.restaurantId;
+        const app = getApp();
+        const userId = this.data.userInfo.id;
+        const restaurantId = this.data.restaurantId;
     
-      console.log('保存购物车到服务器:', cartItems);
+        const cartList = [];
     
-      const updates = [];
-      
-      Object.keys(cartItems).forEach(dishId => {
-        const quantity = cartItems[dishId];
-        const dish = this.findDishById(dishId);
-        
-        if (!dish || quantity <= 0) {
-          return;
-        }
+        Object.keys(cartItems).forEach(dishId => {
+            const quantity = cartItems[dishId];
+            const dish = this.findDishById(dishId);
     
-        updates.push(
-          new Promise((resolve, reject) => {
-            wx.request({
-              url: app.globalData.baseUrl + '/cart/add',
-              method: 'POST',
-              header: {
-                'content-type': 'application/json'
-              },
-              data: {
-                userId: userId,
-                restaurantId: restaurantId,
-                dishId: dishId,
+            if (!dish || quantity <= 0) return;
+    
+            cartList.push({
+                userId,
+                restaurantId,
+                dishId: Number(dishId),
                 quantity: quantity,
                 price: dish.price
-              },
-              success: (res) => {
-                console.log(`商品${dishId}保存响应:`, res.data);
-                if (res.data.code === 200) {
-                  resolve(res.data);
-                } else {
-                  reject(res.data.message || '保存失败');
-                }
-              },
-              fail: (err) => {
-                reject('网络错误: ' + err.errMsg);
-              }
             });
-          })
-        );
-      });
+        });
     
-      Promise.all(updates).then(results => {
-        console.log('所有购物车商品保存完成', results);
-      }).catch(error => {
-        console.error('保存购物车失败:', error);
-        if (retryCount < 2) {
-          console.log(`第${retryCount + 1}次重试保存购物车`);
-          setTimeout(() => {
-            this.saveCartToServer(cartItems, retryCount + 1);
-          }, 1000 * (retryCount + 1));
-        } else {
-          console.error('保存购物车失败，已达到最大重试次数');
-        }
-      });
+        wx.request({
+            url: app.globalData.baseUrl + "/cart/save",
+            method: "POST",
+            header: {
+                "content-type": "application/json"
+            },
+            data: cartList,
+            success: res => {
+                console.log("覆盖式保存购物车成功:", res.data);
+            },
+            fail: err => {
+                console.error("保存购物车失败:", err);
+            }
+        });
     },
+    
     
     onCheckout: function() {
         if (this.data.totalQuantity === 0) {
@@ -698,7 +661,8 @@ Page({
               userId: this.data.userInfo.id,
               restaurantId: this.data.restaurantId,
               totalAmount: this.data.totalPrice,
-              packingFee: this.data.packingFee
+              packingFee: this.data.packingFee,
+              deliveryFee: this.data.deliveryFee
           },
           items: orderItems,
           restaurant: this.data.restaurant,
