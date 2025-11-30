@@ -3,9 +3,7 @@
     <!-- 顶部导航栏 -->
     <view class="navbar">
         <view class="navbar-content">
-            <view class="nav-left">
-                <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
-            </view>
+            <view class="nav-left"></view>
             <view class="nav-center">
                 <text class="nav-title">购物车</text>
             </view>

@@ -1,66 +1,84 @@
-// pages/menu/menu.js
 Page({
 
-    /**
-     * 页面的初始数据
-     */
-    data: {
+  data: {
+    categoryList: [],
+    activeCategoryId: null,
+    restaurants: []
+  },
 
-    },
+  onLoad() {
+    this.loadCategoryList();
+  },
 
-    /**
-     * 生命周期函数--监听页面加载
-     */
-    onLoad(options) {
+  /** 加载左侧分类列表 */
+  loadCategoryList() {
+    const app = getApp();
 
-    },
+    wx.request({
+      url: app.globalData.baseUrl + "/category/list",
+      method: "GET",
+      success: (res) => {
+        if (res.data.code !== 200) {
+          wx.showToast({ title: "分类加载失败", icon: "none" });
+          return;
+        }
 
-    /**
-     * 生命周期函数--监听页面初次渲染完成
-     */
-    onReady() {
+        const list = res.data.data || [];
 
-    },
+        if (list.length === 0) return;
 
-    /**
-     * 生命周期函数--监听页面显示
-     */
-    onShow() {
+        this.setData({
+          categoryList: list,
+          activeCategoryId: list[0].id
+        });
 
-    },
+        this.loadRestaurantList(list[0].id);
+      }
+    });
+  },
 
-    /**
-     * 生命周期函数--监听页面隐藏
-     */
-    onHide() {
+  /** 左侧分类点击 */
+  onCategoryTap(e) {
+    const id = e.currentTarget.dataset.id;
 
-    },
+    this.setData({ activeCategoryId: id });
 
-    /**
-     * 生命周期函数--监听页面卸载
-     */
-    onUnload() {
+    this.loadRestaurantList(id);
+  },
 
-    },
+  /** 根据分类加载餐厅 */
+  loadRestaurantList(categoryId) {
+    const app = getApp();
 
-    /**
-     * 页面相关事件处理函数--监听用户下拉动作
-     */
-    onPullDownRefresh() {
+    wx.request({
+      url: app.globalData.baseUrl + "/restaurant/listByCategory",
+      method: "GET",
+      data: { categoryId },
+      success: (res) => {
+        if (res.data.code === 200) {
+          this.setData({ restaurants: res.data.data || [] });
+        } else {
+          this.setData({ restaurants: [] });
+        }
+      }
+    });
+  },
 
-    },
-
-    /**
-     * 页面上拉触底事件的处理函数
-     */
-    onReachBottom() {
-
-    },
-
-    /**
-     * 用户点击右上角分享
-     */
-    onShareAppMessage() {
-
+  /** 跳转餐厅详情 */
+  goDetail(e) {
+    const restaurantId = e.currentTarget.dataset.id;
+  
+    if (!restaurantId) {
+      wx.showToast({
+        title: '餐厅ID不存在',
+        icon: 'none'
+      });
+      return;
     }
-})
+  
+    wx.navigateTo({
+      url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
+    });
+  }
+
+});

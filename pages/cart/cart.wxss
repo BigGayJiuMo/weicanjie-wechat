@@ -9,11 +9,12 @@
 .navbar {
   background: white;
   padding: 20rpx 30rpx;
-  padding-top: 95rpx; 
+  padding-top: 105rpx; 
   position: sticky;
   top: 0;
   z-index: 100;
   border-bottom: 1rpx solid #f0f0f0;
+  background: linear-gradient(135deg, #ff6b35, #ff8e53);
   flex-shrink: 0;
 }
 
@@ -41,7 +42,7 @@
 .nav-title {
   font-size: 36rpx;
   font-weight: bold;
-  color: #333;
+  color: rgb(255, 255, 255);
 }
 
 /* 购物车内容区域 */

@@ -1,2 +1,77 @@
-<!--pages/favorites/favorites.wxml-->
-<text>pages/favorites/favorites.wxml</text>
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left">
+      <image src="/images/back.png" class="back-icon" bindtap="onBack"></image>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">我的收藏</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<scroll-view class="content-scroll" scroll-y="true">
+
+  <!-- 收藏列表 -->
+  <view wx:if="{{favorites.length > 0}}">
+    <view wx:for="{{favorites}}" wx:key="id" class="favorite-wrapper">
+
+      <!-- 每一项内部必须单独 movable-area -->
+      <movable-area class="movable-area">
+
+        <movable-view 
+            class="movable-view"
+            direction="horizontal"
+            x="{{item.x}}"
+            inertia="false"
+            out-of-bounds="true"
+            damping="30"
+            data-id="{{item.id}}"
+            bindchange="onItemMove"
+            bindtouchend="onTouchEnd"
+            style="width: calc(100% + 160rpx);"
+        >
+
+          <!-- 餐厅卡片 -->
+          <view class="restaurant-item" bindtap="goDetail" data-id="{{item.id}}">
+            <image class="restaurant-image" src="{{item.logoUrl}}"></image>
+            <view class="restaurant-content">
+              <view class="restaurant-header">
+                <text class="restaurant-name">{{item.name}}</text>
+              </view>
+              <view class="restaurant-rating">
+                <text class="rating-star">★</text>
+                <text class="rating-score">{{item.avgRating}}</text>
+                <text class="rating-count">月售{{item.monthlySales}}</text>
+              </view>
+              <view class="restaurant-info">
+                <text class="info-item">起送¥{{item.minOrderAmount}}</text>
+                <text class="info-item">配送¥{{item.deliveryFee}}</text>
+                <text class="info-item">{{item.deliveryTime}}</text>
+              </view>
+            </view>
+          </view>
+        <!-- 删除按钮 -->
+        <view class="delete-btn" data-id="{{item.id}}" bindtap="onDeleteTap">
+                取消收藏
+        </view>
+        </movable-view>
+
+        
+
+      </movable-area>
+
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{favorites.length === 0}}" class="empty-box">
+    <text class="empty-text">没有更多了</text>
+  </view>
+
+</scroll-view>
+
+</view>

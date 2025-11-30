@@ -170,11 +170,6 @@ Page({
     }
   },
   
-    // 返回上一页
-    onBack: function() {
-      wx.navigateBack();
-    },
-  
     // 切换餐厅全选状态
     toggleRestaurantSelection: function(e) {
       const restaurant = e.currentTarget.dataset.restaurant;

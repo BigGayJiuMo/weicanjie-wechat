@@ -162,6 +162,7 @@ Page({
                 activeCategoryId: activeCategoryId,
                 loading: false
               }, () => {
+                this.checkFavoriteStatus(id);
                 setTimeout(() => {
                   this.calculateCategoryPositions();
                 }, 300);

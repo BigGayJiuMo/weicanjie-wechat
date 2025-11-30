@@ -1,1 +1,92 @@
-/* pages/menu/menu.wxss */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #fff;
+}
+
+/* 搜索栏 */
+.search-bar {
+  padding: 95rpx 20rpx 20rpx;
+  background: linear-gradient(135deg, #ff6b35, #ff8e53);
+}
+
+.search-input-box {
+    width: 65%;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 16rpx 24rpx;
+  border-radius: 50rpx;
+}
+
+.search-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 16rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+}
+
+/* 主体左右结构 */
+.content {
+  flex: 1;
+  display: flex;
+}
+
+/* 左侧分类栏 */
+.left-menu {
+  width: 180rpx;
+  background: #f5f5f5;
+}
+
+.left-item {
+  padding: 30rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.left-item.active {
+  background: #fff;
+  color: #ff6b35;
+  font-weight: bold;
+}
+
+/* 右侧餐厅列表 */
+.right-content {
+  flex: 1;
+  padding: 20rpx;
+}
+
+.restaurant-card {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cover {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 10rpx;
+}
+
+.info {
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.score,
+.delivery {
+  color: #888;
+  font-size: 24rpx;
+}

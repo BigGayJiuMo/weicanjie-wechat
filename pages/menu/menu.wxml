@@ -1,2 +1,54 @@
-<!--pages/menu/menu.wxml-->
-<text>pages/menu/menu.wxml</text>
+<view class="container">
+
+<!-- 搜索框 -->
+<view class="search-bar">
+  <view class="search-input-box">
+    <image class="search-icon" src="/images/search.png"></image>
+    <input
+      class="search-input"
+      placeholder="输入商家名、品类或商圈"
+      confirm-type="search"
+      bindconfirm="onSearch"
+    />
+  </view>
+</view>
+
+<!-- 左右结构 -->
+<view class="content">
+
+  <!-- 左侧分类菜单 -->
+  <scroll-view class="left-menu" scroll-y="true">
+    <view
+      wx:for="{{categoryList}}"
+      wx:key="id"
+      class="left-item {{activeCategoryId === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onCategoryTap"
+    >
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 右侧餐厅列表 -->
+  <scroll-view class="right-content" scroll-y="true">
+
+    <view
+      wx:for="{{restaurants}}"
+      wx:key="id"
+      class="restaurant-card"
+      bindtap="goDetail"
+      data-id="{{item.id}}"
+    >
+    <image class="cover" src="{{item.logoUrl}}"></image>
+      <view class="info">
+        <text class="title">{{item.name}}</text>
+        <text class="score">{{item.avgRating}}分 | 月售{{item.monthlySales}}</text>
+        <text class="delivery">{{item.deliveryTime}}分钟</text>
+      </view>
+    </view>
+
+  </scroll-view>
+
+</view>
+
+</view>
