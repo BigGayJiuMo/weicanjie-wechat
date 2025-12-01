@@ -1,17 +1,69 @@
-<!--pages/history/history.wxml-->
 <view class="container">
-  <view class="title">历史浏览</view>
 
-  <view wx:if="{{historyList.length === 0}}" class="empty">
-    <image class="empty-icon" src="/images/empty-history.png"></image>
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left">
+      <image src="/images/back.png" class="back-icon" bindtap="onBack"></image>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">历史浏览</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<scroll-view class="content-scroll" scroll-y="true">
+
+  <!-- 空状态 -->
+  <view wx:if="{{historyList.length === 0}}" class="empty-box">
     <text class="empty-text">暂无浏览记录</text>
   </view>
 
-  <view wx:for="{{historyList}}" wx:key="id" class="history-item">
-    <image class="item-img" src="{{item.imageUrl}}"></image>
-    <view class="item-info">
-      <text class="item-name">{{item.name}}</text>
-      <text class="item-time">{{item.browseTime}}</text>
+  <!-- 历史列表（复用收藏卡片样式） -->
+  <view wx:for="{{historyList}}" wx:key="id" class="favorite-item">
+
+    <view class="restaurant-item" bindtap="goDetail" data-id="{{item.restaurantId}}">
+      <view class="restaurant-body">
+
+        <image 
+          class="restaurant-image"
+          src="{{item.imageUrl || '/images/default-restaurant.png'}}"
+          mode="aspectFill"
+        />
+
+        <view class="restaurant-content">
+
+          <!-- 名称 -->
+          <view class="restaurant-header">
+            <text class="restaurant-name">{{item.name}}</text>
+          </view>
+
+          <!-- 评分 + 月售 -->
+          <view class="restaurant-rating">
+            <text class="rating-star">★</text>
+            <text class="rating-score">{{item.avgRating || 5.0}}</text>
+            <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+          </view>
+
+          <!-- 起送 配送 时间 -->
+          <view class="restaurant-info">
+            <text class="info-item">起送¥{{item.minOrderAmount}}</text>
+            <text class="info-item">配送¥{{item.deliveryFee}}</text>
+            <text class="info-item">{{item.deliveryTime}}</text>
+          </view>
+
+          <!-- 浏览时间 -->
+          <view class="browse-time">
+            <text class="browse-time-text">浏览时间：{{item.viewedTime}}</text>
+          </view>
+
+        </view>
+
+      </view>
     </view>
+
   </view>
+
+</scroll-view>
 </view>

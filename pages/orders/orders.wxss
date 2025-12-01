@@ -1,1 +1,223 @@
 /* pages/orders/orders.wxss */
+.container {
+  background-color: #f5f5f5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部导航栏 */
+.navbar {
+  background: white;
+  padding: 20rpx 30rpx;
+  padding-top: 95rpx; 
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left, .nav-right {
+  width: 80rpx;
+  text-align: center;
+}
+
+.nav-center {
+  flex: 1;
+  text-align: center;
+}
+
+.back-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+/* 搜索框 */
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f2f2f2;
+  border-radius: 50rpx;
+  padding: 15rpx 20rpx;
+  margin: 20rpx 0 0 0;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+/* 内容滚动区域 */
+.content-scroll {
+  flex: 1;
+  padding-bottom: 40rpx;
+}
+
+/* 空状态 */
+.empty-box {
+  margin-top: 200rpx;
+  text-align: center;
+}
+
+.empty-text {
+  color: #999;
+  margin-top: 20rpx;
+  font-size: 28rpx;
+}
+
+/* 订单卡片 */
+.order-card {
+  background: white;
+  border-radius: 20rpx;
+  margin: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 顶部 */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.shop-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.shop-info {
+  display: flex;
+  align-items: center;
+}
+
+.shop-logo {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+}
+
+.arrow-right {
+  width: 26rpx;
+  height: 26rpx;
+  margin-left: 10rpx;
+  opacity: 0.6;
+}
+/* 状态颜色区分 */
+.order-status {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+/* 待支付 */
+.order-status.pending {
+  color: #ff6b35;
+}
+
+/* 待处理 */
+.order-status.processing {
+  color: #ff9900;
+}
+
+/* 配送中 */
+.order-status.delivering {
+  color: #07c160;
+}
+
+/* 已完成 */
+.order-status.completed {
+  color: #4caf50;
+}
+
+/* 已取消 */
+.order-status.cancelled {
+  color: #999;
+}
+
+/* 菜品行 */
+.dish-row {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.dish-img {
+  width: 180rpx;
+  height: 140rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+}
+
+.dish-right {
+  flex: 1;
+}
+
+.dish-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.dish-desc {
+  font-size: 24rpx;
+  color: #777;
+  margin: 8rpx 0;
+}
+
+.dish-bottom {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dish-qty {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.dish-price {
+  font-size: 30rpx;
+  color: #ff4757;
+  font-weight: bold;
+}
+
+/* 底部 */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10rpx;
+}
+
+.total-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.total-price {
+  color: #ff4757;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.order-time {
+  text-align: right;
+  margin-top: 10rpx;
+  color: #999;
+  font-size: 24rpx;
+}

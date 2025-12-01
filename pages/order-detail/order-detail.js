@@ -71,10 +71,9 @@ Page({
         const restaurant = orderData.restaurant || {};
         let orderItems = orderData.orderItems || [];
 
-        // 🌟 前端专用 UI 字段（解决名称/价格/图片不显示的问题）
         orderItems = orderItems.map(item => ({
             ...item,
-            uiImage: item.dish_image_url || "/images/logo.png",
+            uiImage: item.dishImageUrl || "/images/logo.png",
             uiName: item.dishName || "未命名商品",
             uiPrice: Number(item.dishPrice || 0).toFixed(2)
         }));

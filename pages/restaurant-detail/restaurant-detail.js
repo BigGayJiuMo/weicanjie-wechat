@@ -54,9 +54,6 @@ Page({
   
     onShow: function() {
         this.checkLoginStatus();
-        if (!this.data.isGuest && this.data.restaurant) {
-            this.uploadHistoryToServer(this.data.restaurant.id);
-        }
     
         if (this.data.categories && this.data.categories.length > 0) {
             this.setData({ isManualScroll: true });
@@ -163,6 +160,9 @@ Page({
                 loading: false
               }, () => {
                 this.checkFavoriteStatus(id);
+                if (!this.data.isGuest) {
+                    this.uploadHistoryToServer(id);
+                }
                 setTimeout(() => {
                   this.calculateCategoryPositions();
                 }, 300);

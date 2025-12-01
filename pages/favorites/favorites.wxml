@@ -16,56 +16,62 @@
 <scroll-view class="content-scroll" scroll-y="true">
 
   <!-- 收藏列表 -->
-  <view wx:if="{{favorites.length > 0}}">
-    <view wx:for="{{favorites}}" wx:key="id" class="favorite-wrapper">
+        <view wx:if="{{favorites.length > 0}}" class="list-box">
 
-      <!-- 每一项内部必须单独 movable-area -->
-      <movable-area class="movable-area">
+        <view wx:for="{{favorites}}" wx:key="id" class="favorite-item">
 
-        <movable-view 
-            class="movable-view"
-            direction="horizontal"
-            x="{{item.x}}"
-            inertia="false"
-            out-of-bounds="true"
-            damping="30"
-            data-id="{{item.id}}"
-            bindchange="onItemMove"
-            bindtouchend="onTouchEnd"
-            style="width: calc(100% + 160rpx);"
-        >
+        <view class="restaurant-item" bindtap="goDetail" data-id="{{item.id}}">
 
-          <!-- 餐厅卡片 -->
-          <view class="restaurant-item" bindtap="goDetail" data-id="{{item.id}}">
-            <image class="restaurant-image" src="{{item.logoUrl}}"></image>
+            <view class="restaurant-body">
+
+            <image 
+                class="restaurant-image" 
+                src="{{item.logoUrl || '/images/default-restaurant.png'}}"
+                mode="aspectFill"
+            />
+
             <view class="restaurant-content">
-              <view class="restaurant-header">
+
+                <!-- 名称 + 取消收藏按钮 -->
+                <view class="restaurant-header">
                 <text class="restaurant-name">{{item.name}}</text>
-              </view>
-              <view class="restaurant-rating">
+
+                <image 
+                    class="fav-icon"
+                    src="/images/fav-on.png"
+                    catchtap="onCancelFavorite"
+                    data-id="{{item.id}}"
+                />
+                </view>
+
+                <!-- 评分 + 月售 -->
+                <view class="restaurant-rating">
                 <text class="rating-star">★</text>
-                <text class="rating-score">{{item.avgRating}}</text>
-                <text class="rating-count">月售{{item.monthlySales}}</text>
-              </view>
-              <view class="restaurant-info">
+                <text class="rating-score">{{item.avgRating || 5.0}}</text>
+                <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+                </view>
+
+                <!-- 起送 配送 预计时间 -->
+                <view class="restaurant-info">
                 <text class="info-item">起送¥{{item.minOrderAmount}}</text>
                 <text class="info-item">配送¥{{item.deliveryFee}}</text>
                 <text class="info-item">{{item.deliveryTime}}</text>
-              </view>
+                </view>
+
+                <!-- 餐厅描述 -->
+                <view class="restaurant-desc">
+                <text class="desc-text">{{item.description}}</text>
+                </view>
+
             </view>
-          </view>
-        <!-- 删除按钮 -->
-        <view class="delete-btn" data-id="{{item.id}}" bindtap="onDeleteTap">
-                取消收藏
+
+            </view>
+
         </view>
-        </movable-view>
 
-        
+        </view>
 
-      </movable-area>
-
-    </view>
-  </view>
+        </view>
 
   <!-- 空状态 -->
   <view wx:if="{{favorites.length === 0}}" class="empty-box">
@@ -73,5 +79,4 @@
   </view>
 
 </scroll-view>
-
 </view>

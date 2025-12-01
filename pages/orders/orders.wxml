@@ -1,2 +1,92 @@
 <!--pages/orders/orders.wxml-->
-<text>pages/orders/orders.wxml</text>
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left">
+      <image src="/images/back.png" class="back-icon" bindtap="onBack"></image>
+    </view>
+
+    <view class="nav-center">
+      <text class="nav-title">全部订单</text>
+    </view>
+
+    <view class="nav-right"></view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-box">
+    <input 
+      placeholder="搜索订单 / 商家名"
+      placeholder-class="holder"
+      class="search-input"
+      bindinput="onSearchInput"
+    />
+    <image src="/images/search.png" class="search-icon"></image>
+  </view>
+</view>
+
+<!-- 内容滚动区 -->
+<scroll-view class="content-scroll" scroll-y="true">
+
+  <!-- 空状态 -->
+  <view wx:if="{{orderList.length === 0}}" class="empty-box">
+    <text class="empty-text">暂无订单</text>
+  </view>
+
+  <!-- 订单卡片 -->
+  <view wx:for="{{orderList}}" wx:key="id" class="order-card"
+      bindtap="goToOrderDetail"
+      bindlongpress="onDeleteConfirm"
+      data-id="{{item.id}}">
+
+    <!-- 顶部：商家 LOGO + 名称 + 右箭头 + 状态 -->
+<view class="order-header">
+
+    <!-- 左边：商家信息（可点击跳转） -->
+    <view class="shop-info" bindtap="goToRestaurant" data-id="{{item.restaurantId}}">
+    
+    <image class="shop-logo" src="{{item.restaurantLogo}}"></image>
+
+    <text class="shop-name">{{item.restaurantName}}</text>
+
+    <image class="arrow-right" src="/images/arrow-right.png"></image>
+
+    </view>
+
+    <!-- 右边：订单状态 -->
+    <text class="order-status {{item.statusClass}}">{{item.statusText}}</text>
+
+    </view>
+
+    <!-- 菜品列表 -->
+    <view wx:for="{{item.items}}" wx:key="dishId" class="dish-row">
+      <image class="dish-img" src="{{item.imageUrl}}"></image>
+
+      <view class="dish-right">
+        <text class="dish-name">{{item.name}}</text>
+
+        <view class="dish-desc">
+          <text>{{item.spec || ''}}</text>
+        </view>
+
+        <view class="dish-bottom">
+          <text class="dish-qty">x{{item.quantity}}</text>
+          <text class="dish-price">￥{{item.price}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 总计 + 时间 -->
+    <view class="order-footer">
+      <text class="total-text">共 {{item.totalQuantity}} 件商品，合计：</text>
+      <text class="total-price">￥{{item.totalAmount}}</text>
+    </view>
+
+    <text class="order-time">{{item.createdTime}}</text>
+
+  </view>
+
+</scroll-view>
+</view>
