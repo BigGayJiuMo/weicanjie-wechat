@@ -53,10 +53,10 @@
               </view>
             </view>
             
-            <view class="restaurant-rating">
-              <text class="rating-star">★</text>
-              <text class="rating-score">{{item.avgRating || 5.0}}</text>
-              <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+            <view class="restaurant-rating" wx:if="{{item.avgRating !== null && item.avgRating !== -1}}">
+                <text class="rating-star">★</text>
+                <text class="rating-score">{{item.avgRating || 5.0}}</text>
+                <text class="rating-count">月售{{item.monthlySales || 0}}</text>
             </view>
             
             <view class="restaurant-info">

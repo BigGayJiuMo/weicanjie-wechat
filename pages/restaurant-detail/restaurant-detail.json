@@ -1,3 +1,7 @@
 {
-    "usingComponents": {}
+    "usingComponents": {},
+  "componentGenerics": {
+    "node": true
+  },
+  "disableScroll": true
 }
