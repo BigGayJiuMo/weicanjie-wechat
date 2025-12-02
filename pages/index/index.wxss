@@ -170,29 +170,34 @@
   color: #ff8c00;
 }
 
-.restaurant-rating {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.rating-star {
-  color: #ff6b35;
-  font-size: 24rpx;
-  margin-right: 8rpx;
-}
-
-.rating-score {
-  font-size: 26rpx;
-  color: #ff6b35;
-  margin-right: 16rpx;
-  font-weight: bold;
-}
-
-.rating-count {
-  font-size: 24rpx;
-  color: #666;
-}
+.rating-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16rpx;
+    gap: 16rpx;
+  }
+  .restaurant-rating {
+    display: flex;
+    align-items: center;
+  }
+  
+  .rating-star {
+    color: #ff6b35;
+    font-size: 24rpx;
+    margin-right: 8rpx;
+  }
+  
+  .rating-score {
+    font-size: 26rpx;
+    color: #ff6b35;
+    margin-right: 16rpx;
+    font-weight: bold;
+  }
+  
+  .rating-count {
+    font-size: 24rpx;
+    color: #666;
+  }
 
 .restaurant-info {
   display: flex;

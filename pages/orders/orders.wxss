@@ -66,8 +66,9 @@
 
 /* 内容滚动区域 */
 .content-scroll {
-  flex: 1;
-  padding-bottom: 40rpx;
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 40rpx;
 }
 
 /* 空状态 */

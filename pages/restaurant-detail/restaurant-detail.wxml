@@ -367,11 +367,10 @@ id="pageScroll"
           <view class="order-dish-details">
             <view class="order-dish-header">
               <text class="order-dish-name">{{item.name}}</text>
-              <text class="order-dish-price">¥{{item.formattedPrice}}</text>
+              <text class="order-dish-price">¥{{item.subtotal}}</text>
             </view>
 
             <view class="order-dish-controls">
-              <view class="item-total-price">¥{{item.subtotal}}</view>
 
               <view class="order-quantity-control">
                 <view

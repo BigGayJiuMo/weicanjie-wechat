@@ -12,7 +12,7 @@
         <view class="search-box">
           <input
             class="search-input"
-            placeholder="搜索餐厅..."
+            placeholder="输入商家名"
             placeholder-class="search-placeholder"
             bindinput="onSearchInput"
             bindconfirm="onSearchConfirm"
@@ -53,9 +53,14 @@
               </view>
             </view>
             
-            <view class="restaurant-rating" wx:if="{{item.avgRating !== null && item.avgRating !== -1}}">
-                <text class="rating-star">★</text>
-                <text class="rating-score">{{item.avgRating || 5.0}}</text>
+            <view class="rating-row">
+                <!-- 左边：评分（有评分才显示） -->
+                <view class="restaurant-rating" wx:if="{{item.avgRating !== null && item.avgRating !== -1}}">
+                    <text class="rating-star">★</text>
+                    <text class="rating-score">{{item.avgRating || 5.0}}</text>
+                </view>
+
+                <!-- 右边：月售（永远显示） -->
                 <text class="rating-count">月售{{item.monthlySales || 0}}</text>
             </view>
             

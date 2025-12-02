@@ -209,14 +209,25 @@ Page({
     },
 
     onCancelOrder() {
-        wx.showModal({
-            title: "确认取消？",
-            content: "确定要取消这个订单吗？",
-            confirmColor: "#ff6b35",
-            success: res => {
-                if (res.confirm) this.cancelOrder();
-            }
-        });
+        const orderStatus = this.data.order.status;
+        
+        if (orderStatus === 1 || orderStatus === 2) { // 判断状态是待支付或者待处理
+            wx.showModal({
+                title: "确认取消？",
+                content: "确定要取消这个订单吗？",
+                confirmColor: "#ff6b35",
+                success: res => {
+                    if (res.confirm) {
+                        this.cancelOrder();
+                    }
+                }
+            });
+        } else {
+            wx.showToast({
+                title: "此订单无法取消",
+                icon: "none"
+            });
+        }
     },
 
     cancelOrder() {

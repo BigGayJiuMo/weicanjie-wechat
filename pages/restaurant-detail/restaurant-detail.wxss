@@ -539,7 +539,7 @@
     right: 0;
     bottom: 120rpx; /* 底部空出购物车栏 */
     background: rgba(0, 0, 0, 0);
-    z-index: 1600;
+    z-index: 1000;
     visibility: hidden;
     transition: all 0.3s ease;
     pointer-events: none;
@@ -829,11 +829,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20rpx 30rpx;
+    padding: 0rpx 30rpx;
     border-bottom: 1rpx solid #f0f0f0;
     background: white;
     border-radius: 24rpx 24rpx 0 0;
-    margin-top: 10vh;
+    margin-top: 30rpx
   }
   
   .checkout-restaurant-info {

@@ -49,14 +49,24 @@ Page({
   /** 根据分类加载餐厅 */
   loadRestaurantList(categoryId) {
     const app = getApp();
-
+  
     wx.request({
       url: app.globalData.baseUrl + "/restaurant/listByCategory",
       method: "GET",
       data: { categoryId },
       success: (res) => {
         if (res.data.code === 200) {
-          this.setData({ restaurants: res.data.data || [] });
+          // 处理餐厅列表，确保评分字段存在
+          const restaurants = (res.data.data || []).map(restaurant => {
+            if (restaurant.avgRating === undefined || restaurant.avgRating === -1) {
+              restaurant.avgRating = null;  // 如果没有评分，将其设为 null
+            }
+            return restaurant;
+          });
+  
+          this.setData({
+            restaurants: restaurants
+          });
         } else {
           this.setData({ restaurants: [] });
         }

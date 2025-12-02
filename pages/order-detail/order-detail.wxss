@@ -86,180 +86,64 @@
     opacity: 0.9;
   }
 
-/* 卡片样式 */
-.delivery-card,
-.restaurant-card,
-.order-info-card,
-.products-card,
-.amount-card,
-.payment-method-card {
+/* 订单状态卡片 */
+.status-card {
+    background: linear-gradient(135deg, #ff6b35, #ff8e53);
+    padding: 60rpx 40rpx;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+/* 订单卡片：合并餐厅信息、订单商品、订单信息、金额明细 */
+.order-card {
     background: white;
     border-radius: 20rpx;
-    margin: 20rpx; /* 修改为上下边距 */
+    margin: 20rpx;
     padding: 30rpx;
     box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20rpx;
-}
-
-.card-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #333;
 }
 
 /* 餐厅信息 */
 .restaurant-info {
     display: flex;
     align-items: center;
-  }
-  
-  .restaurant-logo {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 12rpx;
-    margin-right: 30rpx;
-  }
-  
-  .restaurant-details {
-    flex: 1;
-  }
-  
-  .restaurant-name {
+    padding: 20rpx;
+}
+
+.restaurant-name {
     font-size: 32rpx;
     font-weight: bold;
     color: #333;
-    display: block;
-    margin-bottom: 10rpx;
-  }
-  
-  .restaurant-address,
-  .restaurant-phone {
-    font-size: 26rpx;
-    color: #666;
-    display: block;
-    margin-bottom: 5rpx;
-  }
-  
-  /* 商品列表 */
-  .products-list {
+}
+
+.arrow-icon {
+    margin-left: 10rpx;
+    width: 24rpx;
+    height: 24rpx;
+}
+
+/* 商品信息 */
+.products-info {
     margin-top: 20rpx;
-  }
-  
-  .product-item {
-    display: flex;
-    align-items: center;
-    padding: 20rpx 0;
-    border-bottom: 1rpx solid #f5f5f5;
-  }
-  
-  .product-item:last-child {
-    border-bottom: none;
-  }
-  
-  .product-image {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 12rpx;
-    margin-right: 30rpx;
-  }
-  
-  .product-info {
-    flex: 1;
-  }
-  
-  .product-name {
-    font-size: 30rpx;
-    color: #333;
-    display: block;
-    margin-bottom: 10rpx;
-  }
-  
-  .product-price {
-    font-size: 28rpx;
-    color: #ff6b35;
-    font-weight: 500;
-  }
-  
-  .product-quantity {
-    margin-left: 20rpx;
-  }
-  
-  .quantity {
-    font-size: 28rpx;
-    color: #666;
-  }
-  
-/* 空商品状态 */
-.empty-products {
-    padding: 40rpx 30rpx;
-}
-
-.empty-card {
-    background: #fff;
-    border-radius: 16rpx;
-    padding: 80rpx 40rpx;
-    text-align: center;
-}
-
-.empty-icon {
-    width: 120rpx;
-    height: 120rpx;
-    margin-bottom: 30rpx;
-}
-
-.empty-text {
-    font-size: 28rpx;
-    color: #999;
-    display: block;
-}
-
-/* 商品列表样式 */
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 30rpx;
-    border-bottom: 1rpx solid #f0f0f0;
-}
-
-.card-title {
-    font-size: 32rpx;
-    font-weight: 600;
-    color: #333;
-}
-
-.product-count {
-    font-size: 26rpx;
-    color: #666;
 }
 
 .products-list {
-    padding: 0 30rpx;
+    margin-top: 20rpx;
 }
 
 .product-item {
     display: flex;
     align-items: center;
-    padding: 24rpx 0;
-    border-bottom: 1rpx solid #f0f0f0;
-}
-
-.product-item:last-child {
-    border-bottom: none;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #f5f5f5;
 }
 
 .product-image {
-    width: 120rpx;
-    height: 120rpx;
+    width: 100rpx;
+    height: 100rpx;
     border-radius: 12rpx;
-    margin-right: 24rpx;
+    margin-right: 30rpx;
 }
 
 .product-info {
@@ -269,57 +153,25 @@
 }
 
 .product-name {
-    font-size: 28rpx;
+    font-size: 30rpx;
     color: #333;
-    margin-bottom: 10rpx;
+}
+
+.product-quantity {
+    font-size: 26rpx;
+    color: #666;
+    margin-top: 5rpx;
 }
 
 .product-price {
     font-size: 28rpx;
-    color: #ff6b35;
-    font-weight: 600;
-}
-
-.product-quantity {
-    width: 60rpx;
-    text-align: right;
-}
-
-.quantity {
-    font-size: 28rpx;
-    color: #666;
+    color: red;
+    font-weight: bold;
+    margin-left: auto;
 }
 /* 订单信息 */
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20rpx;
-}
-
-.order-title {
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #333;
-}
-
-.order-status {
-    height: 70rpx;
-    line-height: 25rpx;
-    font-size: 24rpx;
-    padding: 8rpx 16rpx;
-    border-radius: 20rpx;
-    font-weight: bold;
-}
-
-.order-status.pending {
-    background: #fff0e8;
-    color: #ff6b35;
-}
-
-.order-status.paid {
-    background: #e8f5e8;
-    color: #07c160;
+.order-details {
+    margin-top: 20rpx;
 }
 
 .detail-item {
@@ -327,10 +179,6 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12rpx;
-}
-
-.detail-item:last-child {
-    margin-bottom: 0;
 }
 
 .detail-label {
@@ -344,75 +192,23 @@
     font-weight: 500;
 }
 
-/* 商品列表 */
-.products-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20rpx;
-}
-
-.product-item {
-    display: flex;
-    align-items: center;
-    padding: 20rpx 0;
-    border-bottom: 1rpx solid #f5f5f5;
-}
-
-.product-item:last-child {
-    border-bottom: none;
-}
-
-.product-image {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 12rpx;
-    margin-right: 20rpx;
-    flex-shrink: 0;
-}
-
-.product-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.product-name {
-    font-size: 28rpx;
-    color: #333;
-    margin-bottom: 8rpx;
-}
-
-.product-price {
-    font-size: 26rpx;
-    color: #ff4757;
-    font-weight: bold;
-}
-
-.product-quantity {
-    margin-left: auto;
-}
-
-.quantity {
-    font-size: 28rpx;
-    color: #666;
-}
-
 /* 金额明细 */
 .amount-details {
-    display: flex;
-    flex-direction: column;
-    gap: 16rpx;
+    margin-top: 20rpx;
 }
 
 .amount-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 12rpx;
 }
 
 .amount-item.total {
     padding-top: 16rpx;
     border-top: 1rpx solid #f0f0f0;
+    padding-bottom: 16rpx;
+    border-bottom: 1rpx solid #f0f0f0;
 }
 
 .amount-label {
@@ -431,293 +227,6 @@
     font-weight: bold;
     color: #ff4757;
 }
-
-/* 支付区域整体卡片 */
-.payment-section {
-    background: #fff;
-    border-radius: 20rpx;
-    margin: 20rpx;
-    padding: 30rpx;
-    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-/* 小提示 */
-.payment-tips {
-    text-align: center;
-    margin-bottom: 20rpx;
-}
-
-.tips-text {
-    font-size: 26rpx;
-    color: #999;
-}
-
-/* 支付按钮 */
-.payment-btn {
-    background: linear-gradient(135deg, #ff6b35, #ff8e53);
-    color: #fff;
-    text-align: center;
-    padding: 24rpx 0;
-    border-radius: 50rpx;
-    font-size: 32rpx;
-    font-weight: bold;
-    box-shadow: 0 8rpx 20rpx rgba(255, 107, 53, 0.3);
-    transition: all 0.2s;
-}
-
-.payment-btn:active {
-    transform: scale(0.97);
-    box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
-}
-
-/* 禁用按钮 */
-.payment-btn.disabled {
-    background: #ccc !important;
-    color: #f8f8f8 !important;
-    box-shadow: none !important;
-}
-
-/* 支付方式 */
-.payment-method {
-    display: flex;
-    flex-direction: column;
-}
-
-.method-item {
-    display: flex;
-    align-items: center;
-    padding: 20rpx;
-    border-bottom: 1rpx solid #f0f0f0;
-}
-
-.method-item:last-child {
-    border-bottom: none;
-}
-
-.method-item.active {
-    background: #f8f9fa;
-}
-
-.method-icon {
-    width: 48rpx;
-    height: 48rpx;
-    margin-right: 20rpx;
-}
-
-.method-name {
-    flex: 1;
-    font-size: 28rpx;
-    color: #333;
-}
-
-.method-check {
-    width: 32rpx;
-    height: 32rpx;
-}
-
-/* 底部支付栏 */
-.payment-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 20rpx 30rpx;
-    border-top: 1rpx solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-.payment-info {
-    flex: 1;
-}
-
-.payment-label {
-    display: block;
-    font-size: 24rpx;
-    color: #666;
-    margin-bottom: 4rpx;
-}
-
-.payment-amount {
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #ff4757;
-}
-
-.payment-buttons {
-    display: flex;
-    gap: 20rpx;
-}
-
-.cancel-btn, .pay-btn {
-    padding: 20rpx 40rpx;
-    border-radius: 50rpx;
-    font-size: 28rpx;
-    font-weight: 600;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.3s ease;
-}
-
-.cancel-btn {
-    background: #f0f0f0;
-    color: #666;
-}
-
-.cancel-btn:active {
-    background: #e0e0e0;
-}
-
-.pay-btn {
-    background: #ff6b35;
-    color: white;
-    box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
-}
-
-.pay-btn:active {
-    transform: scale(0.98);
-    box-shadow: 0 2rpx 6rpx rgba(255, 107, 53, 0.3);
-}
-/* 禁用状态的支付按钮样式 */
-.pay-btn.disabled {
-    background: #cccccc !important;
-    box-shadow: none !important;
-    cursor: not-allowed !important;
-}
-
-.pay-btn.disabled:active {
-    transform: none !important;
-    box-shadow: none !important;
-}
-/* 弹窗样式 */
-.modal-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    padding: 40rpx;
-}
-
-.modal-container {
-    padding: 0 20rpx 20rpx 20rpx;
-    background: white;
-    border-radius: 20rpx;
-    width: 100%;
-    max-width: 600rpx;
-    overflow: hidden;
-}
-
-.success-modal {
-    text-align: center;
-    padding: 40rpx;
-}
-
-.modal-icon {
-    margin-bottom: 20rpx;
-}
-
-.modal-icon image {
-    width: 80rpx;
-    height: 80rpx;
-}
-
-.modal-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20rpx;
-}
-
-.modal-content {
-    margin-bottom: 30rpx;
-}
-
-.modal-content text {
-    display: block;
-    font-size: 26rpx;
-    color: #666;
-    margin-bottom: 8rpx;
-}
-
-.modal-buttons {
-    display: flex;
-    gap: 20rpx;
-}
-
-.modal-btn {
-    flex: 1;
-    padding: 20rpx;
-    border-radius: 12rpx;
-    font-size: 28rpx;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.modal-btn.primary {
-    background: #ff6b35;
-    color: white;
-}
-
-.modal-btn.primary:active {
-    background: #e55a2b;
-}
-
-.modal-btn.secondary {
-    background: #f0f0f0;
-    color: #666;
-}
-
-.modal-btn.secondary:active {
-    background: #e0e0e0;
-}
-
-.modal-btn.cancel {
-    background: #f0f0f0;
-    color: #666;
-}
-
-.modal-btn.cancel:active {
-    background: #e0e0e0;
-}
-
-.modal-btn.confirm {
-    background: #ff6b35;
-    color: white;
-}
-
-.modal-btn.confirm:active {
-    background: #e55a2b;
-}
-
-.modal-header {
-    padding: 40rpx 30rpx 20rpx;
-    text-align: center;
-}
-
-.modal-header .modal-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #333;
-    margin: 0;
-}
-
-/* 确保内容足够长时可以滚动 */
-.page-content {
-    min-height: 800rpx; /* 确保有足够的内容高度 */
-}
-
 /* 底部操作栏 */
 .action-bar {
     background-color: #fff;
@@ -727,36 +236,30 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000; /* 确保在内容上方 */
+    z-index: 1000;
     box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
-  }
-  
-  .action-buttons {
+}
+
+.action-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 20rpx;
-  }
-  
-  .action-btn {
+}
+
+.action-btn {
     padding: 20rpx 40rpx;
     border-radius: 50rpx;
     font-size: 28rpx;
     font-weight: 500;
     border: 2rpx solid #ff6b35;
-    transition: all 0.3s ease;
-  }
-  
-  .action-btn.primary {
+}
+
+.action-btn.primary {
     background-color: #ff6b35;
     color: white;
-  }
-  
-  .action-btn.secondary {
+}
+
+.action-btn.secondary {
     background-color: white;
     color: #ff6b35;
-  }
-  
-  .action-btn:active {
-    transform: scale(0.98);
-    opacity: 0.9;
-  }
+}

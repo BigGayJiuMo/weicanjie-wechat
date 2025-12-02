@@ -5,9 +5,10 @@ Page({
     },
   
     onLoad() {
-      this.loadOrders();
     },
-  
+    onShow() {
+        this.loadOrders();
+      },
     /** 加载订单 **/
     loadOrders() {
       const app = getApp();
