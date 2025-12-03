@@ -1,11 +1,11 @@
 /* 页面整体容器 */
 .container {
-    padding: 0;
-    background: #ffffff;
+    background: #f7f7f7;
     min-height: 100vh;
+    padding-bottom: 200rpx;
   }
   
-  /* 导航栏样式 */
+  /* 导航栏 */
   .navbar {
     background: white;
     padding: 20rpx 30rpx;
@@ -46,331 +46,74 @@
     color: #333;
   }
   
-  /* 中间滚动区域：铺满导航栏和底部购物车之间 */
-  .page-scroll {
-    height: calc(100vh - 100rpx); /* navbar + 状态栏 */
-    overflow: hidden;
-    position: fixed;
-    top: 175rpx;
-    bottom: 120rpx;
+  /* 滚动区域 */
+  .scroll-area {
+    position: absolute;
+    top: 175rpx; /* 导航栏高度 */
+    bottom: 120rpx; /* 购物车栏高度 */
     left: 0;
     right: 0;
-    /* background: #000000; */
+    overflow: auto;
   }
   
-  /* 餐厅信息卡片 */
-  .restaurant-info-card {
+  /* 菜品大图 */
+  .dish-image {
+    width: 100%;
+    height: 700rpx;
+    object-fit: cover;
+    background-color: #eaeaea;
+  }
+  
+  /* 白色卡片 */
+  .detail-card {
     background: white;
+    margin-top: 40rpx;
+    margin-left: 20rpx;
+    margin-right: 20rpx;
     border-radius: 20rpx;
     padding: 30rpx;
-    margin: 0 20rpx 20rpx;
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.08);
   }
   
-  .restaurant-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 24rpx;
-  }
-  
-  .restaurant-logo {
-    width: 180rpx;
-    height: 180rpx;
-    border-radius: 12rpx;
-    margin-right: 24rpx;
-    object-fit: cover;
-  }
-  
-  .restaurant-basic {
-    flex: 1;
-  }
-  
-/* 餐厅名称和收藏按钮在一行 */
-.restaurant-name-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12rpx;
-  }
-  
-  /* 餐厅名称 */
-  .restaurant-name {
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #333;
-    max-width: 80%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  
-  /* 收藏按钮 */
-  .favorite-icon {
-    width: 48rpx;
-    height: 48rpx;
-  }
-  /* 餐厅营业状态样式 */
-  .restaurant-status {
-    display: inline-block;
-    padding: 8rpx 16rpx;
-    border-radius: 20rpx;
-    font-size: 22rpx;
-    font-weight: bold;
-  }
-  
-  .status-open {
-    background: #e8f5e8;
-    color: #07c160;
-  }
-  
-  .status-closed {
-    background: #fef0f0;
-    color: #ff4757;
-  }
-  
-  .status-break {
-    background: #fff7e6;
-    color: #ff8c00;
-  }
-  
-  /* 餐厅元信息（评分、月售等） */
-  .restaurant-meta {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 24rpx;
-    padding: 20rpx 0;
-  }
-  
-  .meta-item {
+  /* 标题价格部分 */
+  .dish-header {
     display: flex;
     flex-direction: column;
-    align-items: center;
-  }
-  
-  .meta-label {
-    font-size: 24rpx;
-    color: #666;
-    margin-bottom: 8rpx;
-  }
-  
-  .meta-value {
-    font-size: 28rpx;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  /* 餐厅描述 */
-  .restaurant-desc {
     margin-bottom: 20rpx;
   }
   
-  .desc-text {
-    font-size: 26rpx;
-    color: #666;
-    line-height: 1.5;
-  }
-  
-  .address-text {
-    font-size: 24rpx;
-    color: #666;
-  }
-  
-  /* 吸顶 Tab */
-  .main-tabs {
-    display: flex;
-    background: #fff;
-    border-bottom: 1rpx solid #eee;
-    padding: 20rpx 0;
-    position: sticky;
-    top: 0;
-    z-index: 999; 
-  }
-  .tab-item {
-    flex: 1;
-    text-align: center;
-    font-size: 30rpx;
-    padding-bottom: 20rpx;
-    color: #666;
-  }
-  
-  .tab-item.active {
-    color: #ff6b35;
+  .dish-price {
+    font-size: 48rpx;
+    color: #ff4757;
     font-weight: bold;
-    border-bottom: 4rpx solid #ff6b35;
-  }
-  .menu-wrapper{
-  }
-  /* 菜单内容区域（分类导航 + 菜品列表） */
-  .menu-content {
-    display: flex;
-  flex-direction: row;
-      /* background-color: violet; */
-  }
-
-  .sidebar-sticky {
-    position: sticky;
-    top: 100rpx;   
-    align-self: flex-start;
-}
-
-  .category-sidebar {
-    width: 160rpx;
-    height: calc(98vh - 250rpx - 120rpx);
-    max-height: calc(100vh - 260rpx - 120rpx);
-    overflow-y: scroll;
-    background: #f8f9fa;
-    border-right: 1rpx solid #eee;
-}
-
-  .category-tab {
-    padding: 30rpx 20rpx;
-    font-size: 28rpx;
-    text-align: center;
-    border-bottom: 1rpx solid #e9ecef;
-    transition: all 0.3s ease;
-    position: relative;
-    background: #f8f9fa;
-    color: #333;
-  }
-  
-  .category-tab.active {
-    background: white;
-    color: #ff6b35;
-    font-weight: 600;
-    border-left: 6rpx solid #ff6b35;
-    box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.1);
-  }
-  
-  .tab-text {
-    font-size: 28rpx;
-    line-height: 1.4;
-    display: block;
-    font-weight: 500;
-  }
-  
-  /* 右侧菜品内容区域 */
-  .dishes-content {
-    flex: 1;
-  }
-  
-  /* 菜品分类标题 */
-  .category-section {
-    margin-bottom: 40rpx;
-  }
-  
-  .section-header {
-    padding: 30rpx 30rpx 20rpx;
-    background: #ffffff;
-  }
-  
-  .section-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #333;
-    display: block;
-  }
-  
-  /* 菜品列表 */
-  .dishes-list {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* 菜品卡片 */
-  .dish-card {
-    display: flex;
-    padding: 30rpx;
-    transition: all 0.3s ease;
-    padding-bottom: 50rpx;
-    background: #ffffff;
-  }
-  
-  .dish-card:active {
-    background: #f8f9fa;
-  }
-  
-  .dish-image {
-    width: 140rpx;
-    height: 140rpx;
-    border-radius: 16rpx;
-    margin-right: 30rpx;
-    flex-shrink: 0;
-    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-    background-color: #f0f0f0;
-    object-fit: cover;
-  }
-  
-  .dish-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  /* 菜名单独一行 */
-  .dish-header {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 8rpx;
   }
   
   .dish-name {
-    font-size: 32rpx;
-    font-weight: 600;
-    color: #333;
-    line-height: 1.4;
-    flex-grow: 1;
-    margin-right: 10rpx;
+    font-size: 34rpx;
+    font-weight: bold;
+    margin-top: 10rpx;
   }
   
-  .dish-description {
-    font-size: 26rpx;
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 16rpx;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  /* 菜品控制栏 */
-  .dish-controls {
+  /* 月售 / 库存 + 数量控制器 */
+  .dish-meta-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
   
-  .dish-price {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #ff4757;
-    flex-shrink: 0;
-    margin-top: 10rpx;
-    margin-bottom: 10rpx;
-  }
-  
-  .controls-right {
+  .dish-meta {
+    font-size: 26rpx;
+    color: #666;
     display: flex;
-    align-items: center;
-    gap: 10rpx;
-  }
-  
-  .stock-info {
-    font-size: 22rpx;
-    color: #ff6b35;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  
-  .sold-out {
-    font-size: 22rpx;
-    color: #999;
-    font-weight: 500;
-    white-space: nowrap;
+    gap: 40rpx;
   }
   
   /* 数量控制器 */
+  .controls-right {
+    display: flex;
+    align-items: center;
+  }
+  
   .quantity-control {
     display: flex;
     align-items: center;
@@ -383,16 +126,14 @@
     line-height: 36rpx;
     text-align: center;
     border-radius: 50%;
-    color: white;
-    border: none;
     font-size: 36rpx;
     font-weight: bold;
     transition: all 0.3s ease;
-    margin-top: 10rpx;
   }
   
   .quantity-btn.plus {
     background: #ff6b35;
+    color: white;
     box-shadow: 0 2rpx 8rpx rgba(255, 107, 53, 0.3);
   }
   
@@ -403,8 +144,7 @@
   }
   
   .quantity-btn:active {
-    transform: scale(0.95);
-    box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.1);
+    transform: scale(0.92);
   }
   
   .quantity-text {
@@ -412,8 +152,30 @@
     font-weight: bold;
     color: #333;
     min-width: 40rpx;
+    margin-top: -40rpx;
     text-align: center;
-    line-height: 10rpx;
+  }
+  
+  /* 信息区域 */
+  .info-section {
+    margin-top: 20rpx;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #f0f0f0;
+  }
+  
+  .info-label {
+    font-size: 28rpx;
+    color: #999;
+  }
+  
+  .info-value {
+    font-size: 28rpx;
+    color: #333;
   }
   
   /* 购物车底部栏 */
@@ -441,9 +203,6 @@
   
   .cart-icon-container {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   
   .cart-icon {
@@ -458,20 +217,13 @@
     background: #ff6b35;
     color: white;
     font-size: 20rpx;
-    font-weight: bold;
     padding: 8rpx;
     border-radius: 50%;
     min-width: 24rpx;
-    height: 24rpx;
     text-align: center;
-    line-height: 16rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   
   .price-info {
-    flex: 1;
     display: flex;
     flex-direction: column;
   }
@@ -483,8 +235,8 @@
   
   .total-price {
     font-size: 36rpx;
-    font-weight: bold;
     color: #ff4757;
+    font-weight: bold;
   }
   
   .no-items {
@@ -492,6 +244,7 @@
     color: #999;
   }
   
+  /* 去结算按钮 */
   .checkout-btn {
     width: 200rpx;
     background: #ff6b35;
@@ -508,23 +261,12 @@
   
   .checkout-btn.disabled {
     background: #cccccc;
-    color: #999999;
+    color: #999;
     box-shadow: none;
   }
   
-  /* 加载状态 */
-  .loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 100rpx 0;
-  }
-  
-  .loading-text {
-    font-size: 28rpx;
-    color: #999;
-  }
-  
+ /* >>>>>>>>>>>>>>>>> 购物车面板（从餐厅详情页复制） <<<<<<<<<<<<<<<<<< */
+
   /* 购物车面板样式 */
   .order-panel-mask {
     position: fixed;
@@ -975,7 +717,6 @@
     font-weight: bold;
     color: #ff4757;
   }
-  
   /* 结算底部栏 */
   .checkout-footer {
     background: white;
@@ -1014,273 +755,5 @@
     font-size: 28rpx;
     font-weight: 600;
     box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
-  }
-  
-/* 评价页整个容器 */
-.rating-page {
-    padding: 20rpx 26rpx;
-  }
-  
-  /* 标签区域 */
-  .rating-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16rpx;
-    margin-bottom: 20rpx;
-  }
-  
-  .tag-item {
-    padding: 12rpx 26rpx;
-    background: #f7f7f7;
-    border-radius: 40rpx;
-    font-size: 24rpx;
-    color: #333;
-  }
-  /* 评价为空 */
-  .no-rating-message {
-    text-align: center;
-    font-size: 18px;
-    color: #888;
-    padding: 20rpx;
-  }
-  /* 排序栏 */
-.rating-filter-bar {
-    background: #ffffff;
-    /* padding: 16rpx 26rpx; */
-    border-radius: 16rpx;
-  }
-  
-  /* 按钮本体 */
-  .filter-btn {
-    display: inline-block;
-    padding: 12rpx 32rpx;
-    font-size: 28rpx;
-    color: #666;
-    background: #e8e8e8;
-    border-radius: 40rpx;
-  }
-  
-  /* 选中效果：背景橙色 + 白字 */
-  .filter-btn.active {
-    background: #ff6b35;
-    color: #fff;
-    font-weight: bold;
-  }
-  
-  /* 评价列表容器 */
-  .rating-list {
-    margin-top: 0rpx;
-  }
-  
-  /* 单条评价卡片 */
-  .rating-item {
-    background: white;
-    padding: 30rpx;
-    border-radius: 20rpx;
-    margin-bottom: 20rpx;
-  }
-  /* —— 商家评分区 —— */
-.rating-summary-box {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    background: #ffffff;
-    padding: 10rpx 10rpx;
-    margin-bottom: 20rpx;
-    border-radius: 16rpx;
-  }
-  
-  /* 左侧大评分数字（橙色） */
-  .rating-summary-box {
-    display: flex;
-    align-items: center;
-    background: #ffffff;
-    padding: 20rpx 10rpx;
-    margin-bottom: 20rpx;
-    border-radius: 16rpx;
-  }
-  
-  /* 左侧大评分数字 */
-  .rating-summary-score {
-    font-size: 48rpx;
-    font-weight: bold;
-    color: #ff6b35;
-  }
-  
-  /* 右侧味道/包装：靠最右边 */
-  .rating-summary-sub {
-    margin-left: auto;   /* 核心：把右侧内容推到最右 */
-    display: flex;
-    gap: 50rpx;
-  }
-  
-  .sub-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* 让文字右对齐 */
-  }
-  
-  .sub-label {
-    font-size: 24rpx;
-    color: #666;
-  }
-  
-  .sub-value {
-    font-size: 30rpx;
-    color: #333;
-    font-weight: bold;
-  }
-  /* 用户信息（头像 + 名字 + 时间） */
-  .user-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .avatar {
-    width: 70rpx;
-    height: 70rpx;
-    border-radius: 50%;
-    margin-right: 20rpx;
-  }
-  
-  .user-meta {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .username {
-    font-size: 28rpx;
-    font-weight: bold;
-  }
-  
-  .rate-time {
-    font-size: 22rpx;
-    color: #aaa;
-    margin-top: 6rpx;
-  }
-  
-  /* 三标签一行展示 */
-  .rate-detail-tags-row {
-    display: flex;
-    gap: 30rpx;     /* 三个之间的距离 */
-    margin: 10rpx 0 20rpx 0;
-    flex-wrap: wrap; /* 太长时自动换到下一行 */
-  }
-  
-  .tag-text {
-    font-size: 24rpx;
-    color: #666;
-  }
-  
-  /* 评论文字 */
-  .rate-text {
-    font-size: 28rpx;
-    color: #333;
-    line-height: 1.6;
-    margin: 10rpx 0 20rpx 0;
-  }
-  
-  /* 图片列表 */
-  .rate-images {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14rpx;
-    /* background-color: #07c160; */
-  }
-  
-  .rate-img {
-    width: 200rpx;
-    height: 200rpx;
-    border-radius: 12rpx;
-    object-fit: cover;
-  }
-  /* 商家页 */
-  /* 整体页面背景 */
-.shop-page {
-    padding: 20rpx;
-    background: #f5f5f5;
-  }
-  
-  /* 白色卡片 */
-  .shop-card {
-    background: #ffffff;
-    border-radius: 16rpx;
-    padding: 30rpx;
-    margin-bottom: 30rpx;
-  }
-  
-  /* 商家名称 & 电话图标 */
-  .shop-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20rpx;
-  }
-  
-  .shop-name {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  /* 行（地址、营业时间） */
-  .shop-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16rpx;
-  }
-  
-  .shop-icon {
-    width: 32rpx;
-    height: 32rpx;
-    margin-right: 16rpx;
-  }
-  
-  .shop-text {
-    font-size: 26rpx;
-    color: #555;
-  }
-  
-  /* 图片列表（门面、大厅） */
-  .shop-photos-row {
-      /* background-color: #07c160; */
-    display: flex;
-    gap: 20rpx;
-    margin-top: 20rpx;
-  }
-  
-  .shop-photo {
-    width: 260rpx;
-    height: 190rpx;
-    border-radius: 12rpx;
-    object-fit: cover;
-    }
-  /* 商家承诺标题 */
-  .shop-subtitle {
-    font-size: 30rpx;
-    font-weight: bold;
-    margin-bottom: 20rpx;
-  }
-  
-  /* 承诺标签 */
-  .shop-promises {
-    display: flex;
-    gap: 20rpx;
-    flex-wrap: wrap;
-  }
-  
-  .shop-promise {
-    display: flex;
-    align-items: center;
-    padding: 12rpx 24rpx;
-    background: #f7f7f7;
-    border-radius: 40rpx;
-    font-size: 26rpx;
-    color: #333;
-  }
-  
-  .promise-icon {
-    color: #ff6b35;
-    margin-right: 8rpx;
   }
   

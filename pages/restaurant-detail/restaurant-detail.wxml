@@ -51,26 +51,20 @@ id="pageScroll"
 
     <!-- 信息 -->
     <view class="restaurant-meta">
-      <view class="meta-item" wx:if="{{restaurant.avgRating !== null}}">
-        <text class="meta-label">评分</text>
-        <text class="meta-value">{{restaurant.avgRating || 5.0}}</text>
-      </view>
-      <view class="meta-item">
-        <text class="meta-label">月售</text>
-        <text class="meta-value">{{restaurant.monthlySales}}</text>
-      </view>
-      <view class="meta-item">
-        <text class="meta-label">起送</text>
-        <text class="meta-value">¥{{restaurant.minOrderAmount}}</text>
-      </view>
-      <view class="meta-item">
-        <text class="meta-label">配送</text>
-        <text class="meta-value">¥{{restaurant.deliveryFee}}</text>
-      </view>
-      <view class="meta-item">
-        <text class="meta-label">打包</text>
-        <text class="meta-value">¥{{restaurant.packingFee}}</text>
-      </view>
+        <view class="meta-item" wx:if="{{restaurant.avgRating !== null}}">
+            <text class="meta-label">评分</text>
+            <text class="meta-value">{{restaurant.avgRating}}</text>
+        </view>
+
+        <view class="meta-item">
+            <text class="meta-label">月售</text>
+            <text class="meta-value">{{restaurant.monthlySales}}</text>
+        </view>
+
+        <view class="meta-item">
+            <text class="meta-label">打包</text>
+            <text class="meta-value">¥{{restaurant.packingFeeText}}</text>
+        </view>
     </view>
 
     <view class="restaurant-desc">
@@ -133,7 +127,7 @@ id="pageScroll"
 
       <view class="dishes-list">
 
-        <view wx:for="{{item.dishes}}" wx:key="id" class="dish-card">
+        <view wx:for="{{item.dishes}}" wx:key="id" class="dish-card" bindtap="goDishDetail" data-id="{{item.id}}">
           <image class="dish-image" src="{{item.imageUrl}}"></image>
 
           <view class="dish-details">
@@ -145,32 +139,33 @@ id="pageScroll"
             <text class="dish-description">{{item.description}}</text>
 
             <view class="dish-controls">
-              <text class="dish-price">¥{{item.formattedPrice}}</text>
+                <text class="dish-price">¥{{item.formattedPrice}}</text>
 
-              <view class="controls-right">
+                <view class="controls-right">
+                    <view class="quantity-control">
 
-                <view class="quantity-control">
-                  <view
-                    class="quantity-btn minus"
-                    wx:if="{{cartItems[item.id] > 0}}"
-                    bindtap="onDecreaseQuantity"
-                    data-dish="{{item}}"
-                  >-</view>
+                    <!-- 减 -->
+                    <view
+                        class="quantity-btn minus"
+                        wx:if="{{cartItems[item.id] > 0}}"
+                        catchtap="onDecreaseQuantity"
+                        data-dish="{{item}}"
+                    >-</view>
 
-                  <text wx:if="{{cartItems[item.id] > 0}}" class="quantity-text">
-                    {{cartItems[item.id]}}
-                  </text>
+                    <text wx:if="{{cartItems[item.id] > 0}}" class="quantity-text">
+                        {{cartItems[item.id]}}
+                    </text>
 
-                  <view
-                    class="quantity-btn plus"
-                    bindtap="onIncreaseQuantity"
-                    data-dish="{{item}}"
-                  >+</view>
+                    <!-- 加 -->
+                    <view
+                        class="quantity-btn plus"
+                        catchtap="onIncreaseQuantity"
+                        data-dish="{{item}}"
+                    >+</view>
 
+                    </view>
                 </view>
-
-              </view>
-            </view>
+                </view>
 
           </view>
 
@@ -187,7 +182,6 @@ id="pageScroll"
 </view> 
 
   <!-- 评价页面 -->
-<!-- 评价页面 -->
 <view wx:if="{{activeTab === 'rating'}}" class="rating-page">
 
 <!-- 商家评分区域，只有在有评价时才显示 -->
@@ -333,9 +327,6 @@ id="pageScroll"
         <text class="total-price" wx:if="{{totalQuantity > 0}}">¥{{formattedTotalPrice}}</text>
         <text class="no-items" wx:else>未选择商品</text>
       </view>
-      <text class="delivery-fee" wx:if="{{totalQuantity > 0}}">
-        另需配送费¥{{restaurant ? restaurant.deliveryFee || 0 : 0}}
-      </text>
     </view>
   </view>
   <view
@@ -399,11 +390,6 @@ id="pageScroll"
       <view class="summary-row">
         <text class="summary-label">菜品小计</text>
         <text class="summary-value">¥{{formattedSubTotal}}</text>
-      </view>
-
-      <view class="summary-row">
-        <text class="summary-label">配送费</text>
-        <text class="summary-value">¥{{deliveryFee}}</text>
       </view>
 
       <view class="summary-row">
@@ -477,11 +463,6 @@ id="pageScroll"
         <view class="checkout-summary-row">
           <text class="summary-label">菜品小计</text>
           <text class="summary-value">¥{{formattedSubTotal}}</text>
-        </view>
-
-        <view class="checkout-summary-row">
-          <text class="summary-label">配送费</text>
-          <text class="summary-value">¥{{deliveryFee}}</text>
         </view>
 
         <view class="checkout-summary-row">

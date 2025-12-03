@@ -14,8 +14,10 @@
         "pages/agreement/privacy-policy",
         "pages/restaurant-detail/restaurant-detail",
         "pages/order-detail/order-detail",
+        "pages/dish-detail/dish-detail",
         "pages/submitOrder/submitOrder",
-        "pages/history/history"
+        "pages/history/history",
+        "pages/review/review"
     ],
     "window": {
         "backgroundTextStyle": "light",

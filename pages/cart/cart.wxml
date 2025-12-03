@@ -30,7 +30,11 @@
 
             <!-- 该餐厅的商品列表 -->
             <view class="cart-items">
-                <view class="cart-item" wx:for="{{item.items}}" wx:key="id">
+                <view class="cart-item" wx:for="{{item.items}}" wx:key="id"
+                        bindtap="goDishDetail"
+                        data-id="{{item.dishId}}"
+                        data-restaurant="{{item.restaurantId}}"
+                    >
                     <view class="item-selector">
                         <view class="checkbox {{item.selected ? 'checked' : ''}}" bindtap="toggleItemSelection" data-item="{{item}}" data-restaurant="{{item.restaurantId}}">
                             <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>

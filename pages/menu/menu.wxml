@@ -31,7 +31,6 @@
 
   <!-- 右侧餐厅列表 -->
   <scroll-view class="right-content" scroll-y="true">
-
     <view
       wx:for="{{restaurants}}"
       wx:key="id"
@@ -39,28 +38,35 @@
       bindtap="goDetail"
       data-id="{{item.id}}"
     >
-    <image class="cover" src="{{item.logoUrl}}"></image>
-    <view class="info">
+
+      <image class="cover" src="{{item.logoUrl}}"></image>
+
+      <view class="info">
+
+        <!-- 标题 -->
         <text class="title">{{item.name}}</text>
 
+        <!-- 评分 & 月售 -->
         <view class="rating-row">
-                <!-- 左边：评分（有评分才显示） -->
-                <view class="restaurant-rating" wx:if="{{item.avgRating !== null && item.avgRating !== -1}}">
-                    <text class="rating-star">★</text>
-                    <text class="rating-score">{{item.avgRating || 5.0}}</text>
-                </view>
 
-                <!-- 右边：月售（永远显示） -->
-                <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+          <!-- 评分 -->
+          <view class="restaurant-rating" wx:if="{{item.avgRating !== null}}">
+            <text class="rating-star">★</text>
+            <text class="rating-score">{{item.avgRating}}</text>
+          </view>
+
+          <!-- 月售 -->
+          <text class="rating-count">月售{{item.monthlySales || 0}}</text>
         </view>
 
-        <text class="delivery">{{item.deliveryTime}}分钟</text>
-    </view>
+        <!-- 打包费（替代配送时间） -->
+        <text class="delivery">打包费 ¥{{item.packingFee || 0}}</text>
+        
+      </view>
 
     </view>
 
   </scroll-view>
-
 </view>
 
 </view>

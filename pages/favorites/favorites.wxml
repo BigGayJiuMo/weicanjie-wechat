@@ -46,21 +46,14 @@
 
                 <!-- 评分 + 月售 -->
                 <view class="restaurant-rating">
-                <text class="rating-star">★</text>
-                <text class="rating-score">{{item.avgRating || 5.0}}</text>
-                <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+                    <text class="rating-star">★</text>
+                    <text class="rating-score">{{item.avgRating || 5.0}}</text>
+                    <text class="rating-count">月售{{item.monthlySales || 0}}</text>
                 </view>
 
-                <!-- 起送 配送 预计时间 -->
-                <view class="restaurant-info">
-                <text class="info-item">起送¥{{item.minOrderAmount}}</text>
-                <text class="info-item">配送¥{{item.deliveryFee}}</text>
-                <text class="info-item">{{item.deliveryTime}}</text>
-                </view>
-
-                <!-- 餐厅描述 -->
+                <!-- 餐厅描述（删除起送、配送） -->
                 <view class="restaurant-desc">
-                <text class="desc-text">{{item.description}}</text>
+                    <text class="desc-text">{{item.description}}</text>
                 </view>
 
             </view>

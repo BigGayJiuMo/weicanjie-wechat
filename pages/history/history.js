@@ -8,29 +8,34 @@ Page({
     },
   
     loadHistory() {
-      const app = getApp();
-      const userId = app.globalData.userInfo.id;
-  
-      wx.request({
-        url: app.globalData.baseUrl + '/history/list',
-        method: 'GET',
-        data: { userId },
-        success: (res) => {
-          if (res.data.code === 200) {
-            const list = res.data.data || [];
-
-            // 格式化浏览时间
-            list.forEach(item => {
-            item.viewedTime = formatRelativeTime(item.viewedTime);
-            });
-
-            this.setData({
-            historyList: list
-            });
+        const app = getApp();
+        const userId = app.globalData.userInfo.id;
+      
+        wx.request({
+          url: app.globalData.baseUrl + '/history/list',
+          method: 'GET',
+          data: { userId },
+          success: (res) => {
+            if (res.data.code === 200) {
+              let list = res.data.data || [];
+      
+              list.forEach(item => {
+                // 格式化时间
+                item.viewedTime = formatRelativeTime(item.viewedTime);
+      
+                // ⭐ 保留 1 位小数
+                if (item.avgRating === undefined || item.avgRating === null || item.avgRating === -1) {
+                  item.avgRating = null;
+                } else {
+                  item.avgRating = Number(item.avgRating).toFixed(1);
+                }
+              });
+      
+              this.setData({ historyList: list });
+            }
           }
-        }
-      });
-    },
+        });
+      },
   
     goDetail(e) {
       const id = e.currentTarget.dataset.id;

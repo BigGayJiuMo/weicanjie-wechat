@@ -45,14 +45,9 @@
             <text class="rating-score">{{item.avgRating || 5.0}}</text>
             <text class="rating-count">月售{{item.monthlySales || 0}}</text>
           </view>
-
-          <!-- 起送 配送 时间 -->
-          <view class="restaurant-info">
-            <text class="info-item">起送¥{{item.minOrderAmount}}</text>
-            <text class="info-item">配送¥{{item.deliveryFee}}</text>
-            <text class="info-item">{{item.deliveryTime}}</text>
-          </view>
-
+          <view class="restaurant-desc">
+                    <text class="desc-text">{{item.description}}</text>
+            </view>
           <!-- 浏览时间 -->
           <view class="browse-time">
             <text class="browse-time-text">浏览时间：{{item.viewedTime}}</text>

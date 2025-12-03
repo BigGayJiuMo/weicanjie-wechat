@@ -5,7 +5,6 @@ Page({
         restaurant: {},
         orderItems: [],
         subTotal: 0,
-        deliveryFee: 0,
         packingFee: 0,
         loading: true,
         estimateDeliveryTime: '30-45分钟',
@@ -15,7 +14,9 @@ Page({
             desc: ''
         },
         showPaymentModal: false,
-        isPaying: false
+        isPaying: false,
+        hasReview: false,
+        canReview: false,
     },
 
     onLoad: function(options) {
@@ -65,43 +66,35 @@ Page({
 
     /** 处理订单数据 */
     processOrderData: function(orderData) {
-        console.log("完整的订单数据:", orderData);
-
         const order = orderData.order;
         const restaurant = orderData.restaurant || {};
         let orderItems = orderData.orderItems || [];
-
+    
         orderItems = orderItems.map(item => ({
             ...item,
             uiImage: item.dishImageUrl || "/images/logo.png",
             uiName: item.dishName || "未命名商品",
             uiPrice: Number(item.dishPrice || 0).toFixed(2)
         }));
-
-        console.log("格式化后的订单商品:", orderItems);
-
-        // 计算小计
+    
         const subTotal = orderItems.reduce(
             (total, item) => total + item.dishPrice * item.quantity,
             0
         );
-
-        // 配送费 + 打包费
-        const deliveryFee = order.deliveryFee || 0;
-        const packingFee = order.packingFee || 0;
-
-        // 状态文本解析
+    
+        const packingFee = Number(order.packingFee || 0);   // ⭐ 只保留打包费
+    
         const statusInfo = this.calculateStatusInfo(order.status);
-
+    
         this.setData({
             order,
             restaurant,
             orderItems,
             subTotal: subTotal.toFixed(2),
-            deliveryFee: deliveryFee.toFixed(2),
             packingFee: packingFee.toFixed(2),
             statusInfo
         });
+        this.checkReviewStatus(order.id, order.createdTime);
     },
 
     /** 订单状态文本与图标 */
@@ -110,25 +103,22 @@ Page({
         const iconMap = {
             1: "/images/order-pending.png",
             2: "/images/order-processing.png",
-            3: "/images/order-delivering.png",
-            4: "/images/order-completed.png",
-            5: "/images/order-cancelled.png"
+            3: "/images/order-completed.png",
+            4: "/images/order-cancelled.png"
         };
 
         const textMap = {
             1: "待支付",
             2: "待处理",
-            3: "配送中",
-            4: "已完成",
-            5: "已取消"
+            3: "已完成",
+            4: "已取消"
         };
 
         const descMap = {
             1: "请尽快完成支付",
             2: "餐厅正在准备您的订单",
-            3: "骑手正在火速配送中",
-            4: "订单已完成，感谢您的惠顾",
-            5: "订单已取消"
+            3: "订单已完成，感谢您的惠顾",
+            4: "订单已取消"
         };
 
         return {
@@ -249,6 +239,38 @@ Page({
             }
         });
     },
-
+    checkReviewStatus(orderId, createdTime) {
+        const app = getApp();
+        const userId = app.globalData.userInfo.id;
+    
+        wx.request({
+            url: app.globalData.baseUrl + "/review/list",
+            method: "GET",
+            data: { restaurantId: this.data.restaurant.id },
+            success: res => {
+                let reviewed = false;
+                if (res.data.code === 200) {
+                    const list = res.data.data || [];
+                    reviewed = list.some(r => r.order_id === orderId || r.orderId === orderId);
+                }
+    
+                // 是否超过 24 小时
+                const orderTime = new Date(createdTime.replace(/-/g, "/"));
+                const now = new Date();
+                const diffHours = (now - orderTime) / 3600000;
+                const expire = diffHours > 24;
+    
+                this.setData({
+                    hasReview: reviewed,
+                    canReview: !reviewed && !expire && this.data.order.status === 3 // 3 = 已完成
+                });
+            }
+        });
+    },
+    goReview() {
+        wx.navigateTo({
+            url: `/pages/review/review?orderId=${this.data.orderId}&restaurantId=${this.data.restaurant.id}`
+        });
+    },
     stopPropagation() {}
 });

@@ -222,3 +222,22 @@
   color: #999;
   font-size: 24rpx;
 }
+/* 右下角按钮容器 */
+.review-box {
+    margin-top: 20rpx;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .review-view {
+    background-color: #ff6b35;
+    color: #fff;
+    font-size: 26rpx;
+    padding: 12rpx 36rpx;
+    border-radius: 999rpx;
+    text-align: center;
+    display: inline-block;
+  }
+  
+  .review-view.disabled {
+    background-color: #dcdcdc;
+  }

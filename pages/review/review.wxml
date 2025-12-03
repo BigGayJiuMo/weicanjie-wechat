@@ -1,0 +1,114 @@
+<!--pages/review/review.wxml-->
+<view class="container">
+
+<!-- 自定义导航栏 -->
+<view class="navbar">
+        <view class="navbar-content">
+            <view class="nav-left">
+                <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+            </view>
+            <view class="nav-center">
+                <text class="nav-title">发布评价</text>
+            </view>
+            <view class="nav-right"></view>
+        </view>
+    </view>
+
+<scroll-view scroll-y="true" class="content">
+
+  <!-- 总体评分 -->
+  <view class="card">
+    <text class="title">总体评价</text>
+    <view class="star-row">
+      <block wx:for="{{5}}" wx:key="*this">
+        <image 
+          src="{{index < rating ? '/images/star-on.png' : '/images/star-off.png'}}"
+          class="star"
+          data-index="{{index}}"
+          bindtap="onRateOverall"
+        />
+      </block>
+    </view>
+  </view>
+
+  <!-- 味道评分 -->
+  <view class="card">
+    <text class="title">味道</text>
+    <view class="star-row">
+      <block wx:for="{{5}}" wx:key="*this">
+        <image 
+          src="{{index < taste ? '/images/star-on.png' : '/images/star-off.png'}}"
+          class="star"
+          data-index="{{index}}"
+          bindtap="onRateTaste"
+        />
+      </block>
+    </view>
+  </view>
+
+  <!-- 包装评分 -->
+  <view class="card">
+    <text class="title">包装</text>
+    <view class="star-row">
+      <block wx:for="{{5}}" wx:key="*this">
+        <image 
+          src="{{index < pack ? '/images/star-on.png' : '/images/star-off.png'}}"
+          class="star"
+          data-index="{{index}}"
+          bindtap="onRatePack"
+        />
+      </block>
+    </view>
+  </view>
+
+  <!-- 文本内容 -->
+  <view class="card">
+    <text class="title">评价内容</text>
+    <textarea 
+      placeholder="写下你的感受，帮助别人选择~"
+      class="textarea"
+      maxlength="300"
+      bindinput="onInputContent"
+    ></textarea>
+  </view>
+
+  <!-- 图片上传 -->
+  <view class="card">
+    <text class="title">上传图片（最多6张）</text>
+
+    <view class="image-list">
+
+      <!-- 已上传图片 -->
+      <block wx:for="{{images}}" wx:key="*this">
+        <view class="img-box">
+          <image src="{{item}}" class="img" mode="aspectFill" bindtap="previewImage" data-url="{{item}}"/>
+          <image src="/images/delete1.png" class="delete-icon" data-index="{{index}}" bindtap="removeImage"/>
+        </view>
+      </block>
+
+      <!-- 上传按钮 -->
+      <view 
+        class="upload-btn"
+        bindtap="chooseImage"
+        wx:if="{{images.length < 6}}"
+      >
+        <image src="/images/add.png" class="add-icon" />
+      </view>
+
+    </view>
+  </view>
+
+  <!-- 匿名 -->
+  <view class="card anon-box">
+    <text>匿名评价</text>
+    <switch checked="{{isAnon}}" bindchange="onAnonChange"/>
+  </view>
+
+</scroll-view>
+
+<!-- 底部按钮 -->
+<view class="bottom-bar">
+  <view class="submit-btn" bindtap="onSubmit">提交</view>
+</view>
+
+</view>

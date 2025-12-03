@@ -47,23 +47,33 @@ Page({
   
     /** 获取餐厅信息 */
     loadRestaurantDetails(ids) {
-      const app = getApp();
-  
-      wx.request({
-        url: app.globalData.baseUrl + "/restaurant/all",
-        method: "GET",
-        success: (res) => {
-          if (res.data.code !== 200) {
-            this.setData({ favorites: [] });
-            return;
+        const app = getApp();
+      
+        wx.request({
+          url: app.globalData.baseUrl + "/restaurant/all",
+          method: "GET",
+          success: (res) => {
+            if (res.data.code !== 200) {
+              this.setData({ favorites: [] });
+              return;
+            }
+      
+            let list = res.data.data.filter(r => ids.includes(r.id));
+      
+            // ⭐ 保留 1 位小数
+            list = list.map(r => {
+              if (r.avgRating === undefined || r.avgRating === null || r.avgRating === -1) {
+                r.avgRating = null;
+              } else {
+                r.avgRating = Number(r.avgRating).toFixed(1);
+              }
+              return r;
+            });
+      
+            this.setData({ favorites: list });
           }
-  
-          const list = res.data.data.filter(r => ids.includes(r.id));
-  
-          this.setData({ favorites: list });
-        }
-      });
-    },
+        });
+      },
   
     /** 点击取消收藏 */
     onCancelFavorite(e) {

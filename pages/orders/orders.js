@@ -4,41 +4,47 @@ Page({
       allOrders: []
     },
   
-    onLoad() {
-    },
     onShow() {
         this.loadOrders();
-      },
-    /** 加载订单 **/
+    },
+
     loadOrders() {
       const app = getApp();
       const userId = app.globalData.userInfo.id;
-  
       wx.request({
         url: app.globalData.baseUrl + "/order/list/" + userId,
         method: "GET",
         success: (res) => {
           if (res.data.code === 200) {
-  
-            // 处理订单列表（格式化时间 + 设置餐厅名称）
             const list = res.data.data.map(o => ({
               ...o,
               createdTime: this.formatTime(o.createdTime),
               statusClass: this.getStatusClass(o.status),
-              restaurantName: o.restaurantName || "",   // 防止 undefined
+              restaurantName: o.restaurantName || "",
               restaurantLogo: o.restaurantLogo || "",
             }));
-            
+            list.forEach(item => {
+                // 是否完成
+                const isFinished = item.status === 3 || item.status === 4;
+              
+                // 时间判断
+                const created = new Date(item.createdTime.replace(/-/g, "/"));
+                const diffHour = (new Date() - created) / 3600000;
+                const expire = diffHour > 24;
+              
+                item._expired = expire;
+                item._canReview = isFinished && !expire;
+              });
             this.setData({
               orderList: list,
               allOrders: list
             });
+              this.checkOrdersReview(list);
           }
         }
       });
     },
-  
-    /** 搜索 **/
+
     onSearchInput(e) {
       const keyword = e.detail.value.trim();
   
@@ -53,17 +59,17 @@ Page({
   
       this.setData({ orderList: searchList });
     },
+
     getStatusClass(status) {
-        switch (status) {
-          case 1: return "pending";
-          case 2: return "processing";
-          case 3: return "delivering";
-          case 4: return "completed";
-          case 5: return "cancelled";
-          default: return "";
-        }
-      },
-    /** 长按删除订单 **/
+      switch (status) {
+        case 1: return "pending";
+        case 2: return "processing";
+        case 3: return "completed";
+        case 4: return "cancelled";
+        default: return "";
+      }
+    },
+
     onDeleteConfirm(e) {
       const orderId = e.currentTarget.dataset.id;
   
@@ -95,50 +101,65 @@ Page({
         }
       });
     },
-  
-    /** 格式化时间：2025-12-01 14:24:34 **/
+
     formatTime(t) {
       if (!t) return "";
-  
       try {
         const date = new Date(t.replace("T", " ").replace(/-/g, "/"));
-  
-        if (isNaN(date.getTime())) {
-          console.warn("无法解析的时间格式：", t);
-          return t;
-        }
-  
+        if (isNaN(date.getTime())) return t;
         const pad = (n) => n.toString().padStart(2, "0");
-  
-        const Y = date.getFullYear();
-        const M = pad(date.getMonth() + 1);
-        const D = pad(date.getDate());
-        const h = pad(date.getHours());
-        const m = pad(date.getMinutes());
-        const s = pad(date.getSeconds());
-  
-        return `${Y}-${M}-${D} ${h}:${m}:${s}`;
-      } catch (e) {
-        console.error("时间格式化失败：", e);
+        return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} `
+             + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+      } catch {
         return t;
       }
     },
-  /** 跳转到餐厅详情 */
+
     goToRestaurant(e) {
-    const restaurantId = e.currentTarget.dataset.id;
-  
-    wx.navigateTo({
-      url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
-    });
-  },
-  goToOrderDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/order-detail/order-detail?orderId=${id}`
-    });
-  },
+      const restaurantId = e.currentTarget.dataset.id;
+      wx.navigateTo({
+        url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
+      });
+    },
+
+    goToOrderDetail(e) {
+      const id = e.currentTarget.dataset.id;
+      wx.navigateTo({
+        url: `/pages/order-detail/order-detail?orderId=${id}`
+      });
+    },
+    checkOrdersReview(list) {
+        const app = getApp();
+        const userId = app.globalData.userInfo.id;
+    
+        wx.request({
+            url: app.globalData.baseUrl + "/review/userReviews",
+            method: "GET",
+            data: { userId },
+            success: res => {
+                const reviewed = res.data.data || [];
+    
+                list.forEach(item => {
+                    item._hasReview = reviewed.some(r => r.orderId === item.id);
+                });
+    
+                this.setData({
+                    orderList: list,
+                    allOrders: list
+                });
+            }
+        });
+    }
+    ,
+    goReview(e) {
+        const orderId = e.currentTarget.dataset.id;
+        const order = this.data.orderList.find(o => o.id === orderId);
+    
+        wx.navigateTo({
+            url: `/pages/review/review?orderId=${orderId}&restaurantId=${order.restaurantId}`
+        });
+    },    
     onBack() {
       wx.navigateBack();
     }
-  });
-  
+});

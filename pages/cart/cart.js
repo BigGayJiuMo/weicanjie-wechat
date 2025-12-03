@@ -614,6 +614,14 @@ Page({
       });
     },
   
+    goDishDetail(e) {
+        const dishId = e.currentTarget.dataset.id;
+        const restaurantId = e.currentTarget.dataset.restaurant;
+      
+        wx.navigateTo({
+          url: `/pages/dish-detail/dish-detail?id=${dishId}&restaurantId=${restaurantId}`
+        });
+      },
     // 去逛逛
     goToRestaurants: function() {
       wx.switchTab({

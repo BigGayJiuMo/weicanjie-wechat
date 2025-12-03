@@ -7,14 +7,14 @@ Page({
       categories: [],
       activeCategoryId: null,
       loading: true,
+      swiperIndex: 0,
       statusText: "",
       statusClass: "",
-  
+        
       cartItems: {},
       totalQuantity: 0,
       totalPrice: 0,
       subTotal: 0,
-      deliveryFee: 0,
       packingFee: 0,
   
       isGuest: true,
@@ -77,8 +77,11 @@ Page({
     },
   
     onShow() {
-      this.checkLoginStatus();
-    },
+        this.checkLoginStatus();
+        if (this.data.restaurantId && !this.data.isGuest) {
+          this.loadUserCart();
+        }
+      },
   
     onUnload() {
       if (this.data.saveCartTimer) {
@@ -126,23 +129,29 @@ Page({
     },
   
     uploadHistoryToServer(restaurantId) {
-      if (this.data.isGuest) return;
-  
-      const app = getApp();
-      const userId = this.data.userInfo.id;
-  
-      wx.request({
-        url: app.globalData.baseUrl + '/history/record',
-        method: 'POST',
-        header: {
-          'content-type': 'application/x-www-form-urlencoded'
-        },
-        data: {
-          userId,
-          restaurantId
-        }
-      });
-    },
+        if (this.data.isGuest) return;
+      
+        const app = getApp();
+        const userId = this.data.userInfo.id;
+      
+        wx.request({
+          url: app.globalData.baseUrl + '/history/record',
+          method: 'POST',
+          header: {
+            'content-type': 'application/json'
+          },
+          data: {
+            userId: Number(userId),
+            restaurantId: Number(restaurantId)
+          },
+          success(res) {
+            console.log("历史记录上传成功:", res.data);
+          },
+          fail(err) {
+            console.error("历史记录上传失败:", err);
+          }
+        });
+      },
 
     onPageScroll(e) {
         if (this.data.scrollLocked) return;
@@ -174,9 +183,12 @@ Page({
             if (res.data.code === 200) {
               const restaurant = res.data.data;
               const categories = restaurant.categories || [];
-      
+              if (restaurant.avgRating !== null && restaurant.avgRating !== undefined) {
+                restaurant.avgRating = Number(restaurant.avgRating).toFixed(1);
+              }
               /* ----------- ⭐ 自动计算营业状态（去掉剩余时间） ----------- */
-      
+              restaurant.packingFee = Number(restaurant.packingFee || 0);
+                restaurant.packingFeeText = restaurant.packingFee.toFixed(2);
               let statusText = "营业状态未知";
               let statusClass = "status-closed";
       
@@ -272,7 +284,12 @@ Page({
           }
         });
       },      
-      
+      goDishDetail(e) {
+        const id = e.currentTarget.dataset.id;
+        wx.navigateTo({
+          url: `/pages/dish-detail/dish-detail?id=${id}`
+        });
+      },
       calcBusinessStatus(businessHoursList) {
         if (!businessHoursList || businessHoursList.length === 0) {
           return {
@@ -697,23 +714,18 @@ Page({
       });
   
       const restaurant = this.data.restaurant;
-      const deliveryFee = restaurant ? (restaurant.deliveryFee || 0) : 0;
-      const packingFee = restaurant ? (restaurant.packingFee || 0) : 0;
-  
-      const totalAmountWithFees = totalPrice + deliveryFee + packingFee;
-  
-      const formattedTotalPrice = totalAmountWithFees.toFixed(2);
-      const formattedSubTotal = totalPrice.toFixed(2);
+      const packingFeeNumber = Number(restaurant ? restaurant.packingFee : 0);
+        const formattedPackingFee = packingFeeNumber.toFixed(2);
+        const totalAmountWithFees = totalPrice + packingFeeNumber;
   
       this.setData({
         cartItems,
         totalQuantity,
         totalPrice: totalAmountWithFees,
         subTotal: totalPrice,
-        deliveryFee,
-        packingFee,
-        formattedTotalPrice,
-        formattedSubTotal
+        packingFee: formattedPackingFee,
+        formattedTotalPrice: totalAmountWithFees.toFixed(2),
+        formattedSubTotal: totalPrice.toFixed(2),
       });
   
       if (this.data.saveCartTimer) {
@@ -831,13 +843,11 @@ Page({
           restaurantId: this.data.restaurantId,
           totalAmount: this.data.totalPrice,
           packingFee: this.data.packingFee,
-          deliveryFee: this.data.deliveryFee
         },
         items: orderItems,
         restaurant: this.data.restaurant,
         orderItems,
         subTotal: this.data.subTotal,
-        deliveryFee: this.data.deliveryFee,
         packingFee: this.data.packingFee,
         totalAmount: this.data.totalPrice
       };
@@ -1115,9 +1125,9 @@ Page({
         const avgPack = (totalPack / count).toFixed(1);
       
         this.setData({
-          avgShopRating: parseFloat(avgShop),  // 确保为数字类型
-          avgTaste: parseFloat(avgTaste),
-          avgPack: parseFloat(avgPack)
+          avgShopRating: avgShop,
+          avgTaste: avgTaste,
+          avgPack: avgPack
         });
       },      
       loadRatings(restaurantId) {

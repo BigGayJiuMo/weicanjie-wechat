@@ -82,8 +82,8 @@
 }
 
 .restaurant-image {
-  width: 210rpx;
-  height: 210rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 12rpx;
   margin-right: 24rpx;
   flex-shrink: 0;
@@ -130,7 +130,18 @@
   font-size: 24rpx;
   color: #666;
 }
+.restaurant-desc {
+}
 
+.desc-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .restaurant-info {
   display: flex;
   gap: 20rpx;

@@ -1,0 +1,163 @@
+/* pages/review/review.wxss */
+.container {
+  background: #f7f7f7;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 自定义导航栏 */
+.navbar {
+  background: white;
+  padding: 20rpx 30rpx;
+  padding-top: 95rpx; 
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left, .nav-right {
+  width: 80rpx;
+  text-align: center;
+}
+
+.nav-center {
+  flex: 1;
+  text-align: center;
+}
+
+.back-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+/* 内容 */
+.content {
+    flex: 1;
+    padding: 20rpx;
+    height: calc(100vh - 180rpx);
+    box-sizing: border-box;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 50rpx);
+}
+
+/* 卡片 */
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+.title {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+/* 星星评分 */
+.star-row {
+  display: flex;
+}
+.star {
+  width: 60rpx;
+  height: 60rpx;
+  margin-right: 10rpx;
+  margin-top: 20rpx;
+}
+
+/* 文本框 */
+.textarea {
+  background: #f8f8f8;
+  border-radius: 20rpx;
+  margin-top: 20rpx;
+  padding: 20rpx;
+  width: 100%;
+  min-height: 160rpx;
+}
+
+/* 图片上传 */
+.image-list {
+    margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+}
+.img-box {
+  position: relative;
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
+}
+.img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+}
+.delete-icon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 上传按钮 */
+.upload-btn {
+  width: 180rpx;
+  height: 180rpx;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.add-icon {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+/* 匿名 */
+.anon-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 底部按钮 */
+/* 底部容器：右对齐 + 悬浮 + 适配底部安全区 */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20rpx 30rpx;
+    background: transparent; /* 不要背景，保持清爽 */
+    display: flex;
+    justify-content: flex-end;
+    z-index: 999;
+  }
+  
+  /* 小按钮（用 view 实现） */
+  .submit-btn {
+    background: #ff6b35;
+    color: white;
+    padding: 16rpx 40rpx;
+    border-radius: 999rpx;
+    font-size: 28rpx;
+    box-shadow: 0 6rpx 20rpx rgba(255, 107, 53, 0.3);
+    font-weight: bold;
+    text-align: center;
+  }
+  .submit-btn:active {
+    opacity: 0.85;
+  }

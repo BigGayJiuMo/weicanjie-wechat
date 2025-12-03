@@ -45,8 +45,10 @@ Page({
                 
                 // 确保每个餐厅有评分字段，若没有评分则设为 null
                 restaurants.forEach(restaurant => {
-                    if (restaurant.avgRating === undefined || restaurant.avgRating === -1) {
-                        restaurant.avgRating = null;  // 没有评分时设置为 null
+                    if (restaurant.avgRating === undefined || restaurant.avgRating === -1 || restaurant.avgRating === null) {
+                        restaurant.avgRating = null;
+                    } else {
+                        restaurant.avgRating = Number(restaurant.avgRating).toFixed(1); // ⭐ 保留 1 位小数
                     }
                 });
 
@@ -181,28 +183,4 @@ Page({
       });
     }
   },
-
-  // 开发环境模拟搜索结果
-  mockSearchResults: function(keyword) {
-    // 模拟过滤餐厅
-    const filteredRestaurants = this.data.restaurants.filter(restaurant => 
-      restaurant.name.includes(keyword) || 
-      (restaurant.description && restaurant.description.includes(keyword))
-    );
-
-    if (filteredRestaurants.length > 0) {
-      this.setData({
-        restaurants: filteredRestaurants
-      });
-      wx.showToast({
-        title: `找到${filteredRestaurants.length}家餐厅`,
-        icon: 'success'
-      });
-    } else {
-      wx.showToast({
-        title: '未找到相关餐厅',
-        icon: 'none'
-      });
-    }
-  }
 });

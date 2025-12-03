@@ -1,0 +1,266 @@
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left">
+      <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">菜品详情</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<!-- 滚动区域 -->
+<scroll-view scroll-y="true" class="scroll-area">
+
+  <!-- 菜品图片 -->
+  <image class="dish-image" src="{{dish.imageUrl}}" mode="aspectFill"></image>
+
+  <!-- 白色卡片 -->
+  <view class="detail-card">
+
+    <!-- 价格 + 名称 -->
+    <view class="dish-header">
+      <text class="dish-price">¥{{dish.formattedPrice}}</text>
+      <text class="dish-name">{{dish.name}}</text>
+    </view>
+
+    <!-- 月售 + 库存 + 数量控制器 -->
+    <view class="dish-meta-row">
+
+      <view class="dish-meta">
+        <text>月售 {{dish.monthlySales}}</text>
+        <text>库存 {{dish.stock}}</text>
+      </view>
+
+      <!-- 数量控制器 -->
+      <view class="controls-right">
+        <view class="quantity-control">
+
+          <!-- 减号（名字改为 decreaseQuantity） -->
+          <view
+            class="quantity-btn minus"
+            wx:if="{{quantity > 0}}"
+            bindtap="decreaseQuantity"
+          >-</view>
+
+          <!-- 数量 -->
+          <text class="quantity-text" wx:if="{{quantity > 0}}">
+            {{quantity}}
+          </text>
+
+          <!-- 加号（名字改为 increaseQuantity） -->
+          <view
+            class="quantity-btn plus"
+            bindtap="increaseQuantity"
+          >+</view>
+
+        </view>
+      </view>
+
+    </view>
+
+    <!-- 商品信息 -->
+    <view class="info-section">
+      <view class="info-row">
+        <text class="info-label">原料</text>
+        <text class="info-value">{{dish.ingredients}}</text>
+      </view>
+
+      <view class="info-row">
+        <text class="info-label">口味</text>
+        <text class="info-value">{{dish.taste}}</text>
+      </view>
+
+      <view class="info-row">
+        <text class="info-label">分量</text>
+        <text class="info-value">{{dish.weight}}</text>
+      </view>
+
+      <view class="info-row">
+        <text class="info-label">商品描述</text>
+        <text class="info-value">{{dish.description}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 占位 -->
+  <view style="height:140rpx;"></view>
+
+</scroll-view>
+
+<!-- 底部购物车栏 -->
+<view class="cart-bar">
+
+  <view class="cart-info" bindtap="onCartBarTap">
+    <view class="cart-icon-container">
+      <image class="cart-icon" src="/images/cart.png"></image>
+      <text class="total-quantity" wx:if="{{totalQuantity > 0}}">{{totalQuantity}}</text>
+    </view>
+
+    <view class="price-info">
+      <view class="price-row">
+        <text class="total-price" wx:if="{{totalQuantity > 0}}">¥{{formattedTotalPrice}}</text>
+        <text class="no-items" wx:else>未选择商品</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 去结算按钮 -->
+  <view
+    class="checkout-btn {{totalQuantity === 0 ? 'disabled' : ''}}"
+    bindtap="onCheckout"
+  >
+    {{totalQuantity === 0 ? '请选择商品' : '去结算'}}
+  </view>
+
+</view>
+
+<!-- 🛒 购物车详情面板 -->
+<view class="order-panel-mask {{showOrderPanel ? 'active' : ''}}" catchtap="hideOrderPanel">
+  <view class="order-panel {{showOrderPanel ? 'active' : ''}}" catchtap="stopPropagation">
+    <view class="panel-header">
+      <text class="panel-title">已选商品</text>
+      <view class="clear-cart" bindtap="clearCart" wx:if="{{totalQuantity > 0}}">
+        <text class="clear-text">清空</text>
+      </view>
+    </view>
+
+    <scroll-view class="order-items-scroll" scroll-y="true">
+      <view class="order-items-list">
+        <view class="order-dish-card" wx:for="{{orderItems}}" wx:key="id">
+
+          <image class="order-dish-image" src="{{item.imageUrl}}"></image>
+
+          <view class="order-dish-details">
+            <view class="order-dish-header">
+              <text class="order-dish-name">{{item.name}}</text>
+              <text class="order-dish-price">¥{{item.subtotal}}</text>
+            </view>
+
+            <view class="order-quantity-control">
+              <view class="order-quantity-btn minus"
+                bindtap="onOrderDecreaseQuantity" data-dish="{{item}}">-</view>
+
+              <text class="order-quantity-text">{{item.quantity}}</text>
+
+              <view class="order-quantity-btn plus"
+                bindtap="onOrderIncreaseQuantity" data-dish="{{item}}"
+                wx:if="{{item.stock > item.quantity}}">+</view>
+              <view class="order-quantity-btn plus disabled" wx:else>+</view>
+            </view>
+          </view>
+
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="order-summary" wx:if="{{totalQuantity > 0}}">
+      <view class="summary-row">
+        <text class="summary-label">菜品小计</text>
+        <text class="summary-value">¥{{formattedSubTotal}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-label">打包费</text>
+        <text class="summary-value">¥{{packingFee}}</text>
+      </view>
+      <view class="summary-row total">
+        <text class="summary-label">合计</text>
+        <text class="summary-value">¥{{formattedTotalPrice}}</text>
+      </view>
+    </view>
+
+  </view>
+</view>
+<!-- 💳 结算面板 -->
+<!-- 💳 结算面板 -->
+<view class="checkout-panel-mask {{showCheckoutPanel ? 'active' : ''}}" catchtap="hideCheckoutPanel">
+
+<view class="back-header">
+  <view class="checkout-back-btn" bindtap="hideCheckoutPanel">
+    <image class="back-icon1" src="/images/back4.png"></image>
+  </view>
+
+  <view class="checkout-tips">
+    <image class="tips-icon" src="/images/horn.png"></image>
+    <text class="tips-text">温馨提示：请适量点餐、避免浪费</text>
+  </view>
+</view>
+
+<view class="checkout-panel {{showCheckoutPanel ? 'active' : ''}}" catchtap="stopPropagation">
+
+  <view class="checkout-header">
+    <view class="checkout-restaurant-info">
+      <view class="checkout-restaurant-details">
+        <text class="checkout-restaurant-name">{{restaurant.name}}</text>
+        <text class="checkout-restaurant-status {{getStatusClass(restaurant.businessStatus)}}">
+          {{getStatusText(restaurant.businessStatus)}}
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <view class="checkout-content">
+
+    <view class="checkout-items-section">
+      <view class="checkout-items-list">
+        <view class="checkout-dish-item" wx:for="{{checkoutItems}}" wx:key="id">
+          <image class="checkout-dish-image" src="{{item.imageUrl}}"></image>
+
+          <view class="checkout-dish-info">
+            <view class="checkout-dish-main">
+              <text class="checkout-dish-name">{{item.name}}</text>
+              <text class="checkout-dish-price">¥{{item.subtotal}}</text>
+            </view>
+
+            <view class="checkout-dish-quantity">
+              <text class="quantity-label">✖</text>
+              <text class="quantity-value">{{item.quantity}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="checkout-summary">
+      <view class="checkout-summary-title">
+        <text class="summary-title">费用明细</text>
+      </view>
+
+      <view class="checkout-summary-row">
+        <text class="summary-label">菜品小计</text>
+        <text class="summary-value">¥{{formattedSubTotal}}</text>
+      </view>
+
+      <view class="checkout-summary-row">
+        <text class="summary-label">打包费</text>
+        <text class="summary-value">¥{{packingFee}}</text>
+      </view>
+
+      <view class="checkout-summary-row total">
+        <text class="summary-label">合计</text>
+        <text class="summary-value total-amount">¥{{formattedTotalPrice}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <view class="checkout-footer">
+    <view class="checkout-total-section">
+      <text class="total-label">总计:</text>
+      <text class="total-price-large">¥{{formattedTotalPrice}}</text>
+    </view>
+
+    <view class="submit-order-btn {{totalQuantity === 0 ? 'disabled' : ''}}" bindtap="onSubmitOrder">
+      提交订单
+    </view>
+  </view>
+
+</view>
+</view>
+
+</view>

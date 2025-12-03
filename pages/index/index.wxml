@@ -61,13 +61,11 @@
                 </view>
 
                 <!-- 右边：月售（永远显示） -->
-                <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+                <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
             </view>
             
             <view class="restaurant-info">
-              <text class="info-item">起送¥{{item.minOrderAmount || 0}}</text>
-              <text class="info-item">配送¥{{item.deliveryFee || 0}}</text>
-              <text class="info-item">{{item.deliveryTime || '30分钟'}}</text>
+              <text class="info-item">打包费 ¥{{item.packingFee || 0}}</text>
             </view>
             
             <view class="restaurant-desc">
