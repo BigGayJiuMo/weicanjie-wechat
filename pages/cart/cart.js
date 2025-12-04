@@ -13,25 +13,24 @@ Page({
     onShow() {
         const app = getApp();
     
-        if (app.globalData.cartCache) {
+        // 只有 shouldRestoreCart = true 时才恢复
+        if (app.globalData.shouldRestoreCart && app.globalData.cartCache) {
     
-            const cached = app.globalData.cartCache;
+            console.log("恢复购物车缓存数据（用户未下单返回）");
     
             this.setData({
-                cartData: cached,
+                cartData: app.globalData.cartCache
             });
     
-            //  恢复选中状态和价格
+            // 恢复选中状态等
             this.updateRestaurantSelection();
             this.updateAllSelectedState();
             this.calculateTotal();
     
-            //  清空缓存（仅一次有效）
-            app.globalData.cartCache = null;
             return;
         }
     
-        // 默认加载
+        //  从后端拉取最新购物车
         this.loadCartData();
     },
   
@@ -526,6 +525,7 @@ Page({
       }
       const app = getApp();
       app.globalData.cartCache = JSON.parse(JSON.stringify(this.data.cartData));
+      app.globalData.shouldRestoreCart = true; 
       // 收集选中的商品
       const selectedItems = [];
       const cartData = this.data.cartData;

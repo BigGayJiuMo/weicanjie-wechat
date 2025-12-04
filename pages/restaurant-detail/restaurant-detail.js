@@ -907,7 +907,7 @@ Page({
   
             wx.showModal({
               title: '确认支付',
-              content: `是否立即支付订单？订单金额：¥${order.totalAmount}`,
+              content: `是否立即支付订单？\n订单金额：¥${order.totalAmount}`,
               confirmText: '确认支付',
               cancelText: '取消支付',
               confirmColor: '#ff6b35',

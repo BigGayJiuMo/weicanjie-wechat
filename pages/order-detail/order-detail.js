@@ -143,18 +143,18 @@ Page({
     onConfirmPayment() {
         const orderId = this.data.orderId;
         const app = getApp();
-
+    
         this.setData({ isPaying: true, showPaymentModal: false });
-
+    
         wx.showLoading({ title: "支付中...", mask: true });
-
+    
         wx.request({
             url: app.globalData.baseUrl + `/order/pay/${orderId}`,
             method: "POST",
             success: res => {
                 wx.hideLoading();
                 this.setData({ isPaying: false });
-
+    
                 if (res.data.code === 200) {
                     wx.showToast({
                         title: "支付成功",
@@ -168,7 +168,7 @@ Page({
                     });
                 }
             },
-            fail: err => {
+            fail: () => {
                 wx.hideLoading();
                 this.setData({ isPaying: false });
                 wx.showToast({ title: "网络错误", icon: "none" });
@@ -275,6 +275,38 @@ Page({
         wx.navigateTo({
             url: `/pages/review/review?orderId=${this.data.orderId}&restaurantId=${this.data.restaurant.id}`
         });
+    },
+    showPayDialog(amount) {
+        return new Promise((resolve, reject) => {
+            wx.showModal({
+                title: '确认支付',
+                content: `是否立即支付订单？\n订单金额：¥${amount}`,
+                confirmText: '确认支付',
+                cancelText: '取消支付',
+                confirmColor: '#ff6b35',   
+                success: res => {
+                    if (res.confirm) {
+                        resolve();   // 用户点击确认
+                    } else {
+                        reject();    // 用户点击取消
+                    }
+                }
+            });
+        });
+    },
+    /** 点击“去支付”按钮 */
+    onPayNow() {
+        const amount = this.data.order.totalAmount;
+        this.showPayDialog(amount)
+            .then(() => {
+                this.onConfirmPayment(); // 用户确认支付
+            })
+            .catch(() => {
+                wx.showToast({
+                    title: "已取消支付",
+                    icon: "none"
+                });
+            });
     },
     stopPropagation() {}
 });

@@ -142,22 +142,13 @@
             >
             评价已过期
             </view>
-        </view>
-    </view>
-
-    <!-- 支付确认弹窗 -->
-    <view wx:if="{{showPaymentModal}}" class="modal-mask" catchtap="hidePaymentModal">
-        <view class="modal-container" catchtap="stopPropagation">
-            <view class="modal-header">
-                <text class="modal-title">确认支付</text>
-            </view>
-            <view class="modal-content">
-                <text class="payment-amount-large">¥{{order.totalAmount}}</text>
-                <text class="payment-desc">请确认支付金额</text>
-            </view>
-            <view class="modal-buttons">
-                <view class="modal-btn cancel" bindtap="onCancelPayment">取消支付</view>
-                <view class="modal-btn confirm" bindtap="onConfirmPayment">确认支付</view>
+            <!-- 待支付：去支付 -->
+            <view 
+                class="action-btn primary"
+                wx:if="{{order.status === 1}}"
+                bindtap="onPayNow"
+            >
+                去支付
             </view>
         </view>
     </view>
