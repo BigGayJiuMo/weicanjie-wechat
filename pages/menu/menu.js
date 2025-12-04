@@ -91,7 +91,12 @@ Page({
       wx.navigateTo({
         url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
       });
-    }
+    },
+    goSearchPage() {
+        wx.navigateTo({
+          url: "/pages/search-restaurant/search-restaurant"
+        });
+      }
   
   });
   

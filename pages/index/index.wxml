@@ -10,16 +10,15 @@
       <!-- 第二行：搜索框 -->
       <view class="search-container">
         <view class="search-box">
-          <input
+            <input
             class="search-input"
-            placeholder="输入商家名"
+            disabled="true"
+            placeholder="输入商家名称"
             placeholder-class="search-placeholder"
-            bindinput="onSearchInput"
-            bindconfirm="onSearchConfirm"
-            bindtap="onSearchTap"
+            bindtap="goSearchPage"
             value="{{searchKeyword}}"
-          />
-          <image class="search-icon" src="/images/search.png" bindtap="onSearchConfirm"></image>
+            />
+            <image class="search-icon" src="/images/search.png" bindtap="goSearchPage"></image>
         </view>
       </view>
     </view>
@@ -52,26 +51,21 @@
                 {{item.statusText}}
                 </view>
             </view>
-            
             <view class="rating-row">
                 <!-- 左边：评分（有评分才显示） -->
                 <view class="restaurant-rating" wx:if="{{item.avgRating !== null && item.avgRating !== -1}}">
                     <text class="rating-star">★</text>
                     <text class="rating-score">{{item.avgRating || 5.0}}</text>
                 </view>
-
                 <!-- 右边：月售（永远显示） -->
                 <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
             </view>
-            
             <view class="restaurant-info">
               <text class="info-item">打包费 ¥{{item.packingFee || 0}}</text>
             </view>
-            
             <view class="restaurant-desc">
               <text class="desc-text">{{item.description || '用心做好每一道菜'}}</text>
             </view>
-            
             <view class="restaurant-tags">
               <text class="tag" wx:if="{{item.avgRating >= 4.5}}">高分好评</text>
               <text class="tag" wx:if="{{item.monthlySales > 1000}}">人气爆款</text>

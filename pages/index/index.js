@@ -174,7 +174,11 @@ Page({
         url: `/pages/restaurant-detail/restaurant-detail?id=${restaurant.id}`
       });
     },
-  
+    goSearchPage() {
+        wx.navigateTo({
+          url: "/pages/search-restaurant/search-restaurant"
+        });
+      },
     /** =======================
      *   模拟数据（网络失败时）
      *  ======================= */

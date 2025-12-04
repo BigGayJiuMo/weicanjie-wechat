@@ -108,7 +108,7 @@
     color: #333;
 }
 
-.item-price {
+.item-count {
     font-size: 26rpx;
     color: #666;
 }

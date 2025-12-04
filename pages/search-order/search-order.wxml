@@ -1,0 +1,132 @@
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left">
+      <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">搜索订单</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+
+  <!-- 搜索栏（跟导航栏包在一起，布局更稳定） -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="输入商家名称 / 商品名 / 订单号"
+      bindinput="onInput"
+      bindconfirm="onSearch"
+      bindfocus="onFocus"
+      bindblur="onBlur"
+      value="{{keyword}}"
+    />
+    <image class="search-icon" src="/images/search.png" bindtap="onSearch" />
+  </view>
+</view>
+
+<!-- 内容区（可滚动） -->
+<scroll-view scroll-y="true" class="content-scroll">
+
+  <!-- 历史记录 -->
+  <view class="history-box" wx:if="{{!isFocus && !showResult && historyList.length > 0}}">
+    <view class="history-header">
+      <text>搜索历史</text>
+      <text class="clear-btn" bindtap="clearHistory">清空</text>
+    </view>
+
+    <view class="history-list">
+      <view
+        class="history-item"
+        wx:for="{{historyList}}"
+        wx:key="index"
+        bindlongpress="onHistoryLongPress"
+        data-keyword="{{item}}"
+      >
+        <text class="history-text"
+          bindtap="onHistoryTap"
+          data-keyword="{{item}}"
+        >
+          {{item}}
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-box">
+    <text class="loading-text">正在搜索...</text>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view wx:if="{{showResult && orderList.length > 0}}">
+    <view
+      wx:for="{{orderList}}"
+      wx:key="id"
+      class="order-card"
+      bindlongpress="onDeleteConfirm"
+      bindtap="goDetail"
+      data-id="{{item.id}}"
+    >
+
+      <!-- 顶部：商家 -->
+      <view class="order-header">
+        <view class="shop-info" bindtap="goToRestaurant" data-id="{{item.restaurantId}}">
+          <image class="shop-logo" src="{{item.restaurantLogo}}"></image>
+          <text class="shop-name">{{item.restaurantName}}</text>
+          <image class="arrow-right" src="/images/arrow-right.png"></image>
+        </view>
+        <text class="order-status {{item.statusClass}}">{{item.statusText}}</text>
+      </view>
+
+      <!-- 菜品 -->
+      <view wx:for="{{item.items}}" wx:key="dishId" class="dish-row">
+        <image class="dish-img" src="{{item.imageUrl}}"></image>
+        <view class="dish-right">
+          <text class="dish-name">{{item.dishName}}</text>
+          <view class="dish-desc">{{item.spec || ''}}</view>
+          <view class="dish-bottom">
+            <text class="dish-qty">x{{item.quantity}}</text>
+            <text class="dish-price">￥{{item.dishPrice}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="order-footer">
+        <text class="total-text">共 {{item.totalQuantity}} 件商品，合计：</text>
+        <text class="total-price">￥{{item.totalAmount}}</text>
+      </view>
+
+      <text class="order-time">{{item.createdTime}}</text>
+
+      <!-- 评价按钮 -->
+      <view class="review-box">
+        <view
+          wx:if="{{item._canReview && !item._hasReview}}"
+          class="review-view"
+          bindtap="goReview"
+          data-id="{{item.id}}"
+        >去评价</view>
+
+        <view wx:if="{{item._hasReview}}" class="review-view disabled">
+          已评价
+        </view>
+
+        <view wx:if="{{!item._hasReview && item._expired}}" class="review-view disabled">
+          评价已过期
+        </view>
+      </view>
+
+    </view>
+  </view>
+
+  <!-- 无结果 -->
+  <view wx:if="{{!loading && showResult && orderList.length === 0}}" class="empty-box">
+    <text class="empty-text">没有找到相关订单</text>
+  </view>
+
+</scroll-view>
+
+</view>

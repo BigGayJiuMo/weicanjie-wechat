@@ -9,57 +9,62 @@ Page({
     },
 
     loadOrders() {
-      const app = getApp();
-      const userId = app.globalData.userInfo.id;
-      wx.request({
-        url: app.globalData.baseUrl + "/order/list/" + userId,
-        method: "GET",
-        success: (res) => {
-          if (res.data.code === 200) {
-            const list = res.data.data.map(o => ({
-              ...o,
-              createdTime: this.formatTime(o.createdTime),
-              statusClass: this.getStatusClass(o.status),
-              restaurantName: o.restaurantName || "",
-              restaurantLogo: o.restaurantLogo || "",
-            }));
-            list.forEach(item => {
-                // 是否完成
+        const app = getApp();
+        const userId = app.globalData.userInfo.id;
+      
+        wx.request({
+          url: app.globalData.baseUrl + "/order/list/" + userId,
+          method: "GET",
+          success: (res) => {
+            if (res.data.code === 200) {
+      
+              const list = res.data.data.map(o => {
+      
+                // ⭐ 格式化订单总金额
+                const totalAmount = o.totalAmount
+                    ? Number(o.totalAmount).toFixed(2)
+                    : "0.00";
+      
+                // ⭐ 格式化订单中所有菜品价格
+                const items = (o.items || []).map(dish => ({
+                  ...dish,
+                  dishPrice: dish.dishPrice
+                    ? Number(dish.dishPrice).toFixed(2)
+                    : (dish.price ? Number(dish.price).toFixed(2) : "0.00")
+                }));
+      
+                return {
+                  ...o,
+                  createdTime: this.formatTime(o.createdTime),
+                  statusClass: this.getStatusClass(o.status),
+                  restaurantName: o.restaurantName || "",
+                  restaurantLogo: o.restaurantLogo || "",
+                  totalAmount,
+                  items
+                };
+              });
+      
+              // 其他逻辑保持不变
+              list.forEach(item => {
                 const isFinished = item.status === 3 || item.status === 4;
-              
-                // 时间判断
                 const created = new Date(item.createdTime.replace(/-/g, "/"));
                 const diffHour = (new Date() - created) / 3600000;
                 const expire = diffHour > 24;
-              
+      
                 item._expired = expire;
                 item._canReview = isFinished && !expire;
               });
-            this.setData({
-              orderList: list,
-              allOrders: list
-            });
+      
+              this.setData({
+                orderList: list,
+                allOrders: list
+              });
+      
               this.checkOrdersReview(list);
+            }
           }
-        }
-      });
-    },
-
-    onSearchInput(e) {
-      const keyword = e.detail.value.trim();
-  
-      if (!keyword) {
-        this.setData({ orderList: this.data.allOrders });
-        return;
-      }
-  
-      const searchList = this.data.allOrders.filter(o =>
-        (o.restaurantName || "").includes(keyword)
-      );
-  
-      this.setData({ orderList: searchList });
-    },
-
+        });
+      },
     getStatusClass(status) {
       switch (status) {
         case 1: return "pending";
@@ -159,7 +164,12 @@ Page({
         wx.navigateTo({
             url: `/pages/review/review?orderId=${orderId}&restaurantId=${order.restaurantId}`
         });
-    },    
+    },
+    goSearchPage() {
+        wx.navigateTo({
+            url: "/pages/search-order/search-order"
+        });
+        },
     onBack() {
       wx.navigateBack();
     }

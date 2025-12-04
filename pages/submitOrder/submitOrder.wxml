@@ -40,7 +40,7 @@
           <!-- 左：菜名 + 单价 -->
           <view class="item-header">
             <text class="item-name">{{dish.dishName || dish.name}}</text>
-            <text class="item-price">¥{{dish.dishPrice || dish.price}}</text>
+            <text class="item-total-price">¥{{dish.dishPrice || dish.price}}</text>
           </view>
 
           <!-- 右：数量 + 小计 -->
@@ -48,7 +48,7 @@
             <view class="item-total-price">
               ¥{{dish.totalPrice}}
             </view>
-            <view class="item-total-price">
+            <view class="item-count" style="color: #666;">
               ×{{dish.quantity}}
             </view>
           </view>

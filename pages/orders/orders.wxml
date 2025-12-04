@@ -16,12 +16,12 @@
   </view>
 
   <!-- 搜索框 -->
-  <view class="search-box">
+  <view class="search-box" bindtap="goSearchPage">
     <input 
       placeholder="搜索订单 / 商家名"
       placeholder-class="holder"
       class="search-input"
-      bindinput="onSearchInput"
+      disabled="true"
     />
     <image src="/images/search.png" class="search-icon"></image>
   </view>
@@ -59,7 +59,7 @@
     <image class="dish-img" src="{{item.imageUrl}}"></image>
 
     <view class="dish-right">
-      <text class="dish-name">{{item.name}}</text>
+      <text class="dish-name">{{item.dishName}}</text>
 
       <view class="dish-desc">
         <text>{{item.spec || ''}}</text>
@@ -67,7 +67,7 @@
 
       <view class="dish-bottom">
         <text class="dish-qty">x{{item.quantity}}</text>
-        <text class="dish-price">￥{{item.price}}</text>
+        <text class="dish-price">￥{{item.dishPrice}}</text>
       </view>
     </view>
   </view>

@@ -113,14 +113,14 @@ Page({
             cartId: item.id,
             dishId: item.dishId,
             dishName: item.dishName || item?.dish?.name || "未知菜品",
-            dishPrice: price,
+            dishPrice: price.toFixed(2),
             dishImageUrl:
-              item.dishImageUrl || item?.dish?.imageUrl || "/images/default-dish.png",
+                item.dishImageUrl || item?.dish?.imageUrl || "/images/default-dish.png",
             quantity,
             restaurantId,
             selected: false,
             totalPrice: (price * quantity).toFixed(2)
-          });
+            });
         });
     
         const cartData = Object.values(restaurantMap);

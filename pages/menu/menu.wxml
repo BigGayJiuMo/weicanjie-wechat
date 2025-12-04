@@ -3,12 +3,12 @@
 <!-- 搜索框 -->
 <view class="search-bar">
   <view class="search-input-box">
-    <image class="search-icon" src="/images/search.png"></image>
+    <image class="search-icon" src="/images/search.png" bindtap="goSearchPage"></image>
     <input
-      class="search-input"
-      placeholder="输入商家名"
-      confirm-type="search"
-      bindconfirm="onSearch"
+    class="search-input"
+    placeholder="输入商家名称"
+    bindtap="goSearchPage"
+    disabled="true"
     />
   </view>
 </view>

@@ -34,7 +34,8 @@ Page({
               // 字段映射给前端使用
               item.restaurantLogo = item.restaurant_logo;
               item.restaurantName = item.restaurant_name;
-              item.createdTime = item.created_time;
+              item.restaurantId = item.restaurant_id;
+              item.created_time = this.formatTime(item.created_time);
             });
       
             this.setData({
@@ -81,8 +82,43 @@ onDeleteReview(e) {
       }
     })
   },
+  goRestaurant(e) {
+    const restaurantId = e.currentTarget.dataset.id;
+  
+    if (!restaurantId) {
+      wx.showToast({
+        title: "找不到餐厅ID",
+        icon: "none"
+      });
+      return;
+    }
+  
+    wx.navigateTo({
+      url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
+    });
+  },
     onBack() {
       wx.navigateBack();
-    }
+    },
+    formatTime(t) {
+        if (!t) return "";
+      
+        // 将 2025-12-04T20:13:58 替换成标准格式
+        t = t.replace("T", " ").replace(/-/g, "/");
+      
+        const date = new Date(t);
+        if (isNaN(date)) return t;
+      
+        const pad = n => n.toString().padStart(2, "0");
+      
+        const y = date.getFullYear();
+        const m = pad(date.getMonth() + 1);
+        const d = pad(date.getDate());
+        const h = pad(date.getHours());
+        const mm = pad(date.getMinutes());
+        const s = pad(date.getSeconds());
+      
+        return `${y}-${m}-${d} ${h}:${mm}:${s}`;
+      }
   });
   

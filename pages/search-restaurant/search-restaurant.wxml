@@ -1,0 +1,118 @@
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+  <view class="navbar-content">
+    <view class="nav-left">
+      <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">搜索餐厅</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<!-- 搜索栏 -->
+<view class="search-bar">
+    <input
+    class="search-input"
+    placeholder="输入商家名称"
+    bindinput="onInput"
+    bindconfirm="onSearch"
+    bindfocus="onFocus"
+    bindblur="onBlur"
+    value="{{keyword}}"
+    />
+  <image class="search-icon" src="/images/search.png" bindtap="onSearch" />
+</view>
+<!-- 实时联想 -->
+<view class="suggest-box" wx:if="{{suggestions.length > 0}}">
+  <view
+    class="suggest-item"
+    wx:for="{{suggestions}}"
+    wx:key="id"
+    bindtap="onSuggestTap"
+    data-name="{{item.name}}"
+  >
+    <text>{{item.name}}</text>
+  </view>
+</view>
+<!-- 历史搜索 -->
+<view class="history-box" wx:if="{{!isFocus && !showResult && historyList.length > 0}}">
+  <view class="history-header">
+    <text>搜索历史</text>
+    <text class="clear-btn" bindtap="clearHistory">清空</text>
+  </view>
+
+  <view class="history-list">
+    <view 
+        class="history-item"
+        wx:for="{{historyList}}"
+        wx:key="index"
+        bindlongpress="onHistoryLongPress"
+        data-keyword="{{item}}">   
+      <text class="history-text" bindtap="onHistoryTap" data-keyword="{{item}}">
+        {{item}}
+      </text>
+    </view>
+  </view>
+</view>
+<!-- 加载中 -->
+<view wx:if="{{loading}}" class="loading-box">
+  <text class="loading-text">正在搜索...</text>
+</view>
+
+<!-- 搜索结果（使用首页样式） -->
+<scroll-view 
+  scroll-y="true" 
+  class="result-scroll" 
+  wx:if="{{showResult && results.length > 0}}"
+>
+  <view class="restaurant-list">
+    <view
+      class="restaurant-item"
+      wx:for="{{results}}"
+      wx:key="id"
+      bindtap="goDetail"
+      data-id="{{item.id}}"
+    >
+        <view class="restaurant-body">
+          <image class="restaurant-image" src="{{item.logoUrl || '/images/default-restaurant.png'}}" mode="aspectFill"></image>
+          <view class="restaurant-content">
+            <view class="restaurant-header">
+              <text class="restaurant-name">{{item.name}}</text>
+              <view class="restaurant-status {{item.statusClass}}">
+                {{item.statusText}}
+                </view>
+            </view>
+            <view class="rating-row">
+                <!-- 左边：评分（有评分才显示） -->
+                <view class="restaurant-rating" wx:if="{{item.avgRating !== null && item.avgRating !== -1}}">
+                    <text class="rating-star">★</text>
+                    <text class="rating-score">{{item.avgRating || 5.0}}</text>
+                </view>
+                <!-- 右边：月售（永远显示） -->
+                <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
+            </view>
+            <view class="restaurant-info">
+              <text class="info-item">打包费 ¥{{item.packingFee || 0}}</text>
+            </view>
+            <view class="restaurant-desc">
+              <text class="desc-text">{{item.description || '用心做好每一道菜'}}</text>
+            </view>
+            <view class="restaurant-tags">
+              <text class="tag" wx:if="{{item.avgRating >= 4.5}}">高分好评</text>
+              <text class="tag" wx:if="{{item.monthlySales > 1000}}">人气爆款</text>
+              <text class="tag">放心吃</text>
+            </view>
+          </view>
+        </view>
+    </view>
+  </view>
+</scroll-view>
+<!-- 没有结果 -->
+<view wx:if="{{!loading && results.length === 0 && keyword}}" class="empty-box">
+  <text class="empty-text">没有找到相关餐厅</text>
+</view>
+</view>

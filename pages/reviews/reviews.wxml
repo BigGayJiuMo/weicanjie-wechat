@@ -26,7 +26,7 @@
         bindtap="onDeleteReview"
         />
       <!-- 餐厅信息 -->
-      <view class="restaurant-info">
+      <view class="restaurant-info" bindtap="goRestaurant" data-id="{{item.restaurant_id}}">
         <image class="restaurant-logo" src="{{item.restaurantLogo}}"></image>
         <text class="restaurant-name">{{item.restaurantName}}</text>
       <image class="arrow-right" src="/images/arrow-right.png"></image>
@@ -34,7 +34,7 @@
 
       <!-- 用户评分 -->
       <view class="rating-row">
-        <text class="rating-text">评分：{{item.rating}} </text>
+        <text class="rating-sub">评分：{{item.rating}} </text>
         <text class="rating-sub">味道：{{item.taste}}</text>
         <text class="rating-sub">包装：{{item.pack}}</text>
       </view>

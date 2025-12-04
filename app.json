@@ -17,7 +17,9 @@
         "pages/dish-detail/dish-detail",
         "pages/submitOrder/submitOrder",
         "pages/history/history",
-        "pages/review/review"
+        "pages/review/review",
+        "pages/search-restaurant/search-restaurant",
+        "pages/search-order/search-order"
     ],
     "window": {
         "backgroundTextStyle": "light",
