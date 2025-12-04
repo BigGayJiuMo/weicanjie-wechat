@@ -64,19 +64,10 @@
         <text>菜品小计</text>
         <text>¥{{item.dishSubTotal}}</text>
       </view>
-      <view class="amount-line">
+      <view class="amount-line" wx:if="{{item.eatType == 2}}">
         <text>打包费</text>
         <text>¥{{item.packingFee}}</text>
       </view>
-      <view class="amount-line">
-        <text>配送费</text>
-        <text>¥{{item.deliveryFee}}</text>
-      </view>
-      <view class="amount-line">
-        <text>优惠</text>
-        <text class="discount">-¥{{item.discount}}</text>
-      </view>
-
       <!-- 小计 -->
       <view class="total-line">
         <text>小计</text>

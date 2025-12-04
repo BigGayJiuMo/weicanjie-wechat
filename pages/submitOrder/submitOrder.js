@@ -20,52 +20,54 @@ Page({
     processOrderData(orderData) {
         let restaurants = orderData.restaurants || [];
         let count = restaurants.length;
-
-        // 处理每家餐厅的金额
+    
         restaurants = restaurants.map(restaurant => {
             let dishTotal = 0;
-
-            // 给每个菜品计算 totalPrice
+    
+            // 计算菜品小计
             const items = restaurant.items.map(dish => {
                 const price = Number(dish.dishPrice || dish.price || 0);
                 const quantity = Number(dish.quantity || 1);
                 const totalPrice = (price * quantity).toFixed(2);
+    
                 dishTotal += price * quantity;
-
+    
                 return {
                     ...dish,
                     totalPrice
                 };
             });
-
-            // 使用从购物车传递过来的配送费和打包费
-            const deliveryFee = Number(restaurant.deliveryFee || 0).toFixed(2);
-            const packingFee = Number(restaurant.packingFee || 0).toFixed(2);
-            const discount = Number(restaurant.discount || 0).toFixed(2);
-            
-            // 计算小计：菜品总价 + 打包费 + 配送费 - 优惠
-            const subTotal = (dishTotal + Number(packingFee) + Number(deliveryFee) - Number(discount)).toFixed(2);
-
+    
+            // 🔥 重点：接收 eatType
+            const eatType = restaurant.eatType || 2;
+    
+            // 堂食不收打包费
+            const packingFee = eatType == 1 ? 0 : Number(restaurant.packingFee || 0);
+    
+            // ❌ 删除配送费
+            // ❌ 删除优惠
+    
+            const subTotal = (dishTotal + packingFee).toFixed(2);
+    
             return {
                 ...restaurant,
+                eatType,
                 items,
-                dishSubTotal: dishTotal.toFixed(2), // 菜品小计
-                packingFee,
-                deliveryFee,
-                discount,
+                dishSubTotal: dishTotal.toFixed(2),
+                packingFee: packingFee.toFixed(2),
                 subTotal
             };
         });
-
+    
         // 计算总金额
         const totalAmount = restaurants.reduce((sum, restaurant) => {
             return sum + Number(restaurant.subTotal || 0);
         }, 0).toFixed(2);
-
+    
         this.setData({
             orderList: restaurants,
             orderCount: count,
-            totalAmount: totalAmount
+            totalAmount
         });
     },
 
@@ -128,7 +130,7 @@ submitOrder() {
                     restaurantId: restaurant.restaurantId,
                     totalAmount: parseFloat(restaurant.subTotal),
                     packingFee: parseFloat(restaurant.packingFee),
-                    deliveryFee: parseFloat(restaurant.deliveryFee)
+                    eatType: restaurant.eatType
                 },
                 items: orderItems
             };
@@ -141,7 +143,7 @@ submitOrder() {
                         restaurantId: restaurant.restaurantId,
                         totalAmount: parseFloat(restaurant.subTotal),
                         packingFee: parseFloat(restaurant.packingFee),
-                        deliveryFee: parseFloat(restaurant.deliveryFee)
+                        eatType: restaurant.eatType
                     },
                     items: this.generateOrderItemsForSubmit(restaurant)
                 }))
@@ -168,96 +170,134 @@ submitOrder() {
     },
     
     // 创建订单并显示支付确认
-createOrderAndShowPayment(orderData) {
-    const app = getApp();
+    createOrderAndShowPayment(orderData) {
+        const app = getApp();
     
-    wx.showLoading({
-        title: '创建订单中...',
-        mask: true
-    });
-
-    // 判断是单个订单还是多个订单
-    const isMultipleOrders = orderData.restaurants;
-    const url = isMultipleOrders ? '/order/create/batch' : '/order/create';
-
-    wx.request({
-        url: app.globalData.baseUrl + url,
-        method: 'POST',
-        header: {
-            'content-type': 'application/json'
-        },
-        data: orderData,
-        success: (res) => {
-            wx.hideLoading();
-            console.log('创建订单响应:', res.data);
-
-            if (res.data.code === 200) {
-                const result = res.data.data;
-                
+        wx.showLoading({
+            title: '创建订单中...',
+            mask: true
+        });
+    
+        const isMultipleOrders = orderData.restaurants;
+        const url = isMultipleOrders ? '/order/create/batch' : '/order/create';
+    
+        wx.request({
+            url: app.globalData.baseUrl + url,
+            method: 'POST',
+            header: {
+                'content-type': 'application/json'
+            },
+            data: orderData,
+            success: (res) => {
+                wx.hideLoading();
+    
+                if (res.data.code !== 200) {
+                    wx.showToast({
+                        title: '创建订单失败',
+                        icon: 'none'
+                    });
+                    return;
+                }
+    
+                const data = res.data.data;
+    
                 // 清空购物车
                 this.clearCartAfterOrder();
+    
+                /** ----------------------------------
+                   多餐厅订单：结构为 { orders:[...] }
+                   统一弹窗模拟支付 → 然后跳 pages/orders/orders
+                 -----------------------------------*/
+                 if (isMultipleOrders) {
 
-                // 多个订单和单个订单的处理
-                if (isMultipleOrders) {
-                    // 多个订单，跳转到订单历史页面
-                    wx.showToast({
-                        title: '订单提交成功',
-                        icon: 'success',
-                        duration: 1500,
-                        success: () => {
-                            setTimeout(() => {
-                                wx.redirectTo({
-                                    url: '/pages/order-history/order-history'
-                                });
-                            }, 1500);
-                        }
-                    });
-                } else {
-                    // 单个订单，显示支付确认弹窗
-                    const orderId = result.id;
+                    // 后端可能返回 {orders:[...]} 或直接返回数组
+                    const ordersArray = data.orders || data || [];
+                    const orderCount = Array.isArray(ordersArray) ? ordersArray.length : 1;
+                
                     wx.showModal({
                         title: '确认支付',
-                        content: `是否立即支付订单？订单金额：¥${result.totalAmount}`,
+                        content: `本次共提交 ${orderCount} 单，总金额 ¥${this.data.totalAmount}`,
                         confirmText: '确认支付',
                         cancelText: '取消支付',
+                        confirmColor: '#ff6b35',
                         success: (res) => {
-                            if (res.confirm) {
-                                // 用户确认支付，调用支付接口
-                                this.payOrder(orderId);
-                            } else {
-                                // 用户取消支付，直接跳转到订单详情页面
-                                wx.redirectTo({
-                                    url: `/pages/order-detail/order-detail?orderId=${orderId}`
-                                });
+                
+                            if (!res.confirm) {
+                                // 用户取消支付 → 直接跳订单列表
+                                wx.redirectTo({ url: '/pages/orders/orders' });
+                                return;
                             }
+                
+                            // -------------------------------
+                            //  🔥 批量支付（逐个调用 /order/pay/{id}）
+                            // -------------------------------
+                            const app = getApp();
+                
+                            let payTasks = ordersArray.map(order =>
+                                new Promise((resolve) => {
+                                    wx.request({
+                                        url: app.globalData.baseUrl + `/order/pay/${order.id}`,
+                                        method: 'POST',
+                                        success: () => resolve(true),
+                                        fail: () => resolve(false)
+                                    });
+                                })
+                            );
+                
+                            // 等待全部支付完成
+                            Promise.all(payTasks).then(() => {
+                                wx.showToast({
+                                    title: '支付成功',
+                                    icon: 'success',
+                                    duration: 1200
+                                });
+                
+                                setTimeout(() => {
+                                    wx.redirectTo({
+                                        url: '/pages/orders/orders'
+                                    });
+                                }, 1200);
+                            });
                         }
                     });
+                
+                    return;
                 }
-            } else {
-                wx.showToast({
-                    title: '创建订单失败: ' + (res.data.message || '未知错误'),
-                    icon: 'none',
-                    duration: 3000
+    
+                /** 单餐厅订单，data 结构为 Order 对象 */
+                const orderId = data.id;
+    
+                wx.showModal({
+                    title: '确认支付',
+                    content: `是否立即支付订单？订单金额：¥${data.totalAmount}`,
+                    confirmText: '确认支付',
+                    cancelText: '取消支付',
+                    confirmColor: '#ff6b35',
+                    success: (modalRes) => {
+                        if (modalRes.confirm) {
+                            this.payOrder(orderId);
+                        } else {
+                            wx.redirectTo({
+                                url: `/pages/order-detail/order-detail?orderId=${orderId}`
+                            });
+                        }
+                    }
                 });
-                this.setData({ loading: false });
+            },
+            fail: () => {
+                wx.hideLoading();
+                wx.showToast({
+                    title: '网络错误',
+                    icon: 'none'
+                });
             }
-        },
-        fail: (err) => {
-            wx.hideLoading();
-            console.error('创建订单请求失败:', err);
-            wx.showToast({
-                title: '网络错误，请重试',
-                icon: 'none'
-            });
-            this.setData({ loading: false });
-        }
-    });
-},
+        });
+    },
 
 // 支付订单
-payOrder: function(orderId) {
+payOrder(orderId) {
     const app = getApp();
-    
+
     wx.showLoading({
         title: '支付中...',
         mask: true
@@ -268,7 +308,6 @@ payOrder: function(orderId) {
         method: 'POST',
         success: (res) => {
             wx.hideLoading();
-            console.log('支付响应:', res.data);
 
             if (res.data.code === 200) {
                 wx.showToast({
@@ -276,7 +315,6 @@ payOrder: function(orderId) {
                     icon: 'success',
                     duration: 1500,
                     success: () => {
-                        // 跳转到订单详情页面
                         setTimeout(() => {
                             wx.redirectTo({
                                 url: `/pages/order-detail/order-detail?orderId=${orderId}`
@@ -286,31 +324,33 @@ payOrder: function(orderId) {
                 });
             } else {
                 wx.showToast({
-                    title: '支付失败: ' + (res.data.message || '未知错误'),
+                    title: '支付失败',
                     icon: 'none',
-                    duration: 3000
+                    duration: 1500,
+                    success: () => {
+                        setTimeout(() => {
+                            wx.redirectTo({
+                                url: `/pages/order-detail/order-detail?orderId=${orderId}`
+                            });
+                        }, 1500);
+                    }
                 });
-                // 支付失败也跳转到订单详情页面
-                setTimeout(() => {
-                    wx.redirectTo({
-                        url: `/pages/order-detail/order-detail?orderId=${orderId}`
-                    });
-                }, 1500);
             }
         },
-        fail: (err) => {
+        fail: () => {
             wx.hideLoading();
-            console.error('支付请求失败:', err);
             wx.showToast({
-                title: '网络错误，请重试',
-                icon: 'none'
+                title: '网络错误',
+                icon: 'none',
+                duration: 1500,
+                success: () => {
+                    setTimeout(() => {
+                        wx.redirectTo({
+                            url: `/pages/order-detail/order-detail?orderId=${orderId}`
+                        });
+                    }, 1500);
+                }
             });
-            // 网络错误也跳转到订单详情页面
-            setTimeout(() => {
-                wx.redirectTo({
-                    url: `/pages/order-detail/order-detail?orderId=${orderId}`
-                });
-            }, 1500);
         }
     });
 },

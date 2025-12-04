@@ -45,6 +45,7 @@ Page({
       ratingList: [],
       originalRatingList: [],
 
+      eatType: 2,
     },
     
     onLoad(options) {
@@ -701,47 +702,51 @@ Page({
     },
   
     updateCart(cartItems) {
-      let totalQuantity = 0;
-      let totalPrice = 0;
-  
-      Object.keys(cartItems).forEach(dishId => {
-        const quantity = cartItems[dishId];
-        const dish = this.findDishById(dishId);
-        if (dish && quantity > 0) {
-          totalQuantity += quantity;
-          totalPrice += dish.price * quantity;
+        let totalQuantity = 0;
+        let subTotal = 0;
+      
+        Object.keys(cartItems).forEach(dishId => {
+          const quantity = cartItems[dishId];
+          const dish = this.findDishById(dishId);
+      
+          if (dish && quantity > 0) {
+            totalQuantity += quantity;
+            subTotal += dish.price * quantity;
+          }
+        });
+      
+        const restaurant = this.data.restaurant;
+        const packingFeeNumber = Number(restaurant ? restaurant.packingFee : 0);
+      
+        /** ⭐ 根据用餐方式计算价格 */
+        const isEatIn = this.data.eatType == 1;   // 1 = 堂食
+        const finalPackingFee = isEatIn ? 0 : packingFeeNumber;
+        const totalAmount = subTotal + finalPackingFee;
+      
+        this.setData({
+          cartItems,
+          totalQuantity,
+          subTotal,
+          packingFee: finalPackingFee.toFixed(2),
+          totalPrice: totalAmount,
+          formattedSubTotal: subTotal.toFixed(2),
+          formattedTotalPrice: totalAmount.toFixed(2),
+          showPackingFee: !isEatIn 
+        });
+      
+        /** 保存购物车到服务器 */
+        if (this.data.saveCartTimer) {
+          clearTimeout(this.data.saveCartTimer);
         }
-      });
-  
-      const restaurant = this.data.restaurant;
-      const packingFeeNumber = Number(restaurant ? restaurant.packingFee : 0);
-        const formattedPackingFee = packingFeeNumber.toFixed(2);
-        const totalAmountWithFees = totalPrice + packingFeeNumber;
-  
-      this.setData({
-        cartItems,
-        totalQuantity,
-        totalPrice: totalAmountWithFees,
-        subTotal: totalPrice,
-        packingFee: formattedPackingFee,
-        formattedTotalPrice: totalAmountWithFees.toFixed(2),
-        formattedSubTotal: totalPrice.toFixed(2),
-      });
-  
-      if (this.data.saveCartTimer) {
-        clearTimeout(this.data.saveCartTimer);
-      }
-  
-      this.data.saveCartTimer = setTimeout(() => {
-        const currentCartState = JSON.stringify(cartItems);
-        if (currentCartState !== this.data.lastCartState) {
-          this.saveCartToServer(cartItems);
-          this.setData({
-            lastCartState: currentCartState
-          });
-        }
-      }, 500);
-    },
+      
+        this.data.saveCartTimer = setTimeout(() => {
+          const currentCartState = JSON.stringify(cartItems);
+          if (currentCartState !== this.data.lastCartState) {
+            this.saveCartToServer(cartItems);
+            this.setData({ lastCartState: currentCartState });
+          }
+        }, 500);
+      },
   
     saveCartToServer(cartItems) {
       if (this.data.isGuest) return;
@@ -843,6 +848,7 @@ Page({
           restaurantId: this.data.restaurantId,
           totalAmount: this.data.totalPrice,
           packingFee: this.data.packingFee,
+          eatType: this.data.eatType || 2
         },
         items: orderItems,
         restaurant: this.data.restaurant,
@@ -1167,6 +1173,12 @@ Page({
             }
           }
         });
+      },
+      selectEatType(e) {
+        const type = e.currentTarget.dataset.type;
+        this.setData({ eatType: type });
+      
+        this.updateCart(this.data.cartItems);
       },
     onBack() {
       wx.navigateBack();

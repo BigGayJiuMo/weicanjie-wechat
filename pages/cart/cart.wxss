@@ -64,6 +64,7 @@
 .restaurant-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 24rpx 30rpx;
   border-bottom: 1rpx solid #f0f0f0;
 }
@@ -78,9 +79,34 @@
   font-weight: 600;
   color: #333;
 }
+  
+  .eat-type-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  .eat-select {
+    display: flex;
+    gap: 12rpx;
+  }
+  
+  .eat-btn {
+    padding: 6rpx 22rpx;
+    border-radius: 30rpx;
+    border: 1rpx solid #ccc;
+    font-size: 24rpx;
+    color: #666;
+  }
+  
+  .eat-btn.active {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: #fff;
+  }
 
 .delete-restaurant {
-  padding: 10rpx;
+    margin-left: 20rpx;
+    padding: 10rpx;
 }
 
 .delete-icon {

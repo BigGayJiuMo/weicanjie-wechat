@@ -18,11 +18,21 @@
             <!-- 餐厅头部 -->
             <view class="restaurant-header">
                 <view class="restaurant-selector">
-                    <view class="checkbox {{item.selected ? 'checked' : ''}}" bindtap="toggleRestaurantSelection" data-restaurant="{{item}}">
+                    <view class="checkbox {{item.selected ? 'checked' : ''}}" 
+                        catchtap="toggleRestaurantSelection" 
+                        data-restaurant="{{item}}">
                         <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>
                     </view>
                 </view>
                 <text class="restaurant-name">{{item.restaurantName}}</text>
+
+                <view class="eat-type-row">
+                    <view class="eat-select">
+                        <view class="eat-btn {{item.eatType == 1 ? 'active' : ''}}" data-type="1" data-restaurant="{{item.restaurantId}}" bindtap="selectEatType">堂食</view>
+                        <view class="eat-btn {{item.eatType == 2 ? 'active' : ''}}" data-type="2" data-restaurant="{{item.restaurantId}}" bindtap="selectEatType">外带</view>
+                    </view>
+                </view>
+
                 <view class="delete-restaurant" bindtap="deleteRestaurantCart" data-restaurant="{{item}}">
                     <image class="delete-icon" src="/images/delete.png"></image>
                 </view>
@@ -36,7 +46,10 @@
                         data-restaurant="{{item.restaurantId}}"
                     >
                     <view class="item-selector">
-                        <view class="checkbox {{item.selected ? 'checked' : ''}}" bindtap="toggleItemSelection" data-item="{{item}}" data-restaurant="{{item.restaurantId}}">
+                        <view class="checkbox {{item.selected ? 'checked' : ''}}" 
+                            catchtap="toggleItemSelection"
+                            data-item="{{item}}" 
+                            data-restaurant="{{item.restaurantId}}">
                             <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>
                         </view>
                     </view>
@@ -51,9 +64,9 @@
                                 ¥{{item.totalPrice || '0.00'}}
                             </view>
                             <view class="quantity-control">
-                                <view class="quantity-btn minus" bindtap="decreaseQuantity" data-item="{{item}}">-</view>
+                                <view class="quantity-btn minus" catchtap="decreaseQuantity" data-item="{{item}}">-</view>
                                 <text class="quantity-text">{{item.quantity}}</text>
-                                <view class="quantity-btn plus" bindtap="increaseQuantity" data-item="{{item}}">+</view>
+                                <view class="quantity-btn plus" catchtap="increaseQuantity" data-item="{{item}}">+</view>
                             </view>
                         </view>
                     </view>

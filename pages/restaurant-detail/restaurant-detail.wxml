@@ -43,8 +43,8 @@ id="pageScroll"
 
             <!-- 营业状态 -->
             <view class="restaurant-status {{statusClass}}">
-  {{statusText}}
-</view>
+            {{statusText}}
+            </view>
 
         </view>
     </view>
@@ -67,8 +67,17 @@ id="pageScroll"
         </view>
     </view>
 
-    <view class="restaurant-desc">
-      <text class="desc-text">{{restaurant.description}}</text>
+    <view class="eat-type-row">
+        <text class="eat-label">用餐方式：</text>
+
+        <view class="eat-select">
+            <view class="eat-btn {{eatType == 1 ? 'active' : ''}}" data-type="1" bindtap="selectEatType">
+            堂食
+            </view>
+            <view class="eat-btn {{eatType == 2 ? 'active' : ''}}" data-type="2" bindtap="selectEatType">
+            外带
+            </view>
+        </view>
     </view>
   </view>
 
@@ -392,14 +401,9 @@ id="pageScroll"
         <text class="summary-value">¥{{formattedSubTotal}}</text>
       </view>
 
-      <view class="summary-row">
+      <view class="summary-row" wx:if="{{showPackingFee}}">
         <text class="summary-label">打包费</text>
         <text class="summary-value">¥{{packingFee}}</text>
-      </view>
-
-      <view class="summary-row total">
-        <text class="summary-label">合计</text>
-        <text class="summary-value">¥{{formattedTotalPrice}}</text>
       </view>
     </view>
 
@@ -426,9 +430,6 @@ id="pageScroll"
       <view class="checkout-restaurant-info">
         <view class="checkout-restaurant-details">
           <text class="checkout-restaurant-name">{{restaurant.name}}</text>
-          <text class="checkout-restaurant-status {{getStatusClass(restaurant.businessStatus)}}">
-            {{getStatusText(restaurant.businessStatus)}}
-          </text>
         </view>
       </view>
     </view>
@@ -456,6 +457,7 @@ id="pageScroll"
       </view>
 
       <view class="checkout-summary">
+        
         <view class="checkout-summary-title">
           <text class="summary-title">费用明细</text>
         </view>
@@ -465,14 +467,9 @@ id="pageScroll"
           <text class="summary-value">¥{{formattedSubTotal}}</text>
         </view>
 
-        <view class="checkout-summary-row">
+        <view class="checkout-summary-row" wx:if="{{showPackingFee}}">
           <text class="summary-label">打包费</text>
           <text class="summary-value">¥{{packingFee}}</text>
-        </view>
-
-        <view class="checkout-summary-row total">
-          <text class="summary-label">合计</text>
-          <text class="summary-value total-amount">¥{{formattedTotalPrice}}</text>
         </view>
       </view>
 

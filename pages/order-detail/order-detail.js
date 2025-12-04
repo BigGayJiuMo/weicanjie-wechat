@@ -35,7 +35,11 @@ Page({
             });
         }
     },
-
+    onShow() {
+        if (this.data.orderId) {
+            this.loadOrderDetail(this.data.orderId);
+        }
+    },
     /** 加载订单详情 */
     loadOrderDetail: function(orderId) {
         const app = getApp();

@@ -592,7 +592,7 @@
   
   .order-items-scroll {
     flex: 1;
-    max-height: 600rpx;
+    max-height: 700rpx;
   }
   
   .order-items-list {
@@ -860,6 +860,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    margin-top: 20rpx;
   }
   
   .checkout-items-section {
@@ -933,13 +934,43 @@
     color: #333;
   }
   
+  .eat-type-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  .eat-label {
+    font-size: 28rpx;
+    color: #555;
+    margin-right: 20rpx;
+  }
+  
+  .eat-select {
+    display: flex;
+    gap: 20rpx;
+  }
+  
+  .eat-btn {
+    padding: 10rpx 26rpx;
+    border-radius: 30rpx;
+    border: 1px solid #ccc;
+    font-size: 26rpx;
+    color: #666;
+  }
+  
+  .eat-btn.active {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: #fff;
+  }
+  
+
   /* 结算费用明细 */
   .checkout-summary {
     padding: 30rpx;
     border-top: 1rpx solid #f0f0f0;
     border-bottom: 1rpx solid #f0f0f0;
-    background: #fafafa;
-    margin-bottom: 20rpx;
+    /* background: #fafafa; */
   }
   
   .checkout-summary-title {

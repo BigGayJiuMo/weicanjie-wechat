@@ -36,7 +36,6 @@
   </view>
 
   <!-- 订单卡片 -->
-  <!-- 订单卡片 -->
 <view wx:for="{{orderList}}" wx:key="id" class="order-card"
     bindtap="goToOrderDetail"
     bindlongpress="onDeleteConfirm"

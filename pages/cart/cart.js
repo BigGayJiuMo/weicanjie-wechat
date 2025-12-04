@@ -8,167 +8,174 @@ Page({
     },
   
     onLoad: function(options) {
-      this.loadCartData();
     },
   
-    onShow: function() {
-      this.loadCartData();
+    onShow() {
+        const app = getApp();
+    
+        if (app.globalData.cartCache) {
+    
+            const cached = app.globalData.cartCache;
+    
+            this.setData({
+                cartData: cached,
+            });
+    
+            //  恢复选中状态和价格
+            this.updateRestaurantSelection();
+            this.updateAllSelectedState();
+            this.calculateTotal();
+    
+            //  清空缓存（仅一次有效）
+            app.globalData.cartCache = null;
+            return;
+        }
+    
+        // 默认加载
+        this.loadCartData();
     },
   
     // 修复购物车数据加载方法
-    loadCartData: function() {
-        const userId = wx.getStorageSync('userId') || 1;
-        const that = this;
+    loadCartData() {
+        const app = getApp();
+        const user = app.globalData.userInfo;
     
-        wx.showLoading({
-            title: '加载中...',
-        });
+        //  如果用户没有登录
+        if (!user || !user.id) {
+          wx.showToast({
+            title: "请先登录后查看购物车",
+            icon: "none"
+          });
+          this.setData({ cartData: [] });
+          return;
+        }
+    
+        const userId = user.id; //  正确 userId
+    
+        wx.showLoading({ title: "加载中..." });
     
         wx.request({
-            url: `http://localhost:8080/api/cart/user/${userId}/list`,
-            method: 'GET',
-            success(res) {
-                wx.hideLoading();
-    
-                if (res.data.code !== 200) {
-                    wx.showToast({ title: '加载失败', icon: 'none' });
-                    return;
-                }
-    
-                const cartList = res.data.data || [];
-                console.log('原始购物车数据:', cartList);
-    
-                // 按餐厅分组并处理数据
-                that.processCartData(cartList);
-            },
-            fail(err) {
-                wx.hideLoading();
-                console.error('加载购物车失败:', err);
-                wx.showToast({ title: '网络错误', icon: 'none' });
+          url: `http://localhost:8080/api/cart/user/${userId}/list`,
+          method: "GET",
+          success: (res) => {
+            wx.hideLoading();
+            if (res.data.code !== 200) {
+              wx.showToast({ title: "加载失败", icon: "none" });
+              return;
             }
+    
+            const cartList = res.data.data || [];
+            console.log("原始购物车数据:", cartList);
+    
+            this.processCartData(cartList);
+          },
+          fail: () => {
+            wx.hideLoading();
+            wx.showToast({ title: "网络错误", icon: "none" });
+          }
         });
       },
   
-      processCartData: function(cartList) {
-        const that = this;
+      processCartData(cartList) {
         const restaurantMap = {};
         const restaurantsToLoad = new Set();
     
-        // 第一遍：分组并识别需要加载餐厅信息的餐厅
-        cartList.forEach(item => {
-            const restaurantId = item.restaurantId;
-            
-            if (!restaurantMap[restaurantId]) {
-                restaurantMap[restaurantId] = {
-                    restaurantId: restaurantId,
-                    restaurantName: '加载中...',
-                    deliveryFee: 0,
-                    packingFee: 0,
-                    selected: false,
-                    items: []
-                };
-                
-                // 如果后端没有返回餐厅信息，标记需要加载
-                if (!item.restaurant) {
-                    restaurantsToLoad.add(restaurantId);
-                } else {
-                    // 使用后端返回的餐厅信息
-                    restaurantMap[restaurantId].restaurantName = item.restaurant.name || '未知餐厅';
-                    restaurantMap[restaurantId].deliveryFee = item.restaurant.deliveryFee || 0;
-                    restaurantMap[restaurantId].packingFee = item.restaurant.packingFee || 0;
-                }
+        cartList.forEach((item) => {
+          const restaurantId = item.restaurantId;
+    
+          if (!restaurantMap[restaurantId]) {
+            restaurantMap[restaurantId] = {
+              restaurantId,
+              restaurantName: "加载中...",
+              deliveryFee: 0,
+              packingFee: 0,
+              selected: false,
+              eatType: 2,
+              items: []
+            };
+    
+            if (!item.restaurant) {
+              restaurantsToLoad.add(restaurantId);
+            } else {
+              restaurantMap[restaurantId].restaurantName =
+                item.restaurant.name || "未知餐厅";
+              restaurantMap[restaurantId].deliveryFee =
+                item.restaurant.deliveryFee || 0;
+              restaurantMap[restaurantId].packingFee =
+                item.restaurant.packingFee || 0;
             }
+          }
     
-            // 处理菜品信息
-            const price = parseFloat(item.dishPrice || (item.dish ? item.dish.price : 0) || 0);
-            const quantity = parseInt(item.quantity || 1);
-            const totalPrice = (price * quantity).toFixed(2);
+          const price = parseFloat(item.dishPrice || item?.dish?.price || 0);
+          const quantity = item.quantity || 1;
     
-            restaurantMap[restaurantId].items.push({
-                id: item.id,
-                cartId: item.id,
-                dishId: item.dishId,
-                dishName: item.dishName || (item.dish ? item.dish.name : '未知菜品'),
-                dishPrice: price,
-                dishImageUrl: item.dishImageUrl || (item.dish ? item.dish.imageUrl : '/images/default-dish.png'),
-                quantity: quantity,
-                restaurantId: restaurantId,
-                selected: false,
-                totalPrice: totalPrice
-            });
+          restaurantMap[restaurantId].items.push({
+            id: item.id,
+            cartId: item.id,
+            dishId: item.dishId,
+            dishName: item.dishName || item?.dish?.name || "未知菜品",
+            dishPrice: price,
+            dishImageUrl:
+              item.dishImageUrl || item?.dish?.imageUrl || "/images/default-dish.png",
+            quantity,
+            restaurantId,
+            selected: false,
+            totalPrice: (price * quantity).toFixed(2)
+          });
         });
     
-        // 设置初始数据
         const cartData = Object.values(restaurantMap);
-        that.setData({ cartData });
-        that.calculateTotal();
-        that.updateRestaurantSelection();
-        that.updateAllSelectedState();
+        this.setData({ cartData });
     
-        // 加载缺失的餐厅信息
+        this.calculateTotal();
+        this.updateRestaurantSelection();
+        this.updateAllSelectedState();
+    
         if (restaurantsToLoad.size > 0) {
-            that.loadMissingRestaurantInfo(Array.from(restaurantsToLoad));
+          this.loadMissingRestaurantInfo(Array.from(restaurantsToLoad));
         }
       },
 
       // 加载缺失的餐厅信息
-  loadMissingRestaurantInfo: function(restaurantIds) {
-    const that = this;
-    let loadedCount = 0;
-
-    restaurantIds.forEach(restaurantId => {
-      that.loadRestaurantDetail(restaurantId, (restaurantInfo) => {
-        if (restaurantInfo) {
-          that.updateRestaurantInfoInCart(restaurantId, restaurantInfo);
-        } else {
-          // 如果加载失败，设置为未知餐厅
-          that.updateRestaurantInfoInCart(restaurantId, {
-            name: '未知餐厅',
-            deliveryFee: 0,
-            packingFee: 0
+      loadMissingRestaurantInfo(restaurantIds) {
+        let loaded = 0;
+    
+        restaurantIds.forEach((id) => {
+          this.loadRestaurantDetail(id, (info) => {
+            if (info) {
+              this.updateRestaurantInfoInCart(id, info);
+            }
+            loaded++;
+            if (loaded === restaurantIds.length) {
+              this.calculateTotal();
+            }
           });
-        }
-        
-        loadedCount++;
-        // 所有餐厅信息加载完成后重新计算
-        if (loadedCount === restaurantIds.length) {
-          that.calculateTotal();
-        }
-      });
-    });
-  },
+        });
+      },
 
     // 加载餐厅详细信息
-  loadRestaurantDetail: function(restaurantId, callback) {
-    wx.request({
-      url: `http://localhost:8080/api/restaurant/${restaurantId}`,
-      method: 'GET',
-      success: (res) => {
-        if (res.data.code === 200 && res.data.data) {
-          callback(res.data.data);
-        } else {
-          callback(null);
-        }
+    loadRestaurantDetail(restaurantId, callback) {
+        wx.request({
+          url: `http://localhost:8080/api/restaurant/${restaurantId}`,
+          method: "GET",
+          success: (res) => {
+            callback(res.data.code === 200 ? res.data.data : null);
+          },
+          fail: () => callback(null)
+        });
       },
-      fail: () => {
-        callback(null);
-      }
-    });
-  },
   
     // 更新本地购物车中的餐厅信息
-  updateRestaurantInfoInCart: function(restaurantId, restaurantInfo) {
-    const cartData = this.data.cartData;
-    const restaurantIndex = cartData.findIndex(r => r.restaurantId === restaurantId);
-    
-    if (restaurantIndex !== -1) {
-      cartData[restaurantIndex].restaurantName = restaurantInfo.name || '未知餐厅';
-      cartData[restaurantIndex].deliveryFee = restaurantInfo.deliveryFee || 0;
-      cartData[restaurantIndex].packingFee = restaurantInfo.packingFee || 0;
-      
-      this.setData({ cartData });
-    }
-  },
+    updateRestaurantInfoInCart(restaurantId, restaurantInfo) {
+        const cartData = this.data.cartData;
+        const index = cartData.findIndex((r) => r.restaurantId === restaurantId);
+        if (index !== -1) {
+          cartData[index].restaurantName = restaurantInfo.name || "未知餐厅";
+          cartData[index].deliveryFee = restaurantInfo.deliveryFee || 0;
+          cartData[index].packingFee = restaurantInfo.packingFee || 0;
+          this.setData({ cartData });
+        }
+      },
   
     // 切换餐厅全选状态
     toggleRestaurantSelection: function(e) {
@@ -217,20 +224,15 @@ Page({
     },
   
     // 更新餐厅选中状态
-    updateRestaurantSelection: function() {
-      const cartData = this.data.cartData;
-      
-      cartData.forEach(restaurant => {
-        if (restaurant.items && restaurant.items.length > 0) {
-          const allItemsSelected = restaurant.items.every(item => item.selected);
-          restaurant.selected = allItemsSelected;
-        } else {
-          restaurant.selected = false;
-        }
-      });
-      
-      this.setData({ cartData });
-    },
+    updateRestaurantSelection() {
+        const cartData = this.data.cartData;
+        cartData.forEach((restaurant) => {
+          restaurant.selected =
+            restaurant.items.length > 0 &&
+            restaurant.items.every((item) => item.selected);
+        });
+        this.setData({ cartData });
+      },
   
     // 切换全选状态
     toggleAllSelection: function() {
@@ -255,37 +257,41 @@ Page({
     },
   
     // 更新全选状态
-    updateAllSelectedState: function() {
-      const cartData = this.data.cartData;
-      const allSelected = cartData.length > 0 && cartData.every(restaurant => restaurant.selected);
-      
-      this.setData({ allSelected });
-    },
+    updateAllSelectedState() {
+        const allSelected =
+          this.data.cartData.length > 0 &&
+          this.data.cartData.every((r) => r.selected);
+        this.setData({ allSelected });
+      },
   
     // 计算总价和选中数量
-    calculateTotal: function() {
-      const cartData = this.data.cartData;
-      let totalPrice = 0;
-      let selectedCount = 0;
+    calculateTotal() {
+        let total = 0;
+        let count = 0;
       
-      cartData.forEach(restaurant => {
-        if (restaurant.items && restaurant.items.length > 0) {
-          restaurant.items.forEach(item => {
+        this.data.cartData.forEach(r => {
+          const packing = (r.eatType === 2 ? r.packingFee : 0);
+      
+          let restaurantHasSelected = false;
+      
+          r.items.forEach(item => {
             if (item.selected) {
-              const price = parseFloat(item.dishPrice) || 0;
-              const quantity = parseInt(item.quantity) || 0;
-              totalPrice += price * quantity;
-              selectedCount += quantity;
+              total += item.dishPrice * item.quantity;
+              count += item.quantity;
+              restaurantHasSelected = true;
             }
           });
-        }
-      });
       
-      this.setData({
-        totalPrice: totalPrice.toFixed(2),
-        selectedCount: selectedCount
-      });
-    },
+          if (restaurantHasSelected) {
+            total += packing;
+          }
+        });
+      
+        this.setData({
+          totalPrice: total.toFixed(2),
+          selectedCount: count
+        });
+      },
   
     // 增加商品数量
     increaseQuantity: function(e) {
@@ -320,45 +326,40 @@ Page({
     },
   
     // 更新购物车数量
-    updateCartQuantity: function(item, newQuantity) {
-      const that = this;
-      const userId = wx.getStorageSync('userId') || 1;
+    updateCartQuantity(item, newQuantity) {
+        const userId = getApp().globalData.userInfo.id;
       
-      // 先更新本地数据
-      this.updateLocalCartItem(item, newQuantity);
+        const oldQuantity = item.quantity; // ⭐ 保存旧值
       
-      // 然后更新后端
-      wx.request({
-        url: "http://localhost:8080/api/cart/update",
-        method: "POST",
-        header: {
-          'content-type': 'application/json'
-        },
-        data: {
-          userId: userId,
-          restaurantId: item.restaurantId,
-          dishId: item.dishId,
-          quantity: newQuantity
-        },
-        success: (res) => {
-          console.log('更新数量响应:', res.data);
-          if (res.data.code !== 200) {
-            wx.showToast({ 
-              title: '更新失败: ' + (res.data.message || '未知错误'), 
-              icon: 'none' 
-            });
-            // 恢复原来的数量
-            that.updateLocalCartItem(item, item.quantity);
+        // 本地更新
+        this.updateLocalCartItem(item, newQuantity);
+      
+        wx.request({
+          url: "http://localhost:8080/api/cart/update",
+          method: "POST",
+          header: { "content-type": "application/json" },
+          data: {
+            userId: userId,
+            restaurantId: item.restaurantId,
+            dishId: item.dishId,
+            quantity: newQuantity
+          },
+          success: (res) => {
+            if (res.data.code !== 200) {
+              wx.showToast({ title: "更新失败", icon: "none" });
+      
+              // ⭐ 恢复旧数量
+              this.updateLocalCartItem(item, oldQuantity);
+            }
+          },
+          fail: () => {
+            wx.showToast({ title: "网络错误", icon: "none" });
+      
+            // ⭐ 恢复旧数量
+            this.updateLocalCartItem(item, oldQuantity);
           }
-        },
-        fail: (err) => {
-          console.error('更新数量请求失败:', err);
-          wx.showToast({ title: '网络错误', icon: 'none' });
-          // 恢复原来的数量
-          that.updateLocalCartItem(item, item.quantity);
-        }
-      });
-    },
+        });
+      },
   
     // 更新本地购物车项
     updateLocalCartItem: function(item, newQuantity) {
@@ -523,7 +524,8 @@ Page({
           });
           return;
       }
-      
+      const app = getApp();
+      app.globalData.cartCache = JSON.parse(JSON.stringify(this.data.cartData));
       // 收集选中的商品
       const selectedItems = [];
       const cartData = this.data.cartData;
@@ -558,52 +560,49 @@ Page({
       
       // 按餐厅分组选中的商品
       const checkoutRestaurants = {};
-      selectedItems.forEach(item => {
-          if (!checkoutRestaurants[item.restaurantId]) {
-              checkoutRestaurants[item.restaurantId] = {
-                  restaurantId: item.restaurantId,
-                  restaurantName: item.restaurantName,
-                  deliveryFee: item.deliveryFee || 0,
-                  packingFee: item.packingFee || 0,
-                  discount: 0,
-                  items: []
-              };
-          }
-          checkoutRestaurants[item.restaurantId].items.push(item);
-      });
+      cartData.forEach(restaurant => {
+        restaurant.items.forEach(item => {
+            if (item.selected) {
+                if (!checkoutRestaurants[restaurant.restaurantId]) {
+                    checkoutRestaurants[restaurant.restaurantId] = {
+                        restaurantId: restaurant.restaurantId,
+                        restaurantName: restaurant.restaurantName,
+                        eatType: restaurant.eatType, 
+                        packingFee: restaurant.packingFee,
+                        items: []
+                    };
+                }
+    
+                checkoutRestaurants[restaurant.restaurantId].items.push(item);
+            }
+        });
+    });
       
       // 计算每个餐厅的小计和总金额
       let totalAmount = 0;
       const restaurants = Object.values(checkoutRestaurants).map(restaurant => {
-          const dishSubTotal = restaurant.items.reduce((sum, item) => {
-              return sum + (parseFloat(item.price) * parseInt(item.quantity));
-          }, 0);
+        const dishSubTotal = restaurant.items.reduce((sum, item) => {
+            return sum + (parseFloat(item.dishPrice) * parseInt(item.quantity));
+        }, 0);
           
-          const deliveryFee = parseFloat(restaurant.deliveryFee) || 0;
           const packingFee = parseFloat(restaurant.packingFee) || 0;
-          const discount = parseFloat(restaurant.discount) || 0;
           
-          const subTotal = dishSubTotal + deliveryFee + packingFee - discount;
+          const subTotal = dishSubTotal + packingFee ;
           totalAmount += subTotal;
           
           return {
               ...restaurant,
               dishSubTotal: dishSubTotal.toFixed(2),
               subTotal: subTotal.toFixed(2),
-              deliveryFee: deliveryFee.toFixed(2),
-              packingFee: packingFee.toFixed(2),
-              discount: discount.toFixed(2)
+              packingFee: packingFee.toFixed(2)
           };
       });
       
       // 准备订单数据
       const orderData = {
-          restaurants: restaurants,
-          subTotal: parseFloat(this.data.totalPrice).toFixed(2),
-          deliveryFee: Object.values(checkoutRestaurants).reduce((sum, r) => sum + parseFloat(r.deliveryFee), 0).toFixed(2),
-          packingFee: Object.values(checkoutRestaurants).reduce((sum, r) => sum + parseFloat(r.packingFee), 0).toFixed(2),
-          totalAmount: totalAmount.toFixed(2),
-          selectedCount: this.data.selectedCount
+        restaurants: restaurants,
+        totalAmount: totalAmount.toFixed(2),
+        selectedCount: this.data.selectedCount
       };
       
       console.log('结算数据:', orderData);
@@ -627,5 +626,18 @@ Page({
       wx.switchTab({
         url: '/pages/index/index'
       });
-    }
+    },
+    selectEatType(e) {
+        const type = Number(e.currentTarget.dataset.type);
+        const restaurantId = e.currentTarget.dataset.restaurant;
+    
+        const cartData = this.data.cartData;
+        const index = cartData.findIndex(r => r.restaurantId === restaurantId);
+    
+        if (index !== -1) {
+            cartData[index].eatType = type;
+            this.setData({ cartData });
+            this.calculateTotal(); 
+        }
+    },
   });

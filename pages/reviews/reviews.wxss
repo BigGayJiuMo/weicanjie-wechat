@@ -1,1 +1,141 @@
 /* pages/reviews/reviews.wxss */
+.container {
+    background: #f7f7f7;
+    min-height: 100vh;
+  }
+  
+  /* 顶部导航栏 */
+  .navbar {
+    background: white;
+    padding: 20rpx 30rpx;
+    padding-top: 95rpx;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1rpx solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-left, .nav-right {
+    width: 80rpx;
+    text-align: center;
+}
+
+.nav-center {
+    flex: 1;
+    text-align: center;
+}
+
+.back-icon {
+    width: 48rpx;
+    height: 48rpx;
+}
+
+.nav-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #333;
+}
+  
+  .page-scroll {
+    position: fixed;
+    top: 170rpx;
+    left: 0; right: 0; bottom: 0;
+  }
+  /* 删除按钮 */
+.delete-btn {
+    width: 30rpx;
+    height: 30rpx;
+    position: absolute;
+    top: 20rpx;
+    right: 20rpx;
+    opacity: 0.7;
+  }
+  /* 每条评价 */
+  .review-item {
+    position: relative;
+    background: #fff;
+    margin: 20rpx;
+    padding: 30rpx;
+    border-radius: 18rpx;
+    box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+  }
+  
+  /* 餐厅信息 */
+  .restaurant-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20rpx;
+  }
+  
+  .restaurant-logo {
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 10rpx;
+    margin-right: 20rpx;
+  }
+  
+  .restaurant-name {
+    font-size: 30rpx;
+    font-weight: bold;
+  }
+  .arrow-right {
+    width: 26rpx;
+    height: 26rpx;
+    margin-left: 10rpx;
+    opacity: 0.6;
+  }
+  /* 评分 */
+  .rating-row {
+    font-size: 26rpx;
+    color: #444;
+    margin-bottom: 20rpx;
+  }
+  
+  .rating-sub {
+    margin-left: 20rpx;
+    color: #777;
+  }
+  
+  /* 内容 */
+  .content-text {
+    font-size: 28rpx;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 20rpx;
+  }
+  
+  /* 图片 */
+  .image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+  }
+  
+  .review-image {
+    width: 200rpx;
+    height: 200rpx;
+    border-radius: 10rpx;
+  }
+  
+  /* 时间 */
+  .time-text {
+    margin-top: 20rpx;
+    font-size: 22rpx;
+    color: #999;
+  }
+  
+  /* 空数据 */
+  .empty-box {
+    margin-top: 200rpx;
+    text-align: center;
+    font-size: 30rpx;
+    color: #aaa;
+  }
+  

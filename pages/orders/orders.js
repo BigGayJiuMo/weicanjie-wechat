@@ -140,7 +140,9 @@ Page({
                 const reviewed = res.data.data || [];
     
                 list.forEach(item => {
-                    item._hasReview = reviewed.some(r => r.orderId === item.id);
+                    item._hasReview = reviewed.some(r => 
+                        r.orderId === item.id || r.order_id === item.id
+                    );
                 });
     
                 this.setData({
@@ -149,8 +151,7 @@ Page({
                 });
             }
         });
-    }
-    ,
+    },
     goReview(e) {
         const orderId = e.currentTarget.dataset.id;
         const order = this.data.orderList.find(o => o.id === orderId);

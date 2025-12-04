@@ -48,9 +48,9 @@
           <view class="restaurant-content">
             <view class="restaurant-header">
               <text class="restaurant-name">{{item.name}}</text>
-              <view class="restaurant-status {{getStatusClass(item.businessStatus)}}">
-                {{getStatusText(item.businessStatus)}}
-              </view>
+              <view class="restaurant-status {{item.statusClass}}">
+                {{item.statusText}}
+                </view>
             </view>
             
             <view class="rating-row">

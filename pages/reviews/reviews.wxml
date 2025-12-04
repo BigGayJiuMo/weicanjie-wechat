@@ -1,2 +1,76 @@
-<!--pages/reviews/reviews.wxml-->
-<text>pages/reviews/reviews.wxml</text>
+<view class="container">
+
+<!-- 顶部导航栏 -->
+<view class="navbar">
+        <view class="navbar-content">
+            <view class="nav-left">
+                <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+            </view>
+            <view class="nav-center">
+                <text class="nav-title">订单详情</text>
+            </view>
+            <view class="nav-right"></view>
+        </view>
+    </view>
+
+<scroll-view class="page-scroll" scroll-y="true">
+
+  <view wx:if="{{reviews.length > 0}}" class="review-list">
+
+    <view class="review-item" wx:for="{{reviews}}" wx:key="id">
+        <!-- 删除按钮 -->
+        <image 
+        class="delete-btn"
+        src="/images/delete.png"
+        data-id="{{item.id}}"
+        bindtap="onDeleteReview"
+        />
+      <!-- 餐厅信息 -->
+      <view class="restaurant-info">
+        <image class="restaurant-logo" src="{{item.restaurantLogo}}"></image>
+        <text class="restaurant-name">{{item.restaurantName}}</text>
+      <image class="arrow-right" src="/images/arrow-right.png"></image>
+      </view>
+
+      <!-- 用户评分 -->
+      <view class="rating-row">
+        <text class="rating-text">评分：{{item.rating}} </text>
+        <text class="rating-sub">味道：{{item.taste}}</text>
+        <text class="rating-sub">包装：{{item.pack}}</text>
+      </view>
+
+      <!-- 评价内容 -->
+      <view class="content-text">
+        {{item.content}}
+      </view>
+
+      <!-- 图片列表 -->
+      <view class="image-list" wx:if="{{item.images.length > 0}}">
+        <image 
+          wx:for="{{item.images}}" 
+          wx:key="i" 
+          class="review-image" 
+          src="{{item}}"
+          data-url="{{item}}"
+          data-urls="{{item.images}}"
+          bindtap="previewImage"
+          mode="aspectFill"
+        />
+      </view>
+
+      <!-- 时间 -->
+      <view class="time-text">
+        {{item.created_time}}
+      </view>
+
+    </view>
+
+  </view>
+
+  <view wx:else class="empty-box">
+    <text>你还没有发表过评价</text>
+  </view>
+
+</scroll-view>
+
+</view>

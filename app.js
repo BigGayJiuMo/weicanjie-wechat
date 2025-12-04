@@ -97,6 +97,7 @@ App({
   globalData: {
     userInfo: null,
     isGuest: true, // 默认是游客模式
-    baseUrl: 'http://localhost:8080/api'
+    baseUrl: 'http://localhost:8080/api',
+    cartCache: null
   }
 });
