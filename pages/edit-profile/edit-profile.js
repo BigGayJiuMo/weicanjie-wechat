@@ -90,14 +90,17 @@ Page({
     onChooseAvatar(e) {
         const wechatAvatar = e.detail.avatarUrl;
     
-        //先下载成本地临时文件
         wx.getImageInfo({
             src: wechatAvatar,
             success: img => {
                 wx.uploadFile({
-                    url: getApp().globalData.baseUrl + "/upload/image?type=avatar",
-                    filePath: img.path, 
+                    url: getApp().globalData.baseUrl + "/upload/image",
+                    filePath: img.path,
                     name: "file",
+                    formData: {
+                        type: "avatar",
+                        userId: this.data.userInfo.id   //  必传，否则存 unknown/
+                    },
                     success: res => {
                         const result = JSON.parse(res.data);
                         const realUrl = result.data;
@@ -108,15 +111,8 @@ Page({
                         });
     
                         this.saveAvatarToDatabase(realUrl);
-                    },
-                    fail: err => {
-                        console.error("头像上传失败:", err);
-                        this.showToast("上传失败");
                     }
                 });
-            },
-            fail: err => {
-                console.error("头像获取失败:", err);
             }
         });
     },

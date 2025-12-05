@@ -8,7 +8,7 @@ Page({
       pack: 0,
       content: "",
       images: [],
-      isAnon: false   // ⭐必须为 Boolean
+      isAnon: false   // 必须为 Boolean
     },
   
     onLoad(options) {
@@ -18,7 +18,7 @@ Page({
       });
     },
   
-    /* ⭐评分 */
+    /* 评分 */
     onRateOverall(e) {
       this.setData({ rating: e.currentTarget.dataset.index + 1 });
     },
@@ -34,7 +34,7 @@ Page({
       this.setData({ content: e.detail.value });
     },
   
-    /* ⭐ 匿名开关（始终用 Boolean） */
+    /*  匿名开关（始终用 Boolean） */
     onAnonChange(e) {
       this.setData({ isAnon: e.detail.value }); // true / false
     },
@@ -42,25 +42,29 @@ Page({
     /* 上传图片 */
     chooseImage() {
         wx.chooseMedia({
-          count: 6 - this.data.images.length,
-          mediaType: ["image"],
-          success: res => {
-            res.tempFiles.forEach(file => {
-              wx.uploadFile({
-                url: getApp().globalData.baseUrl + "/upload/image?type=review",
-                filePath: file.tempFilePath,
-                name: "file",
-                success: uploadRes => {
-                  const url = JSON.parse(uploadRes.data).data;
-                  this.setData({
-                    images: [...this.data.images, url]
-                  });
-                }
-              });
-            });
-          }
+            count: 6 - this.data.images.length,
+            mediaType: ["image"],
+            success: res => {
+                res.tempFiles.forEach(file => {
+                    wx.uploadFile({
+                        url: getApp().globalData.baseUrl + "/upload/image",
+                        filePath: file.tempFilePath,
+                        name: "file",
+                        formData: {
+                            type: "review",
+                            restaurantId: this.data.restaurantId  // ⭐ 必传
+                        },
+                        success: uploadRes => {
+                            const url = JSON.parse(uploadRes.data).data;
+                            this.setData({
+                                images: [...this.data.images, url]
+                            });
+                        }
+                    });
+                });
+            }
         });
-      },
+    },
   
     previewImage(e) {
       wx.previewImage({
@@ -76,7 +80,7 @@ Page({
       this.setData({ images: arr });
     },
   
-    /* ⭐ 提交 */
+    /*  提交 */
     onSubmit() {
       const app = getApp();
   
@@ -103,7 +107,7 @@ Page({
           content: this.data.content,
           imageUrls: JSON.stringify(uploaded),
   
-          // ⭐ 后端要 Integer，这里转换
+          //  后端要 Integer，这里转换
           isAnon: this.data.isAnon ? 1 : 0
         },
         success: res => {
