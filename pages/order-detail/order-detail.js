@@ -17,6 +17,7 @@ Page({
         isPaying: false,
         hasReview: false,
         canReview: false,
+        countdown: '',
     },
 
     onLoad: function(options) {
@@ -39,6 +40,9 @@ Page({
         if (this.data.orderId) {
             this.loadOrderDetail(this.data.orderId);
         }
+    },
+    onUnload() {
+        this.clearCountdown();
     },
     /** 加载订单详情 */
     loadOrderDetail: function(orderId) {
@@ -98,18 +102,72 @@ Page({
             packingFee: packingFee.toFixed(2),
             statusInfo
         });
+        if (order.status === 1) {
+            this.startCountdown(order.createdTime);
+        } else {
+            this.clearCountdown();
+        }
         this.checkReviewStatus(order.id, order.createdTime);
     },
 
+    startCountdown(createdTime) {
+        this.clearCountdown(); // 防止重复倒计时
+    
+        const deadline = new Date(createdTime.replace(/-/g, "/")).getTime() + 30 * 60 * 1000; // 创建时间 + 30分钟
+    
+        const timer = setInterval(() => {
+            const now = Date.now();
+            const diff = deadline - now;
+    
+            if (diff <= 0) {
+                // 倒计时结束 → 自动取消订单
+                this.clearCountdown();
+                this.autoCancelOrder();
+                return;
+            }
+    
+            const minutes = Math.floor(diff / 1000 / 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+    
+            const display = `${minutes.toString().padStart(2, '0')}:${seconds
+                .toString()
+                .padStart(2, '0')}`;
+    
+            this.setData({ countdown: display });
+    
+        }, 1000);
+    
+        this.setData({ countdownTimer: timer });
+    },
+    
+    /** 清除倒计时 */
+    clearCountdown() {
+        if (this.data.countdownTimer) {
+            clearInterval(this.data.countdownTimer);
+            this.setData({ countdownTimer: null, countdown: '' });
+        }
+    },
+
+    /** 超时未支付自动取消订单 */
+autoCancelOrder() {
+    const app = getApp();
+
+    wx.request({
+        url: app.globalData.baseUrl + "/order/cancel/" + this.data.orderId,
+        method: "POST",
+        success: res => {
+            // 自动刷新订单
+            this.loadOrderDetail(this.data.orderId);
+            wx.showToast({
+                title: "支付超时，订单已取消",
+                icon: "none"
+            });
+        }
+    });
+},
     /** 订单状态文本与图标 */
     calculateStatusInfo: function(status) {
         const s = Number(status);
-        const iconMap = {
-            1: "/images/order-pending.png",
-            2: "/images/order-processing.png",
-            3: "/images/order-completed.png",
-            4: "/images/order-cancelled.png"
-        };
 
         const textMap = {
             1: "待支付",
@@ -126,7 +184,6 @@ Page({
         };
 
         return {
-            icon: iconMap[s],
             text: textMap[s],
             desc: descMap[s]
         };

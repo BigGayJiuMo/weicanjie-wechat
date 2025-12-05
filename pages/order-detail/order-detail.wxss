@@ -56,19 +56,38 @@
     overflow-y: auto; /* 确保可以滚动 */
 }
 
-/* 状态卡片 */
+
+/* 订单状态卡片 */
 .status-card {
     background: linear-gradient(135deg, #ff6b35, #ff8e53);
     padding: 60rpx 40rpx;
     color: white;
     display: flex;
     align-items: center;
-  }
-  
+}
+  .status-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
   .status-icon {
     margin-right: 30rpx;
   }
-  
+  .left {
+    display: flex;
+    flex-direction: column;
+}
+.countdown-right {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 10rpx 24rpx;
+    border-radius: 30rpx;
+}
+.countdown-text {
+    font-size: 40rpx;
+    color: #ffffff;
+    font-weight: bold;
+}
   .status-icon image {
     width: 80rpx;
     height: 80rpx;
@@ -85,15 +104,6 @@
     font-size: 28rpx;
     opacity: 0.9;
   }
-
-/* 订单状态卡片 */
-.status-card {
-    background: linear-gradient(135deg, #ff6b35, #ff8e53);
-    padding: 60rpx 40rpx;
-    color: white;
-    display: flex;
-    align-items: center;
-}
 
 /* 订单卡片：合并餐厅信息、订单商品、订单信息、金额明细 */
 .order-card {

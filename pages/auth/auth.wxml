@@ -18,6 +18,10 @@
         <text class="auth-title">微餐捷点餐</text>
         <text class="auth-desc">请授权用户信息，享受便捷点餐服务</text>
         
+        <!-- 微信登录 -->
+        <button class="auth-btn-container" open-type="getUserProfile" bindtap="onWeChatLogin">
+        微信快捷登录
+        </button>
         <!-- 手机号一键登录 - 使用view实现 -->
         <view class="auth-btn-container">
         <view class="auth-btn">手机号一键登录</view>

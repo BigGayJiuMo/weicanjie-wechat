@@ -46,7 +46,7 @@ Page({
       
               // 其他逻辑保持不变
               list.forEach(item => {
-                const isFinished = item.status === 3 || item.status === 4;
+                const isFinished = item.status === 3 ;
                 const created = new Date(item.createdTime.replace(/-/g, "/"));
                 const diffHour = (new Date() - created) / 3600000;
                 const expire = diffHour > 24;

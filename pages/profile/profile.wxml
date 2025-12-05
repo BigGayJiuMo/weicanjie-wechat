@@ -41,17 +41,6 @@
       </view>
     </view>
 
-    <!-- 历史浏览（新增） -->
-    <view class="menu-item" bindtap="onHistoryBrowse">
-      <view class="menu-left">
-        <image class="menu-icon" src="/images/icon-history.png"></image>
-        <text class="menu-text">历史浏览</text>
-      </view>
-      <view class="menu-right">
-        <image class="menu-arrow" src="/images/arrow-right.png"></image>
-      </view>
-    </view>
-
     <!-- 订单历史 -->
     <view class="menu-item" bindtap="onOrderHistory">
       <view class="menu-left">
@@ -61,6 +50,28 @@
       <view class="menu-right">
         <image class="menu-arrow" src="/images/arrow-right.png"></image>
       </view>
+    </view>
+
+    <!-- 我的评价 -->
+    <view class="menu-item" bindtap="onMyReviews">
+        <view class="menu-left">
+            <image class="menu-icon" src="/images/icon-review.png"></image>
+            <text class="menu-text">我的评价</text>
+        </view>
+        <view class="menu-right">
+            <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
+    </view>
+
+<!-- 历史浏览（新增） -->
+    <view class="menu-item" bindtap="onHistoryBrowse">
+        <view class="menu-left">
+            <image class="menu-icon" src="/images/icon-history.png"></image>
+            <text class="menu-text">历史浏览</text>
+        </view>
+        <view class="menu-right">
+            <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
     </view>
 
     <!-- 客服 -->
@@ -75,26 +86,26 @@
       </view>
     </view>
 
-    <!-- 我的评价 -->
-    <view class="menu-item" bindtap="onMyReviews">
-      <view class="menu-left">
-        <image class="menu-icon" src="/images/icon-review.png"></image>
-        <text class="menu-text">我的评价</text>
-      </view>
-      <view class="menu-right">
-        <image class="menu-arrow" src="/images/arrow-right.png"></image>
-      </view>
+    <!-- 服务协议 -->
+    <view class="menu-item" bindtap="onUserAgreementTap" data-type="user">
+        <view class="menu-left">
+            <image class="menu-icon" src="/images/icon-agreement.png"></image>
+            <text class="menu-text">服务协议</text>
+        </view>
+        <view class="menu-right">
+            <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
     </view>
 
-    <!-- 设置 -->
-    <view class="menu-item" bindtap="onSettings">
-      <view class="menu-left">
-        <image class="menu-icon" src="/images/icon-settings.png"></image>
-        <text class="menu-text">设置</text>
-      </view>
-      <view class="menu-right">
-        <image class="menu-arrow" src="/images/arrow-right.png"></image>
-      </view>
+    <!-- 隐私政策 -->
+    <view class="menu-item" bindtap="onUserAgreementTap" data-type="privacy">
+        <view class="menu-left">
+            <image class="menu-icon" src="/images/icon-privacy.png"></image>
+            <text class="menu-text">隐私政策</text>
+        </view>
+        <view class="menu-right">
+            <image class="menu-arrow" src="/images/arrow-right.png"></image>
+        </view>
     </view>
   </view>
 </view>

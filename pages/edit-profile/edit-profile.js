@@ -297,17 +297,19 @@ Page({
     },
 
     // 手机号输入
-    onPhoneInput: function(e) {
-        const value = e.detail.value;
+    onPhoneInput: function (e) {
+        const value = e.detail.value.replace(/\D/g, ''); // 强制只允许数字
+    
         this.setData({
             newPhone: value,
-            canGetCode: value.length === 11 // 手机号格式正确才能获取验证码
+            canGetCode: value.length === 11
         });
     },
 
     // 验证码输入
-    onVerifyCodeInput: function(e) {
-        const value = e.detail.value;
+    onVerifyCodeInput: function (e) {
+        const value = e.detail.value.replace(/\D/g, ''); // 强制只允许数字
+    
         this.setData({
             verifyCode: value,
             canConfirmPhone: value.length === 4 && this.data.newPhone.length === 11
@@ -452,7 +454,7 @@ Page({
                     }
                 } else {
                     console.error('手机号更新失败:', res.data);
-                    this.showToast('手机号更新失败: ' + (res.data.message || '未知错误'));
+                    this.showToast((res.data.message || '未知错误'));
                 }
             },
             fail: (err) => {
@@ -489,6 +491,63 @@ Page({
         }
     },
 
+    onBindWeChat() {
+        const app = getApp();
+        const userInfo = this.data.userInfo;
+        if (!userInfo) return;
+    
+        // 先弹出确认框
+        wx.showModal({
+            title: "绑定提示",
+            content: "是否将微信账号绑定为当前登录账号？",
+            cancelText: "取消",
+            confirmText: "确认",
+            confirmColor: "#ff6b35",
+            success: modalRes => {
+                if (!modalRes.confirm) {
+                    // 用户点了取消
+                    return;
+                }
+    
+                // 用户点击确认 → 执行绑定
+                wx.login({
+                    success: res => {
+                        wx.showLoading({ title: "绑定中..." });
+    
+                        const openid = "mock_openid_" + res.code; // 模拟 openid
+    
+                        wx.request({
+                            url: app.globalData.baseUrl + "/user/bindWeChat",
+                            method: "POST",
+                            header: { "content-type": "application/json" },
+                            data: {
+                                userId: userInfo.id,
+                                openid
+                            },
+                            success: res => {
+                                wx.hideLoading();
+    
+                                if (res.data.code === 200) {
+                                    userInfo.openid = openid;
+                                    wx.setStorageSync("userInfo", userInfo);
+                                    app.globalData.userInfo = userInfo;
+    
+                                    this.setData({ userInfo });
+                                    this.showToast("微信绑定成功");
+                                } else {
+                                    this.showToast(res.data.message || "绑定失败");
+                                }
+                            },
+                            fail: () => {
+                                wx.hideLoading();
+                                this.showToast("网络异常，请重试");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    },    
     // 显示提示
     showToast: function(message) {
         const animation = wx.createAnimation({

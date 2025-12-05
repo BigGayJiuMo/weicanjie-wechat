@@ -16,9 +16,16 @@
     <scroll-view class="page-scroll" scroll-y="true">
         <!-- 订单状态 -->
         <view class="status-card" wx:if="{{order}}">
-            <view class="status-info">
-                <text class="status-text">{{statusInfo.text}}</text>
-                <text class="status-desc">{{statusInfo.desc}}</text>
+            <view class="status-row">
+                <view class="left">
+                    <text class="status-text">{{statusInfo.text}}</text>
+                    <text class="status-desc">{{statusInfo.desc}}</text>
+                </view>
+
+                <!-- 倒计时放右侧 -->
+                <view wx:if="{{order.status === 1}}" class="countdown-right">
+                    <text class="countdown-text">还剩 {{countdown}} 可支付</text>
+                </view>
             </view>
         </view>
 

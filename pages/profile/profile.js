@@ -185,10 +185,21 @@ Page({
       url: '/pages/history/history'
     });
   },
-  // 设置
-  onSettings: function () {
+  // 跳转用户协议和隐私政策
+onUserAgreementTap: function(e) {
+    const type = e.currentTarget.dataset.type;
+    let url = '';
+  
+    if (type === 'user') {
+      url = '/pages/agreement/user-agreement';
+    } else if (type === 'privacy') {
+      url = '/pages/agreement/privacy-policy';
+    }
+  
+    if (!url) return;
+  
     wx.navigateTo({
-      url: '/pages/settings/settings'
+      url: url
     });
   },
 

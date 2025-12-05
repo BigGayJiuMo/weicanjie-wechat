@@ -47,6 +47,16 @@
                 <text class="phone-text">{{displayPhone}}</text>
             </view>
         </view>
+
+        <!-- 微信绑定 -->
+        <view class="item" bindtap="onBindWeChat">
+            <view class="item-left">
+                <text class="item-label">微信账号</text>
+            </view>
+            <view class="item-right">
+                <text class="nickname-text">{{userInfo.openid ? "已绑定" : "未绑定"}}</text>
+            </view>
+        </view>
     </view>
 
     <!-- 昵称修改弹窗 -->
@@ -120,7 +130,6 @@
 
     <!-- 提示框 -->
     <view wx:if="{{showToast}}" class="toast" animation="{{toastAnimation}}">
-        <image class="toast-icon" src="/images/success.png"></image>
         <text>{{toastMessage}}</text>
     </view>
 </view>
