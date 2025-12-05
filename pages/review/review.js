@@ -41,17 +41,26 @@ Page({
   
     /* 上传图片 */
     chooseImage() {
-      wx.chooseMedia({
-        count: 6 - this.data.images.length,
-        mediaType: ["image"],
-        success: res => {
-          const paths = res.tempFiles.map(f => f.tempFilePath);
-          this.setData({
-            images: [...this.data.images, ...paths]
-          });
-        }
-      });
-    },
+        wx.chooseMedia({
+          count: 6 - this.data.images.length,
+          mediaType: ["image"],
+          success: res => {
+            res.tempFiles.forEach(file => {
+              wx.uploadFile({
+                url: getApp().globalData.baseUrl + "/upload/image?type=review",
+                filePath: file.tempFilePath,
+                name: "file",
+                success: uploadRes => {
+                  const url = JSON.parse(uploadRes.data).data;
+                  this.setData({
+                    images: [...this.data.images, url]
+                  });
+                }
+              });
+            });
+          }
+        });
+      },
   
     previewImage(e) {
       wx.previewImage({

@@ -63,7 +63,27 @@
   width: 32rpx;
   height: 32rpx;
 }
-
+/* 分类栏 */
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    background: #ffffff;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #eee;
+  }
+  
+  .tab-item {
+    font-size: 28rpx;
+    color: #666;
+    padding: 10rpx 20rpx;
+  }
+  
+  .tab-item.active {
+    color: #ff6b35;
+    font-weight: bold;
+    border-bottom: 4rpx solid #ff6b35;
+  }
+  
 /* 内容滚动区域 */
 .content-scroll {
     flex: 1;

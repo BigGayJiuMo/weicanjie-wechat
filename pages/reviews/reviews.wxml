@@ -7,7 +7,7 @@
                 <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
             </view>
             <view class="nav-center">
-                <text class="nav-title">订单详情</text>
+                <text class="nav-title">我的评价</text>
             </view>
             <view class="nav-right"></view>
         </view>

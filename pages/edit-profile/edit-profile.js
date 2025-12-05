@@ -87,19 +87,38 @@ Page({
     },
 
     // 选择微信头像
-    onChooseAvatar: function(e) {
-        console.log('微信选择头像:', e.detail);
-        const avatarUrl = e.detail.avatarUrl;
-        
-        if (avatarUrl) {
-            this.setData({
-                avatarUrl: avatarUrl,
-                isSavingAvatar: true
-            });
-            
-            // 立即保存头像到数据库
-            this.saveAvatarToDatabase(avatarUrl);
-        }
+    onChooseAvatar(e) {
+        const wechatAvatar = e.detail.avatarUrl;
+    
+        //先下载成本地临时文件
+        wx.getImageInfo({
+            src: wechatAvatar,
+            success: img => {
+                wx.uploadFile({
+                    url: getApp().globalData.baseUrl + "/upload/image?type=avatar",
+                    filePath: img.path, 
+                    name: "file",
+                    success: res => {
+                        const result = JSON.parse(res.data);
+                        const realUrl = result.data;
+    
+                        this.setData({
+                            avatarUrl: realUrl,
+                            isSavingAvatar: true
+                        });
+    
+                        this.saveAvatarToDatabase(realUrl);
+                    },
+                    fail: err => {
+                        console.error("头像上传失败:", err);
+                        this.showToast("上传失败");
+                    }
+                });
+            },
+            fail: err => {
+                console.error("头像获取失败:", err);
+            }
+        });
     },
 
     // 保存头像到数据库

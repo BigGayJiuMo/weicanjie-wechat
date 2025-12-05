@@ -26,6 +26,26 @@
     <image src="/images/search.png" class="search-icon"></image>
   </view>
 </view>
+<!-- 分类栏 -->
+<view class="tabs">
+  <view 
+    class="tab-item {{activeTab === 'all' ? 'active' : ''}}"
+    data-type="all"
+    bindtap="onTabChange"
+  >全部</view>
+
+  <view 
+    class="tab-item {{activeTab === 'pending' ? 'active' : ''}}"
+    data-type="pending"
+    bindtap="onTabChange"
+  >待支付</view>
+
+  <view 
+    class="tab-item {{activeTab === 'review' ? 'active' : ''}}"
+    data-type="review"
+    bindtap="onTabChange"
+  >待评价</view>
+</view>
 
 <!-- 内容滚动区 -->
 <scroll-view class="content-scroll" scroll-y="true">

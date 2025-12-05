@@ -1,7 +1,8 @@
 Page({
     data: {
       orderList: [],
-      allOrders: []
+      allOrders: [],
+      activeTab: "all"
     },
   
     onShow() {
@@ -157,6 +158,29 @@ Page({
             }
         });
     },
+    onTabChange(e) {
+        const type = e.currentTarget.dataset.type;
+        this.setData({ activeTab: type });
+      
+        if (type === "all") {
+          this.setData({ orderList: this.data.allOrders });
+          return;
+        }
+      
+        if (type === "pending") {
+          const list = this.data.allOrders.filter(o => o.status === 1);
+          this.setData({ orderList: list });
+          return;
+        }
+      
+        if (type === "review") {
+            const list = this.data.allOrders.filter(o =>
+              o._canReview && !o._hasReview
+            );
+            this.setData({ orderList: list });
+            return;
+          }
+      },
     goReview(e) {
         const orderId = e.currentTarget.dataset.id;
         const order = this.data.orderList.find(o => o.id === orderId);
