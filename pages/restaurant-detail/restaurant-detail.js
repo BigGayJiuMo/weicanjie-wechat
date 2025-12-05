@@ -1138,42 +1138,54 @@ Page({
       },      
       loadRatings(restaurantId) {
         const app = getApp();
-      
+    
         wx.request({
-          url: app.globalData.baseUrl + '/review/list',
-          method: 'GET',
-          data: { restaurantId },
-          success: (res) => {
-            if (res.data.code === 200) {
-              const list = res.data.data || [];
-      
-              // ⭐ 将后端数据统一格式化
-              list.forEach(item => {
-                item.score = item.rating;
-                item.satisfaction = item.rating;
-                item.taste = item.taste || 5;
-                item.pack = item.pack || 5;
-                item.username = item.username || '匿名用户';
-                item.avatar = item.avatar || '/images/default-avatar.png';
-                item.time = item.created_time?.substring(0, 10);
-              });
-      
-              this.setData({
-                ratingList: list,
-                originalRatingList: [...list]
-              });
-      
-              this.calculateRatings();
-            } else {
-              this.setData({
-                ratingList: [],
-                originalRatingList: []
-              });
-              this.calculateRatings();
+            url: app.globalData.baseUrl + '/review/list',
+            method: 'GET',
+            data: { restaurantId },
+            success: (res) => {
+                if (res.data.code === 200) {
+    
+                    const list = res.data.data || [];
+    
+                    list.forEach(item => {
+                        item.score = item.rating;
+                        item.satisfaction = item.rating;
+                        item.taste = item.taste || 5;
+                        item.pack = item.pack || 5;
+                        item.username = item.username || '匿名用户';
+                        item.avatar = item.avatar || '/images/default-avatar.png';
+                        item.time = item.created_time?.substring(0, 10);
+    
+                        // ⭐⭐ 修复图片路径（你的关键问题）
+                        if (item.image_urls) {
+                            try {
+                                item.images = JSON.parse(item.image_urls);
+                            } catch (e) {
+                                item.images = [];
+                            }
+                        } else {
+                            item.images = [];
+                        }
+                    });
+    
+                    this.setData({
+                        ratingList: list,
+                        originalRatingList: [...list]
+                    });
+    
+                    this.calculateRatings();
+    
+                } else {
+                    this.setData({
+                        ratingList: [],
+                        originalRatingList: []
+                    });
+                    this.calculateRatings();
+                }
             }
-          }
         });
-      },
+    },
       selectEatType(e) {
         const type = e.currentTarget.dataset.type;
         this.setData({ eatType: type });

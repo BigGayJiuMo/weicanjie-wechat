@@ -54,7 +54,7 @@
                 <text class="item-label">微信账号</text>
             </view>
             <view class="item-right">
-                <text class="nickname-text">{{userInfo.openid ? "已绑定" : "未绑定"}}</text>
+                <text class="phone-text">{{userInfo.openid ? "已绑定" : "未绑定"}}</text>
             </view>
         </view>
     </view>
