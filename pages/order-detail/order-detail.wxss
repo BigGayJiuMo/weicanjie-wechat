@@ -47,13 +47,13 @@
     color: #333;
 }
 
-/* 页面滚动区域 - 修复高度问题 */
+/* 页面滚动区域 */
 .page-scroll {
     flex: 1;
-    height: calc(100vh - 200rpx); /* 计算可用高度 */
+    height: calc(100vh - 200rpx); 
     padding-bottom: 120rpx;
-    box-sizing: border-box; /* 确保padding包含在高度内 */
-    overflow-y: auto; /* 确保可以滚动 */
+    box-sizing: border-box; 
+    overflow-y: auto; 
 }
 
 
@@ -285,4 +285,37 @@
     opacity: .5;
     border-color: #ccc;
     color: #aaa;
+}
+
+/* 空状态样式 */
+.empty-container {
+    margin-top: 200rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.empty-image {
+    width: 200rpx;
+    height: 200rpx;
+    opacity: 0.5;
+    margin-bottom: 20rpx;
+}
+
+.empty-text {
+    font-size: 30rpx;
+    color: #888;
+    margin-bottom: 30rpx;
+}
+
+.retry-btn {
+    background-color: #ff6b35;
+    color: white;
+    padding: 20rpx 60rpx;
+    border-radius: 50rpx;
+    font-size: 28rpx;
+    font-weight: 500;
+    border: none;
 }

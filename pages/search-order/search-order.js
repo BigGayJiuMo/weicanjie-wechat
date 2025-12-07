@@ -115,22 +115,28 @@ Page({
   
     /** 状态文本 */
     getStatusText(status) {
-      return {
-        1: "待支付",
-        2: "待处理",
-        3: "已完成",
-        4: "已取消"
-      }[status] || "未知状态";
+        return {
+            1: "待支付",
+            2: "待处理",
+            3: "制作中",
+            4: "已完成",
+            5: "已取消",
+            6: "退款中",
+            7: "已退款"
+          }[status] || "未知状态";
     },
   
     /** 状态样式 */
     getStatusClass(status) {
-      return {
-        1: "pending",
-        2: "processing",
-        3: "completed",
-        4: "cancelled"
-      }[status] || "";
+        return {
+          1: "pending",       // 待支付
+          2: "processing",    // 待处理
+          3: "making",        // 制作中
+          4: "completed",     // 已完成
+          5: "cancelled",     // 已取消
+          6: "refunding",     // 退款中
+          7: "refunded"       // 已退款
+        }[status] || "";
     },
   
     /** 时间格式化 */

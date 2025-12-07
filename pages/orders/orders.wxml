@@ -68,11 +68,7 @@
     <!-- 顶部（店铺 + 状态） -->
     <view class="order-header">
 
-      <view
-        class="shop-info"
-        catchtap="goToRestaurant"
-        data-id="{{item.restaurantId}}"
-      >
+        <view class="shop-info" catchtap="goToRestaurant" data-id="{{item.restaurantId}}">
         <image class="shop-logo" src="{{item.restaurantLogo}}" />
         <text class="shop-name">{{item.restaurantName}}</text>
         <image class="arrow-right" src="/images/arrow-right.png" />

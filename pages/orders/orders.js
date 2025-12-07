@@ -146,6 +146,11 @@ Page({
       });
     },
   
+    goSearchPage() {
+        wx.navigateTo({
+          url: "/pages/search-order/search-order"
+        });
+      },
     /** 查询是否已评价 */
     checkOrdersReview(list) {
       const app = getApp();

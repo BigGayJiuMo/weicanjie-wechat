@@ -71,38 +71,51 @@
   
   /* 历史记录 */
   .history-box {
-    background: #fff;
     padding: 20rpx 30rpx;
+    background: white;
     border-radius: 20rpx;
-    margin-bottom: 20rpx;
   }
   
   .history-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20rpx;
+    font-size: 25rpx;
   }
   
   .clear-btn {
     color: #ff4d4f;
+    font-size: 26rpx;
   }
   
   .history-list {
     display: flex;
-    gap: 20rpx 30rpx;
     flex-wrap: wrap;
+    gap: 20rpx 30rpx;
   }
   
   .history-item {
     background: #f6f6f6;
     padding: 10rpx 24rpx;
     border-radius: 40rpx;
+    display: flex;
+    align-items: center;
+    gap: 10rpx;
+  }
+  .history-text{
+    font-size: 25rpx;
+    line-height: 1rpx;
+    margin-bottom: 15rpx;
   }
   
-  .history-text {
+  .history-item text {
+    font-size: 25rpx;
+  }
+  
+  .delete-history {
     font-size: 26rpx;
+    color: #999;
   }
-  
   /* 订单卡片 */
   .order-card {
     background: white;
@@ -142,7 +155,8 @@
     opacity: 0.6;
   }
   /* 状态颜色区分 */
-  .order-status {
+.order-status {
+    line-height: 50rpx;
     font-size: 28rpx;
     font-weight: bold;
   }
@@ -157,11 +171,10 @@
     color: #ff9900;
   }
   
-  /* 配送中 */
-  .order-status.delivering {
-    color: #07c160;
+  /* 制作中 */
+  .order-status.making {
+      color: #ff9900;
   }
-  
   /* 已完成 */
   .order-status.completed {
     color: #4caf50;
@@ -172,6 +185,16 @@
     color: #999;
   }
   
+  /* 退款中 */
+  .order-status.refunding {
+      color: #ff9800;
+    }
+    
+  /* 已退款 */
+  .order-status.refunded {
+  color: #4caf50;
+  }
+
   /* 菜品行 */
   .dish-row {
     display: flex;
