@@ -175,7 +175,9 @@ Page({
             data: { userId: app.globalData.userInfo.id },
             success: res => {
                 const reviewedList = res.data.data || [];
-                const reviewed = reviewedList.some(r => r.orderId === orderId);
+                const reviewed = reviewedList.some(r =>
+                    r.orderId === orderId || r.order_id === orderId
+                );
 
                 const diff = (new Date() - new Date(createdTime)) / 3600000;
                 const expired = diff > 24;

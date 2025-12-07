@@ -234,7 +234,6 @@ id="pageScroll"
       <image class="avatar" src="{{item.avatar}}"></image>
       <view class="user-meta">
         <text class="username">{{item.username}}</text>
-        <text class="rate-time">{{item.time}}</text>
       </view>
     </view>
 
@@ -255,13 +254,21 @@ id="pageScroll"
         bindtap="previewImage"
         mode="aspectFill"></image>
     </view>
-
-  </view>
+    <text class="rate-time-bottom">{{item.time}}</text>
+    <!-- 商家回复 -->
+    <view class="reply-box" wx:if="{{item.replyContent}}">
+        <view class="reply-header">
+            <text class="reply-title">商家回复：</text>
+        </view>
+        <view class="reply-content-box">
+            <text class="reply-content">{{item.replyContent}}</text>
+        </view>
+        <text class="reply-time">{{item.replyTime}}</text>
+    </view>
+    </view>
 </view>
 
 </view>
-
-
 
   <!-- 商 家 区 域 -->
   
