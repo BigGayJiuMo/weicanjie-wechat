@@ -18,7 +18,8 @@
         "pages/history/history",
         "pages/review/review",
         "pages/search-restaurant/search-restaurant",
-        "pages/search-order/search-order"
+        "pages/search-order/search-order",
+        "pages/refund/refund"
     ],
     "window": {
         "backgroundTextStyle": "light",

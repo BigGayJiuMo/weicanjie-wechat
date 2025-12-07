@@ -6,89 +6,98 @@ Page({
     },
   
     onShow() {
-        this.loadOrders();
+      this.loadOrders();
     },
-
+  
     loadOrders() {
-        const app = getApp();
-        const userId = app.globalData.userInfo.id;
-      
-        wx.request({
-          url: app.globalData.baseUrl + "/order/list/" + userId,
-          method: "GET",
-          success: (res) => {
-            if (res.data.code === 200) {
-      
-              const list = res.data.data.map(o => {
-      
-                // ⭐ 格式化订单总金额
-                const totalAmount = o.totalAmount
-                    ? Number(o.totalAmount).toFixed(2)
-                    : "0.00";
-      
-                // ⭐ 格式化订单中所有菜品价格
-                const items = (o.items || []).map(dish => ({
-                  ...dish,
-                  dishPrice: dish.dishPrice
-                    ? Number(dish.dishPrice).toFixed(2)
-                    : (dish.price ? Number(dish.price).toFixed(2) : "0.00")
-                }));
-      
-                return {
-                  ...o,
-                  createdTime: this.formatTime(o.createdTime),
-                  statusClass: this.getStatusClass(o.status),
-                  restaurantName: o.restaurantName || "",
-                  restaurantLogo: o.restaurantLogo || "",
-                  totalAmount,
-                  items
-                };
-              });
-      
-              // 其他逻辑保持不变
-              list.forEach(item => {
-                const isFinished = item.status === 3 ;
-                const created = new Date(item.createdTime.replace(/-/g, "/"));
-                const diffHour = (new Date() - created) / 3600000;
-                const expire = diffHour > 24;
-      
-                item._expired = expire;
-                item._canReview = isFinished && !expire;
-              });
-      
-              this.setData({
-                orderList: list,
-                allOrders: list
-              });
-      
-              this.checkOrdersReview(list);
-            }
+      const app = getApp();
+      const userId = app.globalData.userInfo.id;
+  
+      wx.request({
+        url: app.globalData.baseUrl + "/order/list/" + userId,
+        method: "GET",
+        success: (res) => {
+          if (res.data.code === 200) {
+  
+            const list = res.data.data.map(o => {
+              const totalAmount = Number(o.totalAmount || 0).toFixed(2);
+  
+              const items = (o.items || []).map(dish => ({
+                ...dish,
+                dishPrice: Number(dish.dishPrice || dish.price || 0).toFixed(2)
+              }));
+  
+              return {
+                ...o,
+                createdTime: this.formatTime(o.createdTime),
+                statusClass: this.getStatusClass(o.status),
+                statusText: this.getStatusText(o.status),
+                restaurantName: o.restaurantName,
+                restaurantLogo: o.restaurantLogo,
+                totalAmount,
+                items
+              };
+            });
+  
+            /** 状态：4 = 已完成; 24h 后不能评价 */
+            list.forEach(item => {
+              const created = new Date(item.createdTime.replace(/-/g, "/"));
+              const diffHour = (new Date() - created) / 3600000;
+              const expire = diffHour > 24;
+  
+              item._expired = expire;
+              item._canReview = (item.status === 4) && !expire;
+            });
+  
+            this.setData({
+              orderList: list,
+              allOrders: list
+            });
+  
+            this.checkOrdersReview(list);
           }
-        });
-      },
+        }
+      });
+    },
+  
+    /** 状态颜色 */
     getStatusClass(status) {
-      switch (status) {
-        case 1: return "pending";
-        case 2: return "processing";
-        case 3: return "completed";
-        case 4: return "cancelled";
+    switch (status) {
+        case 1: return "pending";        // 待支付
+        case 2: return "processing";     // 待处理
+        case 3: return "making";         // 制作中
+        case 4: return "completed";      // 已完成
+        case 5: return "cancelled";      // 已取消
+        case 6: return "refunding";      // 退款中
+        case 7: return "refunded";       // 已退款
         default: return "";
       }
     },
-
+  
+    /** 状态文本 */
+    getStatusText(status) {
+      const map = {
+        1: "待支付",
+        2: "待处理",
+        3: "制作中",
+        4: "已完成",
+        5: "已取消",
+        6: "退款中",   
+        7: "已退款"    
+      };
+      return map[status] || "未知状态";
+    },
+  
+    /** 删除订单 */
     onDeleteConfirm(e) {
-      const orderId = e.currentTarget.dataset.id;
+      const id = e.currentTarget.dataset.id;
   
       wx.showModal({
-        title: "是否要删除订单？",
-        content: "删除的订单无法申请售后和评价",
-        confirmText: "删除",
+        title: "是否删除订单？",
+        content: "删除后将无法查看评价信息",
         confirmColor: "#ff6b35",
-        cancelText: "取消",
-        success: (res) => {
-          if (res.confirm) {
-            this.deleteOrder(orderId);
-          }
+        success: res => {
+          if (res.confirm) this.deleteOrder(id);
         }
       });
     },
@@ -99,102 +108,83 @@ Page({
       wx.request({
         url: app.globalData.baseUrl + "/order/delete/" + orderId,
         method: "POST",
-        success: (res) => {
-          if (res.data.code === 200) {
-            wx.showToast({ title: "已删除", icon: "success" });
-            this.loadOrders();
-          }
+        success: () => {
+          wx.showToast({ title: "已删除" });
+          this.loadOrders();
         }
       });
     },
-
+  
+    /** 时间格式化 */
     formatTime(t) {
       if (!t) return "";
-      try {
-        const date = new Date(t.replace("T", " ").replace(/-/g, "/"));
-        if (isNaN(date.getTime())) return t;
-        const pad = (n) => n.toString().padStart(2, "0");
-        return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} `
-             + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-      } catch {
-        return t;
-      }
+      const date = new Date(t.replace("T", " ").replace(/-/g, "/"));
+      const pad = n => n.toString().padStart(2, "0");
+  
+      return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} `
+           + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
     },
-
-    goToRestaurant(e) {
-      const restaurantId = e.currentTarget.dataset.id;
-      wx.navigateTo({
-        url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
-      });
-    },
-
+  
     goToOrderDetail(e) {
-      const id = e.currentTarget.dataset.id;
       wx.navigateTo({
-        url: `/pages/order-detail/order-detail?orderId=${id}`
+        url: `/pages/order-detail/order-detail?orderId=${e.currentTarget.dataset.id}`
       });
     },
-    checkOrdersReview(list) {
-        const app = getApp();
-        const userId = app.globalData.userInfo.id;
-    
-        wx.request({
-            url: app.globalData.baseUrl + "/review/userReviews",
-            method: "GET",
-            data: { userId },
-            success: res => {
-                const reviewed = res.data.data || [];
-    
-                list.forEach(item => {
-                    item._hasReview = reviewed.some(r => 
-                        r.orderId === item.id || r.order_id === item.id
-                    );
-                });
-    
-                this.setData({
-                    orderList: list,
-                    allOrders: list
-                });
-            }
-        });
+  
+    goToRestaurant(e) {
+      wx.navigateTo({
+        url: `/pages/restaurant-detail/restaurant-detail?id=${e.currentTarget.dataset.id}`
+      });
     },
-    onTabChange(e) {
-        const type = e.currentTarget.dataset.type;
-        this.setData({ activeTab: type });
-      
-        if (type === "all") {
-          this.setData({ orderList: this.data.allOrders });
-          return;
-        }
-      
-        if (type === "pending") {
-          const list = this.data.allOrders.filter(o => o.status === 1);
-          this.setData({ orderList: list });
-          return;
-        }
-      
-        if (type === "review") {
-            const list = this.data.allOrders.filter(o =>
-              o._canReview && !o._hasReview
-            );
-            this.setData({ orderList: list });
-            return;
-          }
-      },
+  
     goReview(e) {
-        const orderId = e.currentTarget.dataset.id;
-        const order = this.data.orderList.find(o => o.id === orderId);
-    
-        wx.navigateTo({
-            url: `/pages/review/review?orderId=${orderId}&restaurantId=${order.restaurantId}`
-        });
+      const id = e.currentTarget.dataset.id;
+      const item = this.data.orderList.find(o => o.id === id);
+  
+      wx.navigateTo({
+        url: `/pages/review/review?orderId=${id}&restaurantId=${item.restaurantId}`
+      });
     },
-    goSearchPage() {
-        wx.navigateTo({
-            url: "/pages/search-order/search-order"
+  
+    /** 查询是否已评价 */
+    checkOrdersReview(list) {
+      const app = getApp();
+      const userId = app.globalData.userInfo.id;
+  
+      wx.request({
+        url: app.globalData.baseUrl + "/review/userReviews",
+        data: { userId },
+        success: res => {
+          const reviewed = res.data.data || [];
+  
+          list.forEach(item => {
+            item._hasReview = reviewed.some(r =>
+              r.orderId === item.id || r.order_id === item.id
+            );
+          });
+  
+          this.setData({
+            orderList: list,
+            allOrders: list
+          });
+        }
+      });
+    },
+  
+    /** 标签切换 */
+    onTabChange(e) {
+      const type = e.currentTarget.dataset.type;
+      this.setData({ activeTab: type });
+  
+      if (type === "all") {
+        this.setData({ orderList: this.data.allOrders });
+      } else if (type === "pending") {
+        this.setData({ orderList: this.data.allOrders.filter(o => o.status === 1) });
+      } else if (type === "review") {
+        this.setData({
+          orderList: this.data.allOrders.filter(o => o._canReview && !o._hasReview)
         });
-        },
-    onBack() {
-      wx.navigateBack();
+      }
     }
-});
+  });
+  

@@ -1,0 +1,39 @@
+<!--pages/refund/refund.wxml-->
+<view class="container">
+<!-- 顶部导航栏 -->
+<view class="navbar">
+        <view class="navbar-content">
+            <view class="nav-left">
+                <image class="back-icon" src="/images/back.png" bindtap="onBack"></image>
+            </view>
+            <view class="nav-center">
+                <text class="nav-title">退款申请</text>
+            </view>
+            <view class="nav-right"></view>
+        </view>
+    </view>
+<!-- 标题 -->
+<view class="section-title">请选择退款原因</view>
+
+<!-- 原因选择 -->
+<radio-group bindchange="onReasonChange" class="reason-group">
+  <label wx:for="{{reasonList}}" wx:key="value" class="reason-item">
+    <radio value="{{item.value}}" checked="{{item.value === selectedReason}}" />
+    <text class="reason-text">{{item.label}}</text>
+  </label>
+</radio-group>
+
+<!-- 其他原因输入框 -->
+<view wx:if="{{selectedReason === 'other'}}" class="other-box">
+  <textarea
+    class="other-input"
+    placeholder="请输入退款说明（选填）"
+    maxlength="200"
+    bindinput="onRemarkInput"
+  />
+</view>
+
+<!-- 提交按钮 -->
+<button class="submit-btn" bindtap="submitRefund">提交申请</button>
+
+</view>

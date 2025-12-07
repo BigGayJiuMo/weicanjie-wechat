@@ -5,7 +5,7 @@
 <view class="navbar">
   <view class="navbar-content">
     <view class="nav-left">
-      <image src="/images/back.png" class="back-icon" bindtap="onBack"></image>
+      <image src="/images/back.png" class="back-icon" bindtap="onBack" />
     </view>
 
     <view class="nav-center">
@@ -17,30 +17,31 @@
 
   <!-- 搜索框 -->
   <view class="search-box" bindtap="goSearchPage">
-    <input 
+    <input
+      class="search-input"
       placeholder="搜索订单 / 商家名"
       placeholder-class="holder"
-      class="search-input"
       disabled="true"
     />
-    <image src="/images/search.png" class="search-icon"></image>
+    <image class="search-icon" src="/images/search.png" />
   </view>
 </view>
+
 <!-- 分类栏 -->
 <view class="tabs">
-  <view 
+  <view
     class="tab-item {{activeTab === 'all' ? 'active' : ''}}"
     data-type="all"
     bindtap="onTabChange"
   >全部</view>
 
-  <view 
+  <view
     class="tab-item {{activeTab === 'pending' ? 'active' : ''}}"
     data-type="pending"
     bindtap="onTabChange"
   >待支付</view>
 
-  <view 
+  <view
     class="tab-item {{activeTab === 'review' ? 'active' : ''}}"
     data-type="review"
     bindtap="onTabChange"
@@ -56,75 +57,80 @@
   </view>
 
   <!-- 订单卡片 -->
-<view wx:for="{{orderList}}" wx:key="id" class="order-card"
+  <view
+    wx:for="{{orderList}}"
+    wx:key="id"
+    class="order-card"
     bindtap="goToOrderDetail"
     bindlongpress="onDeleteConfirm"
-    data-id="{{item.id}}">
+    data-id="{{item.id}}"
+  >
+    <!-- 顶部（店铺 + 状态） -->
+    <view class="order-header">
 
-  <!-- 顶部：商家 LOGO + 名称 + 状态 -->
-  <view class="order-header">
-
-    <view class="shop-info" bindtap="goToRestaurant" data-id="{{item.restaurantId}}">
-      <image class="shop-logo" src="{{item.restaurantLogo}}"></image>
-      <text class="shop-name">{{item.restaurantName}}</text>
-      <image class="arrow-right" src="/images/arrow-right.png"></image>
-    </view>
-
-    <text class="order-status {{item.statusClass}}">{{item.statusText}}</text>
-
-  </view>
-
-  <!-- 菜品列表 -->
-  <view wx:for="{{item.items}}" wx:key="dishId" class="dish-row">
-    <image class="dish-img" src="{{item.imageUrl}}"></image>
-
-    <view class="dish-right">
-      <text class="dish-name">{{item.dishName}}</text>
-
-      <view class="dish-desc">
-        <text>{{item.spec || ''}}</text>
+      <view
+        class="shop-info"
+        catchtap="goToRestaurant"
+        data-id="{{item.restaurantId}}"
+      >
+        <image class="shop-logo" src="{{item.restaurantLogo}}" />
+        <text class="shop-name">{{item.restaurantName}}</text>
+        <image class="arrow-right" src="/images/arrow-right.png" />
       </view>
 
-      <view class="dish-bottom">
-        <text class="dish-qty">x{{item.quantity}}</text>
-        <text class="dish-price">￥{{item.dishPrice}}</text>
+      <text class="order-status {{item.statusClass}}">
+        {{item.statusText}}
+      </text>
+    </view>
+
+    <!-- 菜品列表 -->
+    <view wx:for="{{item.items}}" wx:key="dishId" class="dish-row">
+      <image class="dish-img" src="{{item.imageUrl}}" />
+
+      <view class="dish-right">
+        <text class="dish-name">{{item.dishName}}</text>
+
+        <view class="dish-desc">
+          <text>{{item.spec || ''}}</text>
+        </view>
+
+        <view class="dish-bottom">
+          <text class="dish-qty">x{{item.quantity}}</text>
+          <text class="dish-price">￥{{item.dishPrice}}</text>
+        </view>
       </view>
     </view>
-  </view>
 
-  <!-- 总计 -->
-  <view class="order-footer">
-    <text class="total-text">共 {{item.totalQuantity}} 件商品，合计：</text>
-    <text class="total-price">￥{{item.totalAmount}}</text>
-  </view>
+    <!-- 总计 -->
+    <view class="order-footer">
+      <text class="total-text">共 {{item.totalQuantity}} 件商品，合计：</text>
+      <text class="total-price">￥{{item.totalAmount}}</text>
+    </view>
 
-  <!-- 时间 -->
-  <text class="order-time">{{item.createdTime}}</text>
+    <!-- 时间 -->
+    <text class="order-time">{{item.createdTime}}</text>
 
-  <!-- ⭐右下角的按钮区域 -->
-  <view class="review-box">
-
-    <!-- 去评价 -->
-    <view
-        wx:if="{{item._canReview && !item._hasReview}}"
+    <!-- 右下角按钮（评价） -->
+    <view class="review-box">
+        <view
+        wx:if="{{item.status === 4 && item._canReview && !item._hasReview}}"
         class="review-view"
-        bindtap="goReview"
+        catchtap="goReview"
         data-id="{{item.id}}"
         >
         去评价
         </view>
-
-        <view wx:if="{{item._hasReview}}" class="review-view disabled">
+        <!-- 已评价 -->
+        <view wx:if="{{item.status === 4 && item._hasReview}}"
+            class="review-view disabled">
         已评价
         </view>
-
-        <view wx:if="{{!item._hasReview && item._expired}}" class="review-view disabled">
+        <!-- 评价过期 -->
+        <view wx:if="{{item.status === 4 && !item._hasReview && item._expired}}"
+            class="review-view disabled">
         评价已过期
         </view>
-
+    </view>
   </view>
-
-</view>
-
 </scroll-view>
 </view>

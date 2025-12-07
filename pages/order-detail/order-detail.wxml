@@ -22,14 +22,14 @@
                     <text class="status-desc">{{statusInfo.desc}}</text>
                 </view>
 
-                <!-- 倒计时放右侧 -->
+                <!-- 倒计时 -->
                 <view wx:if="{{order.status === 1}}" class="countdown-right">
                     <text class="countdown-text">还剩 {{countdown}} 可支付</text>
                 </view>
             </view>
         </view>
 
-        <!-- 订单信息整合卡片 -->
+        <!-- 订单卡片 -->
         <view class="order-card" wx:if="{{order}}">
             <!-- 餐厅信息 -->
             <view class="restaurant-info">
@@ -37,7 +37,7 @@
                 <image class="arrow-icon" src="/images/arrow-right.png" />
             </view>
 
-            <!-- 订单商品 -->
+            <!-- 商品列表 -->
             <view class="products-info">
                 <view class="products-list">
                     <view class="product-item" wx:for="{{orderItems}}" wx:key="id">
@@ -53,7 +53,7 @@
                 </view>
             </view>
 
-            <!-- 金额明细 -->
+            <!-- 金额 -->
             <view class="amount-details">
                 <view class="amount-item">
                     <text class="amount-label">打包费</text>
@@ -65,7 +65,7 @@
                     <text class="amount-value">¥{{subTotal}}</text>
                 </view>
 
-                <view class="amount-item" wx:if="{{order.discount && order.discount > 0}}">
+                <view class="amount-item" wx:if="{{order.discount > 0}}">
                     <text class="amount-label">优惠</text>
                     <text class="amount-value discount">-¥{{order.discount}}</text>
                 </view>
@@ -75,6 +75,7 @@
                     <text class="amount-value total-amount">¥{{order.totalAmount}}</text>
                 </view>
             </view>
+
             <!-- 订单信息 -->
             <view class="order-details">
                 <view class="detail-item">
@@ -96,11 +97,6 @@
             </view>
         </view>
 
-        <!-- 加载状态 -->
-        <view class="loading-container" wx:if="{{loading}}">
-            <text class="loading-text">加载中...</text>
-        </view>
-
         <!-- 空状态 -->
         <view class="empty-container" wx:if="{{!loading && !order}}">
             <image class="empty-image" src="/images/icon-order.png"></image>
@@ -109,54 +105,83 @@
         </view>
     </scroll-view>
 
-    <!-- 底部操作栏 -->
+    <!-- ⭐ 底部横向滚动按钮栏（方案 A） -->
     <view class="action-bar" wx:if="{{order && !loading}}">
-        <view class="action-buttons">
-            <view class="action-btn secondary" bindtap="onContactService" wx:if="{{order.status === 3}}">
-                联系商家
-            </view>
-            <view class="action-btn secondary" bindtap="onContactService" wx:if="{{order.status !== 3}}">
-                联系客服
-            </view>
-            <view class="action-btn primary" bindtap="onReorder" wx:if="{{order.status === 4 || order.status === 5}}">
-                再次下单
-            </view>
-            <!-- 这里修改为：当订单状态为待处理(2)或待支付(1)时，显示取消订单按钮 -->
-            <view class="action-btn primary" bindtap="onCancelOrder" wx:if="{{order.status === 1 || order.status === 2}}">
-                取消订单
-            </view>
-            <!-- 去评价 -->
-            <view 
-            wx:if="{{canReview}}"
-            class="action-btn primary"
-            bindtap="goReview"
-            >
-            去评价
-            </view>
+        <scroll-view scroll-x="true" class="action-scroll">
+            <view class="action-buttons">
 
-            <!-- 已评价 -->
-            <view 
-            wx:if="{{hasReview}}"
-            class="action-btn secondary disabled"
-            >
-            已评价
-            </view>
+                <!-- 联系商家 or 客服 -->
+                <view class="action-btn secondary"
+                    bindtap="onContactService"
+                    wx:if="{{order.status === 3}}">
+                    联系商家
+                </view>
+                <view class="action-btn secondary"
+                    bindtap="onContactService"
+                    wx:if="{{order.status !== 3}}">
+                    联系客服
+                </view>
 
-            <!-- 评价过期 -->
-            <view 
-            wx:if="{{!hasReview && !canReview && order.status === 3}}"
-            class="action-btn secondary disabled"
-            >
-            评价已过期
+                <!-- 再次下单 -->
+                <view class="action-btn primary"
+                    bindtap="onReorder"
+                    wx:if="{{order.status === 4 || order.status === 5}}">
+                    再次下单
+                </view>
+
+                <!-- 取消订单 -->
+                <view class="action-btn primary"
+                    bindtap="onCancelOrder"
+                    wx:if="{{order.status === 1 || order.status === 2}}">
+                    取消订单
+                </view>
+
+                <!-- 申请退款 -->
+                <view class="action-btn primary"
+                    bindtap="onRefund"
+                    wx:if="{{order.status === 3 || order.status === 4}}">
+                    申请退款
+                </view>
+
+                <!-- 退款中 -->
+                <view class="action-btn secondary disabled"
+                    wx:if="{{order.status === 6}}">
+                    退款中
+                </view>
+
+                <!-- 已退款 -->
+                <view class="action-btn secondary disabled"
+                    wx:if="{{order.status === 7}}">
+                    已退款
+                </view>
+
+                <!-- 去评价 -->
+                <view class="action-btn primary"
+                    wx:if="{{order.status === 4 && canReview}}"
+                    bindtap="goReview">
+                    去评价
+                </view>
+
+                <!-- 已评价 -->
+                <view class="action-btn secondary disabled"
+                    wx:if="{{order.status === 4 && hasReview}}">
+                    已评价
+                </view>
+
+                <!-- 评价过期 -->
+                <view class="action-btn secondary disabled"
+                    wx:if="{{order.status === 4 && !hasReview && !canReview}}">
+                    评价已过期
+                </view>
+
+                <!-- 去支付 -->
+                <view class="action-btn primary"
+                    wx:if="{{order.status === 1}}"
+                    bindtap="onPayNow">
+                    去支付
+                </view>
+
             </view>
-            <!-- 待支付：去支付 -->
-            <view 
-                class="action-btn primary"
-                wx:if="{{order.status === 1}}"
-                bindtap="onPayNow"
-            >
-                去支付
-            </view>
-        </view>
+        </scroll-view>
     </view>
 </view>

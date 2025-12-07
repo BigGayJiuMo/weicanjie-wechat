@@ -1,0 +1,115 @@
+/* pages/refund/refund.wxss */
+.container {
+    padding: 0;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* 添加固定高度 */
+  }
+/* 导航栏样式 */
+.navbar {
+    background: white;
+    padding: 20rpx 30rpx;
+    padding-top: 95rpx;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1rpx solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-left, .nav-right {
+    width: 80rpx;
+    text-align: center;
+}
+
+.nav-center {
+    flex: 1;
+    text-align: center;
+}
+
+.back-icon {
+    width: 48rpx;
+    height: 48rpx;
+}
+
+.nav-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #333;
+}
+
+  .section-title {
+    font-size: 32rpx;
+    font-weight: bold;
+    margin: 30rpx auto;
+    text-align: center;
+    color: #333;
+  }
+  
+  /* 退款原因列表 */
+  .reason-group {
+      margin: 20rpx;
+    background: #fff;
+    border-radius: 16rpx;
+    padding: 20rpx 20rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.05);
+  }
+  
+  .reason-item {
+    display: flex;
+    align-items: center;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #f0f0f0;
+  }
+  
+  .reason-item:last-child {
+    border-bottom: none;
+  }
+  
+  .reason-text {
+    margin-left: 20rpx;
+    font-size: 30rpx;
+    color: #333;
+  }
+  
+  /* 输入框 */
+  .other-box {
+    background: #fff;
+    padding: 20rpx;
+    border-radius: 16rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.05);
+  }
+  
+  .other-input {
+    width: 100%;
+    min-height: 160rpx;
+    padding: 16rpx;
+    font-size: 28rpx;
+    border-radius: 12rpx;
+    background: #f9f9f9;
+    border: 1rpx solid #ddd;
+  }
+  
+  /* 提交按钮 */
+  .submit-btn {
+    margin-top: 20rpx;
+    background: #ff8c00;
+    color: white;
+    font-size: 32rpx;
+    padding: 20rpx 0;
+    border-radius: 50rpx;
+  }
+  .submit-btn:active {
+    background: #e67d00;
+  }
+  

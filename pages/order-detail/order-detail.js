@@ -7,45 +7,33 @@ Page({
         subTotal: 0,
         packingFee: 0,
         loading: true,
-        estimateDeliveryTime: '30-45分钟',
-        statusInfo: {
-            icon: '',
-            text: '',
-            desc: ''
-        },
-        showPaymentModal: false,
-        isPaying: false,
+        statusInfo: {},
+        countdown: '',
+        countdownTimer: null,
         hasReview: false,
         canReview: false,
-        countdown: '',
     },
 
-    onLoad: function(options) {
-        console.log("订单详情页面参数:", options);
-
-        let orderId = options.orderId || options.id;
-
-        if (orderId) {
-            this.setData({ orderId });
-            this.loadOrderDetail(orderId);
-        } else {
-            wx.showToast({
-                title: "订单ID不存在",
-                icon: "none",
-                success: () => setTimeout(() => wx.navigateBack(), 1500)
-            });
+    onLoad(options) {
+        const orderId = options.orderId || options.id;
+        if (!orderId) {
+            wx.showToast({ title: "订单不存在", icon: "none" });
+            return;
         }
+        this.setData({ orderId });
+        this.loadOrderDetail(orderId);
     },
+
     onShow() {
-        if (this.data.orderId) {
-            this.loadOrderDetail(this.data.orderId);
-        }
+        if (this.data.orderId) this.loadOrderDetail(this.data.orderId);
     },
+
     onUnload() {
         this.clearCountdown();
     },
+
     /** 加载订单详情 */
-    loadOrderDetail: function(orderId) {
+    loadOrderDetail(orderId) {
         const app = getApp();
         this.setData({ loading: true });
 
@@ -53,317 +41,228 @@ Page({
             url: app.globalData.baseUrl + "/order/detail/" + orderId,
             method: "GET",
             success: res => {
-                console.log("订单详情完整响应:", res.data);
                 this.setData({ loading: false });
 
                 if (res.data.code === 200) {
                     this.processOrderData(res.data.data);
                 } else {
-                    wx.showToast({
-                        title: "加载失败：" + (res.data.message || "未知错误"),
-                        icon: "none"
-                    });
+                    wx.showToast({ title: "加载失败", icon: "none" });
                 }
             },
-            fail: err => {
+            fail: () => {
                 this.setData({ loading: false });
                 wx.showToast({ title: "网络错误", icon: "none" });
             }
         });
     },
 
-    /** 处理订单数据 */
-    processOrderData: function(orderData) {
+    /** 处理返回数据 */
+    processOrderData(orderData) {
         const order = orderData.order;
         const restaurant = orderData.restaurant || {};
-        let orderItems = orderData.orderItems || [];
-    
-        orderItems = orderItems.map(item => ({
-            ...item,
-            uiImage: item.dishImageUrl || "/images/logo.png",
-            uiName: item.dishName || "未命名商品",
-            uiPrice: Number(item.dishPrice || 0).toFixed(2)
+        let items = orderData.orderItems || [];
+
+        // 格式化商品
+        items = items.map(i => ({
+            ...i,
+            uiImage: i.dishImageUrl || "/images/logo.png",
+            uiName: i.dishName,
+            uiPrice: Number(i.dishPrice).toFixed(2)
         }));
-    
-        const subTotal = orderItems.reduce(
-            (total, item) => total + item.dishPrice * item.quantity,
+
+        const sub = items.reduce(
+            (sum, i) => sum + i.dishPrice * i.quantity,
             0
         );
-    
-        const packingFee = Number(order.packingFee || 0);   // ⭐ 只保留打包费
-    
-        const statusInfo = this.calculateStatusInfo(order.status);
-    
+
+        const statusInfo = this.getStatusInfo(order.status);
+
         this.setData({
             order,
             restaurant,
-            orderItems,
-            subTotal: subTotal.toFixed(2),
-            packingFee: packingFee.toFixed(2),
+            orderItems: items,
+            subTotal: sub.toFixed(2),
+            packingFee: Number(order.packingFee).toFixed(2),
             statusInfo
         });
+
+        /** 倒计时（仅待支付） */
         if (order.status === 1) {
             this.startCountdown(order.createdTime);
         } else {
             this.clearCountdown();
         }
+
         this.checkReviewStatus(order.id, order.createdTime);
     },
 
+    /** 倒计时：30分钟未支付自动取消 */
     startCountdown(createdTime) {
-        this.clearCountdown(); // 防止重复倒计时
-    
-        const deadline = new Date(createdTime.replace(/-/g, "/")).getTime() + 30 * 60 * 1000; // 创建时间 + 30分钟
-    
+        this.clearCountdown();
+
+        const deadline = new Date(createdTime.replace(/-/g, "/")).getTime() + 30 * 60 * 1000;
+
         const timer = setInterval(() => {
-            const now = Date.now();
-            const diff = deadline - now;
-    
+            const diff = deadline - Date.now();
+
             if (diff <= 0) {
-                // 倒计时结束 → 自动取消订单
                 this.clearCountdown();
                 this.autoCancelOrder();
                 return;
             }
-    
-            const minutes = Math.floor(diff / 1000 / 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-    
-            const display = `${minutes.toString().padStart(2, '0')}:${seconds
-                .toString()
-                .padStart(2, '0')}`;
-    
-            this.setData({ countdown: display });
-    
+
+            const m = Math.floor(diff / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+
+            this.setData({
+                countdown: `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+            });
         }, 1000);
-    
+
         this.setData({ countdownTimer: timer });
     },
-    
-    /** 清除倒计时 */
+
     clearCountdown() {
         if (this.data.countdownTimer) {
             clearInterval(this.data.countdownTimer);
-            this.setData({ countdownTimer: null, countdown: '' });
+            this.setData({ countdownTimer: null, countdown: "" });
         }
     },
 
-    /** 超时未支付自动取消订单 */
-autoCancelOrder() {
-    const app = getApp();
-
-    wx.request({
-        url: app.globalData.baseUrl + "/order/cancel/" + this.data.orderId,
-        method: "POST",
-        success: res => {
-            // 自动刷新订单
-            this.loadOrderDetail(this.data.orderId);
-            wx.showToast({
-                title: "支付超时，订单已取消",
-                icon: "none"
-            });
-        }
-    });
-},
-    /** 订单状态文本与图标 */
-    calculateStatusInfo: function(status) {
-        const s = Number(status);
-
-        const textMap = {
-            1: "待支付",
-            2: "待处理",
-            3: "已完成",
-            4: "已取消"
-        };
-
-        const descMap = {
-            1: "请尽快完成支付",
-            2: "餐厅正在准备您的订单",
-            3: "订单已完成，感谢您的惠顾",
-            4: "订单已取消"
-        };
-
-        return {
-            text: textMap[s],
-            desc: descMap[s]
-        };
-    },
-
-    /** 支付按钮 */
-    onPayNow() {
-        if (!this.data.isPaying) {
-            this.setData({ showPaymentModal: true });
-        }
-    },
-
-    /** 确认支付 */
-    onConfirmPayment() {
-        const orderId = this.data.orderId;
+    /** 超时自动取消订单 */
+    autoCancelOrder() {
         const app = getApp();
-    
-        this.setData({ isPaying: true, showPaymentModal: false });
-    
-        wx.showLoading({ title: "支付中...", mask: true });
-    
         wx.request({
-            url: app.globalData.baseUrl + `/order/pay/${orderId}`,
+            url: app.globalData.baseUrl + "/order/cancel/" + this.data.orderId,
             method: "POST",
-            success: res => {
-                wx.hideLoading();
-                this.setData({ isPaying: false });
-    
-                if (res.data.code === 200) {
-                    wx.showToast({
-                        title: "支付成功",
-                        icon: "success",
-                        success: () => this.loadOrderDetail(orderId)
-                    });
-                } else {
-                    wx.showToast({
-                        title: "支付失败: " + (res.data.message || "未知错误"),
-                        icon: "none"
-                    });
-                }
-            },
-            fail: () => {
-                wx.hideLoading();
-                this.setData({ isPaying: false });
-                wx.showToast({ title: "网络错误", icon: "none" });
+            success: () => {
+                wx.showToast({ title: "订单已取消", icon: "none" });
+                this.loadOrderDetail(this.data.orderId);
             }
         });
     },
 
-    // 取消支付
-    onCancelPayment() {
-        this.setData({ showPaymentModal: false });
+    /** 新状态文本 + 描述（根据你统一要求） */
+    getStatusInfo(status) {
+        const textMap = {
+            1: "待支付",
+            2: "待处理",
+            3: "制作中",
+            4: "已完成",
+            5: "已取消"
+        };
+
+        const descMap = {
+            1: "请尽快完成支付",
+            2: "商家正在准备您的餐品",
+            3: "餐品制作中，请稍候",
+            4: "订单已完成",
+            5: "订单已取消"
+        };
+
+        return {
+            text: textMap[status],
+            desc: descMap[status]
+        };
     },
 
-    hidePaymentModal() {
-        this.setData({ showPaymentModal: false });
+    /** 查询是否已评价 */
+    checkReviewStatus(orderId, createdTime) {
+        const app = getApp();
+        wx.request({
+            url: app.globalData.baseUrl + "/review/userReviews",
+            method: "GET",
+            data: { userId: app.globalData.userInfo.id },
+            success: res => {
+                const reviewedList = res.data.data || [];
+                const reviewed = reviewedList.some(r => r.orderId === orderId);
+
+                const diff = (new Date() - new Date(createdTime)) / 3600000;
+                const expired = diff > 24;
+
+                this.setData({
+                    hasReview: reviewed,
+                    canReview: (!reviewed && !expired && this.data.order.status === 4)
+                });
+            }
+        });
     },
 
-    onBack() {
-        wx.navigateBack();
+    /** 按钮事件区域 ↓ */
+
+    onPayNow() {
+        this.onConfirmPayment();
     },
 
-    onContactService() {
-        wx.makePhoneCall({ phoneNumber: "4001234567" });
-    },
-
-    onReorder() {
-        const id = this.data.restaurant.id;
-        if (id) {
-            wx.navigateTo({
-                url: `/pages/restaurant-detail/restaurant-detail?id=${id}`
-            });
-        }
+    onConfirmPayment() {
+        const app = getApp();
+        wx.request({
+            url: app.globalData.baseUrl + "/order/pay/" + this.data.orderId,
+            method: "POST",
+            success: res => {
+                if (res.data.code === 200) {
+                    wx.showToast({ title: "支付成功" });
+                    this.loadOrderDetail(this.data.orderId);
+                }
+            }
+        });
     },
 
     onCancelOrder() {
-        const orderStatus = this.data.order.status;
-        
-        if (orderStatus === 1 || orderStatus === 2) { // 判断状态是待支付或者待处理
-            wx.showModal({
-                title: "确认取消？",
-                content: "确定要取消这个订单吗？",
-                confirmColor: "#ff6b35",
-                success: res => {
-                    if (res.confirm) {
-                        this.cancelOrder();
-                    }
-                }
-            });
-        } else {
-            wx.showToast({
-                title: "此订单无法取消",
-                icon: "none"
-            });
+        const order = this.data.order;
+
+        if (![1, 2].includes(order.status)) {
+            wx.showToast({ title: "当前状态无法取消", icon: "none" });
+            return;
         }
+
+        wx.showModal({
+            title: "确认取消订单？",
+            success: res => {
+                if (res.confirm) {
+                    this.cancelOrder();
+                }
+            }
+        });
     },
 
     cancelOrder() {
         const app = getApp();
 
-        wx.showLoading({ title: "取消中..." });
-
         wx.request({
             url: app.globalData.baseUrl + "/order/cancel/" + this.data.orderId,
             method: "POST",
-            success: res => {
-                wx.hideLoading();
-                if (res.data.code === 200) {
-                    wx.showToast({
-                        title: "订单已取消",
-                        success: () => this.loadOrderDetail(this.data.orderId)
-                    });
-                }
+            success: () => {
+                wx.showToast({ title: "订单已取消" });
+                this.loadOrderDetail(this.data.orderId);
             }
         });
     },
-    checkReviewStatus(orderId, createdTime) {
+
+    onRefund() {
+        const orderId = this.data.orderId;
         const app = getApp();
-        const userId = app.globalData.userInfo.id;
     
-        wx.request({
-            url: app.globalData.baseUrl + "/review/list",
-            method: "GET",
-            data: { restaurantId: this.data.restaurant.id },
-            success: res => {
-                let reviewed = false;
-                if (res.data.code === 200) {
-                    const list = res.data.data || [];
-                    reviewed = list.some(r => r.order_id === orderId || r.orderId === orderId);
-                }
+        wx.showModal({
+            title: "申请退款",
+            content: "退款申请提交后将由商家审核",
+            success: (res) => {
+                if (!res.confirm) return;
     
-                // 是否超过 24 小时
-                const orderTime = new Date(createdTime.replace(/-/g, "/"));
-                const now = new Date();
-                const diffHours = (now - orderTime) / 3600000;
-                const expire = diffHours > 24;
-    
-                this.setData({
-                    hasReview: reviewed,
-                    canReview: !reviewed && !expire && this.data.order.status === 3 // 3 = 已完成
+                wx.navigateTo({
+                    url: `/pages/refund/refund?orderId=${this.data.orderId}`
                 });
             }
         });
     },
+        
     goReview() {
         wx.navigateTo({
             url: `/pages/review/review?orderId=${this.data.orderId}&restaurantId=${this.data.restaurant.id}`
         });
     },
-    showPayDialog(amount) {
-        return new Promise((resolve, reject) => {
-            wx.showModal({
-                title: '确认支付',
-                content: `是否立即支付订单？\n订单金额：¥${amount}`,
-                confirmText: '确认支付',
-                cancelText: '取消支付',
-                confirmColor: '#ff6b35',   
-                success: res => {
-                    if (res.confirm) {
-                        resolve();   // 用户点击确认
-                    } else {
-                        reject();    // 用户点击取消
-                    }
-                }
-            });
-        });
-    },
-    /** 点击“去支付”按钮 */
-    onPayNow() {
-        const amount = this.data.order.totalAmount;
-        this.showPayDialog(amount)
-            .then(() => {
-                this.onConfirmPayment(); // 用户确认支付
-            })
-            .catch(() => {
-                wx.showToast({
-                    title: "已取消支付",
-                    icon: "none"
-                });
-            });
-    },
-    stopPropagation() {}
+
+    onBack() {
+        wx.navigateBack();
+    }
 });

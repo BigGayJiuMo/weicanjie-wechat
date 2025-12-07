@@ -479,9 +479,7 @@ Page({
       
                       wx.showToast({ title: '登录成功', icon: 'success' });
       
-                      setTimeout(() => {
-                        wx.switchTab({ url: '/pages/index/index' });
-                      }, 1000);
+                      setTimeout(() => wx.navigateBack(), 1500);
       
                     } else {
                       wx.showToast({ title: resp.data.message, icon: 'none' });

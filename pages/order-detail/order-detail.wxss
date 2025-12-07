@@ -241,7 +241,7 @@
 .action-bar {
     background-color: #fff;
     border-top: 1rpx solid #eee;
-    padding: 20rpx 30rpx;
+    padding: 20rpx 20rpx;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -250,13 +250,20 @@
     box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
 }
 
+/* scroll-view 横向滚动 */
+.action-scroll {
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
 .action-buttons {
-    display: flex;
-    justify-content: flex-end;
+    display: inline-flex;
     gap: 20rpx;
 }
 
+/* 每个按钮不允许被压缩 */
 .action-btn {
+    flex-shrink: 0;
     padding: 20rpx 40rpx;
     border-radius: 50rpx;
     font-size: 28rpx;
@@ -272,4 +279,10 @@
 .action-btn.secondary {
     background-color: white;
     color: #ff6b35;
+}
+
+.action-btn.disabled {
+    opacity: .5;
+    border-color: #ccc;
+    color: #aaa;
 }

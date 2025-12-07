@@ -144,6 +144,7 @@
 }
 /* 状态颜色区分 */
 .order-status {
+  line-height: 20rpx;
   font-size: 28rpx;
   font-weight: bold;
 }
@@ -158,11 +159,10 @@
   color: #ff9900;
 }
 
-/* 配送中 */
-.order-status.delivering {
-  color: #07c160;
+/* 制作中 */
+.order-status.making {
+    color: #ff9900;
 }
-
 /* 已完成 */
 .order-status.completed {
   color: #4caf50;
@@ -171,6 +171,16 @@
 /* 已取消 */
 .order-status.cancelled {
   color: #999;
+}
+
+/* 退款中 */
+.order-status.refunding {
+    color: #ff9800; /* 橙色 */
+  }
+  
+/* 已退款 */
+.order-status.refunded {
+color: #4caf50; /* 绿色 */
 }
 
 /* 菜品行 */
