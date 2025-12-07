@@ -190,6 +190,9 @@ Page({
           orderList: this.data.allOrders.filter(o => o._canReview && !o._hasReview)
         });
       }
-    }
+    },
+    onBack() {
+        wx.navigateBack();
+      }
   });
   
