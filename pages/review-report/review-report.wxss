@@ -1,0 +1,82 @@
+/* pages/review-report/review-report.wxss */
+.container {
+  padding: 30rpx;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+}
+
+.back-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.nav-title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 40rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.reason-group {
+  margin-top: 20rpx;
+}
+
+.reason-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+}
+
+.textarea {
+  width: 100%;
+  height: 180rpx;
+  margin-top: 20rpx;
+  padding: 20rpx;
+  font-size: 26rpx;
+  background: #f7f7f7;
+  border-radius: 12rpx;
+}
+
+.image-list {
+  display: flex;
+  gap: 20rpx;
+  flex-wrap: wrap;
+  margin-top: 20rpx;
+}
+
+.proof-img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+}
+
+.add-img-btn {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+  background: #f0f0f0;
+  font-size: 80rpx;
+  text-align: center;
+  line-height: 180rpx;
+  color: #888;
+}
+
+.submit-btn {
+  margin-top: 60rpx;
+  background: #ff4d4f;
+  color: #fff;
+  font-size: 30rpx;
+  border-radius: 50rpx;
+  padding: 20rpx 0;
+}

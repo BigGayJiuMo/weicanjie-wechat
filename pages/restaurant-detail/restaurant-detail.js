@@ -1198,6 +1198,18 @@ Page({
       
         this.updateCart(this.data.cartItems);
       },
+      onReport(e) {
+        const app = getApp();
+        if (!app.globalData.userInfo) {
+          wx.showToast({ title: "请先登录", icon: "none" });
+          return;
+        }
+      
+        const reviewId = e.currentTarget.dataset.id;
+        wx.navigateTo({
+          url: `/pages/review-report/review-report?reviewId=${reviewId}`
+        });
+      },
     onBack() {
       wx.navigateBack();
     }

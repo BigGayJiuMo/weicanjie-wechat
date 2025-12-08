@@ -19,7 +19,8 @@
         "pages/review/review",
         "pages/search-restaurant/search-restaurant",
         "pages/search-order/search-order",
-        "pages/refund/refund"
+        "pages/refund/refund",
+        "pages/review-report/review-report"
     ],
     "window": {
         "backgroundTextStyle": "light",

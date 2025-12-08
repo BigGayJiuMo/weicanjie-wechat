@@ -1184,6 +1184,18 @@
     font-weight: bold;
   }
   
+  .report-btn {
+    margin-left: auto;
+    font-size: 24rpx;
+    color: #ff4d4f;
+    padding: 6rpx 20rpx;
+    border-radius: 30rpx;
+    border: 1rpx solid #ff4d4f;
+  }
+  .report-btn:active {
+    background: #ffeaea;
+  }
+
   /* 三标签一行展示 */
   .rate-detail-tags-row {
     display: flex;

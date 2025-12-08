@@ -235,6 +235,9 @@ id="pageScroll"
       <view class="user-meta">
         <text class="username">{{item.username}}</text>
       </view>
+      <view class="report-btn" bindtap="onReport" data-id="{{item.id}}">
+        举报
+      </view>
     </view>
 
     <!-- 满意度 + 标签区域 -->

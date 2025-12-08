@@ -1,0 +1,47 @@
+<!--pages/review-report/review-report.wxml-->
+<view class="container">
+
+<!-- 顶部导航 -->
+<view class="navbar">
+  <image src="/images/back.png" class="back-icon" bindtap="onBack"></image>
+  <text class="nav-title">举报评价</text>
+</view>
+
+<!-- 举报原因 -->
+<view class="section-title">请选择举报原因</view>
+
+<radio-group bindchange="onSelectReason" class="reason-group">
+  <label class="reason-item" wx:for="{{reasonList}}" wx:key="value">
+    <radio value="{{item.value}}" checked="{{item.value === selectedReason}}" />
+    <text>{{item.label}}</text>
+  </label>
+</radio-group>
+
+<!-- 补充说明 -->
+<view class="section-title">补充说明（可选）</view>
+<textarea
+  placeholder="请描述举报详情"
+  class="textarea"
+  bindinput="onInputDetail"
+  value="{{detail}}"
+></textarea>
+
+<!-- 上传截图 -->
+<view class="section-title">上传截图证据（可选）</view>
+
+<view class="image-list">
+  <image
+    wx:for="{{images}}"
+    wx:key="*this"
+    src="{{item}}"
+    class="proof-img"
+    mode="aspectFill"
+  ></image>
+
+  <view class="add-img-btn" bindtap="chooseImage">+</view>
+</view>
+
+<!-- 提交 -->
+<button class="submit-btn" bindtap="submitReport">提交举报</button>
+
+</view>
