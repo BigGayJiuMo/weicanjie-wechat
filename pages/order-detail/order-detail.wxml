@@ -82,6 +82,19 @@
                     <text class="detail-label">订单号</text>
                     <text class="detail-value">{{order.orderNumber}}</text>
                 </view>
+                <view class="detail-item remark-row">
+                <text class="detail-label">订单备注</text>
+                <view class="remark-right">
+                    <view 
+                        class="edit-remark-btn"
+                        wx:if="{{canEditRemark}}"
+                        bindtap="openRemarkDialog"
+                    >
+                        修改
+                    </view>
+                    <text class="remark-text">{{ remarkShort }}</text>
+                </view>
+            </view>
                 <view class="detail-item">
                     <text class="detail-label">下单时间</text>
                     <text class="detail-value">{{order.createdTime}}</text>
@@ -183,5 +196,26 @@
 
             </view>
         </scroll-view>
+    </view>
+</view>
+<!-- 修改备注弹窗 -->
+<view class="remark-dialog" wx:if="{{remarkDialogVisible}}">
+    <view class="dialog-mask"></view>
+
+    <view class="dialog-box">
+        <view class="dialog-title">修改备注</view>
+
+        <textarea
+            class="dialog-input"
+            placeholder="请输入备注"
+            maxlength="200"
+            value="{{remarkTemp}}"
+            bindinput="onRemarkInputChange"
+        ></textarea>
+
+        <view class="dialog-actions">
+            <button class="cancel-btn" bindtap="closeRemarkDialog">取消</button>
+            <button class="confirm-btn" bindtap="submitRemark">确定</button>
+        </view>
     </view>
 </view>

@@ -12,6 +12,9 @@ Page({
         countdownTimer: null,
         hasReview: false,
         canReview: false,
+        remarkDialogVisible: false,
+        remarkTemp: "",
+        canEditRemark: false
     },
 
     onLoad(options) {
@@ -76,14 +79,19 @@ Page({
         );
 
         const statusInfo = this.getStatusInfo(order.status);
-
+        const canEdit = [1, 2, 3].includes(order.status);
+        // 备注截断（最多 10 字）
+        let remark = orderData.order.remark || "无备注";
+        let remarkShort = remark.length > 10 ? remark.substring(0, 10) + "..." : remark;
         this.setData({
             order,
             restaurant,
             orderItems: items,
             subTotal: sub.toFixed(2),
             packingFee: Number(order.packingFee).toFixed(2),
-            statusInfo
+            statusInfo,
+            canEditRemark: canEdit,
+            remarkShort
         });
 
         /** 倒计时（仅待支付） */
@@ -241,6 +249,47 @@ Page({
         });
     },
 
+    openRemarkDialog() {
+        this.setData({
+            remarkDialogVisible: true,
+            remarkTemp: this.data.order.remark || ""
+        });
+    },
+    onRemarkInputChange(e) {
+        this.setData({
+            remarkTemp: e.detail.value
+        });
+    },
+    closeRemarkDialog() {
+        this.setData({ remarkDialogVisible: false });
+    },
+    submitRemark() {
+        const app = getApp();
+        const newRemark = this.data.remarkTemp;
+    
+        wx.request({
+            url: app.globalData.baseUrl + "/order/updateRemark",
+            method: "POST",
+            data: {
+                orderId: this.data.orderId,
+                remark: newRemark
+            },
+            success: res => {
+                if (res.data.code === 200) {
+                    wx.showToast({ title: "修改成功" });
+    
+                    // 更新本地订单备注
+                    this.setData({
+                        ["order.remark"]: newRemark,
+                        remarkShort: newRemark.length > 10 ? newRemark.substring(0, 10) + "..." : newRemark,
+                        remarkDialogVisible: false
+                    });
+                } else {
+                    wx.showToast({ title: "修改失败", icon: "none" });
+                }
+            }
+        });
+    },    
     onRefund() {
         const orderId = this.data.orderId;
         const app = getApp();

@@ -964,7 +964,40 @@
     color: #fff;
   }
   
-
+/* 备注行：标题 + 内容一行显示 */
+.remark-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* 右侧内容：备注 + 按钮 */
+  .remark-right {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+    max-width: 60%;
+    justify-content: flex-end;
+  }
+  
+  /* 备注显示区域（自动截断） */
+  .remark-text {
+    max-width: 300rpx;
+    font-size: 28rpx;
+    color: #333;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  
+  /* 修改按钮 */
+  .edit-remark-btn {
+    padding: 6rpx 20rpx;
+    background: #ff6b35;
+    color: #fff;
+    border-radius: 10rpx;
+    font-size: 24rpx;
+  }
   /* 结算费用明细 */
   .checkout-summary {
     padding: 30rpx;
@@ -1138,6 +1171,32 @@
     color: #ff6b35;
   }
   
+  .star-row {
+    display: flex;
+    margin-top: 6rpx;
+  }
+  
+  .star {
+    width: 28rpx;
+    height: 28rpx;
+    margin-right: 6rpx;
+  }
+  
+  .star.small {
+    width: 22rpx;
+    height: 22rpx;
+  }
+  
+  .rating-summary-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .sub-item .star-row {
+    margin-top: 4rpx;
+  }
+
   /* 右侧味道/包装：靠最右边 */
   .rating-summary-sub {
     margin-left: auto;   /* 核心：把右侧内容推到最右 */
@@ -1379,4 +1438,51 @@
     color: #ff6b35;
     margin-right: 8rpx;
   }
+  .remark-dialog .dialog-mask {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 3000;
+  }
   
+  .dialog-box {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    background: #fff;
+    border-radius: 12rpx;
+    padding: 30rpx;
+    z-index: 3100;
+  }
+  
+  .dialog-title {
+    font-size: 32rpx;
+    font-weight: bolder;
+    margin-bottom: 20rpx;
+  }
+  
+  .dialog-input {
+    width: 100%;
+    min-height: 150rpx;
+    background: #f7f7f7;
+    border-radius: 10rpx;
+    padding: 16rpx;
+  }
+  
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20rpx;
+  }
+  
+  .cancel-btn, .confirm-btn {
+    margin-left: 20rpx;
+    padding: 10rpx 20rpx;
+    border-radius: 8rpx;
+  }
+  
+  .confirm-btn {
+    background: #ff6b35;
+    color: white;
+  }

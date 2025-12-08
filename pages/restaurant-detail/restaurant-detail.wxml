@@ -196,8 +196,20 @@ id="pageScroll"
 <!-- 商家评分区域，只有在有评价时才显示 -->
 <view wx:if="{{ratingList.length > 0}}" class="rating-summary-box">
 
-  <!-- 左侧大评分数字 -->
-  <text class="rating-summary-score">评价 {{avgShopRating}}</text>
+  <!-- 左侧大评分数字 + 星星 -->
+    <view class="rating-summary-left">
+    <text class="rating-summary-score">评分 {{avgShopRating}}</text>
+
+    <!-- 星星 -->
+    <view class="star-row">
+        <block wx:for="{{5}}" wx:key="*this">
+        <image
+            class="star"
+            src="{{ index < avgShopRatingInt ? '/images/star-on.png' : '/images/star-off.png' }}"
+        />
+        </block>
+    </view>
+    </view>
 
   <!-- 右侧味道 + 包装（靠右） -->
   <view class="rating-summary-sub">
@@ -223,6 +235,9 @@ id="pageScroll"
 <view class="rating-filter-bar" wx:if="{{ratingList.length > 0}}">
   <view class="filter-btn {{isLatest ? 'active' : ''}}" bindtap="toggleLatest">
     最新
+  </view>
+  <view  class="filter-btn {{hasImageFilter ? 'active' : ''}}"  bindtap="toggleHasImage" style="margin-left:20rpx;">
+    有图
   </view>
 </view>
 
@@ -465,32 +480,37 @@ id="pageScroll"
           </view>
         </view>
       </view>
-
+    <!-- 订单备注 -->
+    <view class="checkout-summary">
+    <view class="remark-row">
+    <text class="summary-title">订单备注</text>
+    <view class="remark-right">
+        <view class="edit-remark-btn" bindtap="openRemarkDialog">
+        修改
+        </view>
+        <text class="remark-text">{{remark || '无备注'}}</text>
+    </view>
+    </view>
+    </view>
       <view class="checkout-summary">
-        
         <view class="checkout-summary-title">
           <text class="summary-title">费用明细</text>
         </view>
-
         <view class="checkout-summary-row">
           <text class="summary-label">菜品小计</text>
           <text class="summary-value">¥{{formattedSubTotal}}</text>
         </view>
-
         <view class="checkout-summary-row" wx:if="{{showPackingFee}}">
           <text class="summary-label">打包费</text>
           <text class="summary-value">¥{{packingFee}}</text>
         </view>
       </view>
-
     </view>
-
     <view class="checkout-footer">
       <view class="checkout-total-section">
         <text class="total-label">总计:</text>
         <text class="total-price-large">¥{{formattedTotalPrice}}</text>
       </view>
-
       <view class="submit-order-btn {{totalQuantity === 0 ? 'disabled' : ''}}" bindtap="onSubmitOrder">
         提交订单
       </view>
@@ -499,4 +519,25 @@ id="pageScroll"
   </view>
 </view>
 
+</view>
+<!-- 修改备注弹窗 -->
+<view class="remark-dialog" wx:if="{{remarkDialogVisible}}">
+    <view class="dialog-mask"></view>
+
+    <view class="dialog-box">
+        <view class="dialog-title">修改备注</view>
+
+        <textarea
+            class="dialog-input"
+            placeholder="请输入备注"
+            maxlength="200"
+            value="{{remarkTemp}}"
+            bindinput="onRemarkInputChange"
+        ></textarea>
+
+        <view class="dialog-actions">
+            <button class="cancel-btn" bindtap="closeRemarkDialog">取消</button>
+            <button class="confirm-btn" bindtap="submitRemark">确定</button>
+        </view>
+    </view>
 </view>

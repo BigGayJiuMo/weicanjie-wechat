@@ -44,7 +44,10 @@ Page({
       avgPack: 0,
       ratingList: [],
       originalRatingList: [],
-
+      hasImageFilter: false,
+      remarkDialogVisible: false,  
+      remarkTemp: "",             
+      remark: "",
       eatType: 2,
     },
     
@@ -848,7 +851,8 @@ Page({
           restaurantId: this.data.restaurantId,
           totalAmount: this.data.totalPrice,
           packingFee: this.data.packingFee,
-          eatType: this.data.eatType || 2
+          eatType: this.data.eatType || 2,
+          remark: this.data.remark || ""  
         },
         items: orderItems,
         restaurant: this.data.restaurant,
@@ -1072,23 +1076,26 @@ Page({
         }
       });
     },
-    toggleLatest() {
-        const isLatest = !this.data.isLatest;
-        this.setData({ isLatest });
-      
-        if (isLatest) {
-          const sorted = [...this.data.originalRatingList].sort(
-            (a, b) => new Date(b.time) - new Date(a.time)
-          );
-          this.setData({ ratingList: sorted });
-        } else {
-          this.setData({ ratingList: [...this.data.originalRatingList] });
+    applyFilters() {
+        let list = [...this.data.originalRatingList];
+        if (this.data.hasImageFilter) {
+          list = list.filter(item => item.images && item.images.length > 0);
         }
-      
-        //  排序后重新计算评分
-        this.calculateRatings();
+        if (this.data.isLatest) {
+          list = list.sort((a, b) => new Date(b.time) - new Date(a.time));
+        }
+        this.setData({
+          ratingList: list
+        });
       },
-      
+    toggleLatest() {
+        this.setData({ isLatest: !this.data.isLatest });
+        this.applyFilters();
+      },
+    toggleHasImage() {
+        this.setData({ hasImageFilter: !this.data.hasImageFilter });
+        this.applyFilters();
+      },        
       calcStars(score) {
         const s = Math.round(score || 0);
         return new Array(s).fill(0);
@@ -1124,16 +1131,16 @@ Page({
         });
       
         const count = list.length;
-      
+        
         // 计算平均值并四舍五入到1位小数
         const avgShop = (totalShop / count).toFixed(1);
         const avgTaste = (totalTaste / count).toFixed(1);
         const avgPack = (totalPack / count).toFixed(1);
-      
         this.setData({
           avgShopRating: avgShop,
           avgTaste: avgTaste,
-          avgPack: avgPack
+          avgPack: avgPack,
+          avgShopRatingInt: Math.round(avgShop),  
         });
       },      
       loadRatings(restaurantId) {
@@ -1192,6 +1199,35 @@ Page({
             }
         });
       },
+      // 打开弹窗
+openRemarkDialog() {
+    this.setData({
+      remarkDialogVisible: true,
+      remarkTemp: this.data.remark  // 带入旧备注
+    });
+  },
+  
+  // 输入框变化
+  onRemarkInputChange(e) {
+    this.setData({
+      remarkTemp: e.detail.value
+    });
+  },
+  
+  // 取消弹窗
+  closeRemarkDialog() {
+    this.setData({
+      remarkDialogVisible: false
+    });
+  },
+  
+  // 点击确定按钮
+  submitRemark() {
+    this.setData({
+      remark: this.data.remarkTemp,  // 保存备注
+      remarkDialogVisible: false
+    });
+  },
       selectEatType(e) {
         const type = e.currentTarget.dataset.type;
         this.setData({ eatType: type });
@@ -1208,6 +1244,11 @@ Page({
         const reviewId = e.currentTarget.dataset.id;
         wx.navigateTo({
           url: `/pages/review-report/review-report?reviewId=${reviewId}`
+        });
+      },
+      onRemarkInput(e) {
+        this.setData({
+          remark: e.detail.value
         });
       },
     onBack() {

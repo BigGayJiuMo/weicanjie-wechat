@@ -3,7 +3,11 @@ Page({
         orderList: [],
         orderCount: 0,
         totalAmount: "0.00",
-        loading: false
+        loading: false,
+        remarkDialogVisible: false,
+        remarkTemp: "", 
+        selectedRestaurantId: null,  
+        canEditRemark: false,  
     },
 
     onLoad(options) {
@@ -20,46 +24,90 @@ Page({
     processOrderData(orderData) {
         let restaurants = orderData.restaurants || [];
         let count = restaurants.length;
-
+    
         restaurants = restaurants.map(restaurant => {
-            let dishTotal = 0;
-
-            const items = restaurant.items.map(dish => {
-                const price = Number(dish.dishPrice || dish.price || 0);
-                const quantity = Number(dish.quantity || 1);
-                const totalPrice = (price * quantity).toFixed(2);
-                dishTotal += price * quantity;
-
-                return { ...dish, totalPrice };
-            });
-
-            const eatType = restaurant.eatType || 2;
-            const packingFee = eatType == 1 ? 0 : Number(restaurant.packingFee || 0);
-
-            return {
-                ...restaurant,
-                eatType,
-                items,
-                dishSubTotal: dishTotal.toFixed(2),
-                packingFee: packingFee.toFixed(2),
-                subTotal: (dishTotal + packingFee).toFixed(2)
-            };
+          let dishTotal = 0;
+    
+          const items = restaurant.items.map(dish => {
+            const price = Number(dish.dishPrice || dish.price || 0);
+            const quantity = Number(dish.quantity || 1);
+            const totalPrice = (price * quantity).toFixed(2);
+            dishTotal += price * quantity;
+    
+            return { ...dish, totalPrice };
+          });
+    
+          const eatType = restaurant.eatType || 2;
+          const packingFee = eatType == 1 ? 0 : Number(restaurant.packingFee || 0);
+    
+          return {
+            ...restaurant,
+            eatType,
+            items,
+            dishSubTotal: dishTotal.toFixed(2),
+            packingFee: packingFee.toFixed(2),
+            subTotal: (dishTotal + packingFee).toFixed(2),
+            remarkShort: restaurant.remark ? restaurant.remark.substring(0, 10) + '...' : '无备注',
+          };
         });
-
+    
         const totalAmount = restaurants
-            .reduce((sum, r) => sum + Number(r.subTotal), 0)
-            .toFixed(2);
-
+          .reduce((sum, r) => sum + Number(r.subTotal), 0)
+          .toFixed(2);
+    
         this.setData({
-            orderList: restaurants,
-            orderCount: count,
-            totalAmount
+          orderList: restaurants,
+          orderCount: count,
+          totalAmount
         });
-    },
+      },    
 
     onBack() {
         wx.navigateBack();
     },
+
+    /** 修改备注 */
+  openRemarkDialog(e) {
+    const restaurantId = e.currentTarget.dataset.restaurantId;
+    const remark = this.data.orderList.find(r => r.restaurantId === restaurantId).remark || '';
+    this.setData({
+      remarkDialogVisible: true,
+      remarkTemp: remark,
+      selectedRestaurantId: restaurantId
+    });
+  },
+
+  /** 输入框的备注内容改变时 */
+  onRemarkInputChange(e) {
+    this.setData({
+      remarkTemp: e.detail.value
+    });
+  },
+
+  /** 关闭备注输入框 */
+  closeRemarkDialog() {
+    this.setData({ remarkDialogVisible: false });
+  },
+
+  /** 提交备注 */
+  submitRemark() {
+    const selectedRestaurantId = this.data.selectedRestaurantId;
+    const newRemark = this.data.remarkTemp;
+
+    // 更新备注
+    const updatedOrderList = this.data.orderList.map(restaurant => {
+      if (restaurant.restaurantId === selectedRestaurantId) {
+        restaurant.remark = newRemark;
+        restaurant.remarkShort = newRemark.length > 10 ? newRemark.substring(0, 10) + "..." : newRemark;
+      }
+      return restaurant;
+    });
+
+    this.setData({
+      orderList: updatedOrderList,
+      remarkDialogVisible: false
+    });
+  },
 
     /** 提交订单 */
     submitOrder() {
@@ -154,10 +202,10 @@ Page({
 
                 const data = res.data.data;
 
-                // ⭐ 下单成功 → 不再恢复购物车缓存
+                // 下单成功 → 不再恢复购物车缓存
                 app.globalData.shouldRestoreCart = false;
 
-                // ⭐ 删除购物车对应菜品
+                // 删除购物车对应菜品
                 this.removeOrderedItems(orderData);
 
                 if (isMultiple) {
