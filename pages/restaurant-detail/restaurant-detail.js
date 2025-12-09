@@ -36,7 +36,6 @@ Page({
       scrollLocked: false,
       categoryPositions: [],
 
-      ratingTags: ["味道赞", "包装很好", "配送快", "分量足"],
       ratingSort: "latest",   // 当前排序方式
       isLatest: false,
       avgShopRating: 0,
@@ -179,69 +178,28 @@ Page({
       loadRestaurantDetail(id) {
         const app = getApp();
         this.setData({ loading: true });
-      
+    
         wx.request({
           url: app.globalData.baseUrl + '/restaurant/' + id,
           method: 'GET',
           success: (res) => {
+            // 打印后端返回的完整数据
+            console.log("获取餐厅详情成功:", res);
+    
             if (res.data.code === 200) {
               const restaurant = res.data.data;
               const categories = restaurant.categories || [];
+    
               if (restaurant.avgRating !== null && restaurant.avgRating !== undefined) {
                 restaurant.avgRating = Number(restaurant.avgRating).toFixed(1);
               }
-              /* ----------- ⭐ 自动计算营业状态（去掉剩余时间） ----------- */
               restaurant.packingFee = Number(restaurant.packingFee || 0);
-                restaurant.packingFeeText = restaurant.packingFee.toFixed(2);
-              let statusText = "营业状态未知";
-              let statusClass = "status-closed";
-      
-              if (Array.isArray(restaurant.businessHours) && restaurant.businessHours.length > 0) {
-                let today = new Date().getDay();
-                if (today === 0) today = 7; // 周日=7
-      
-                const todayHours = restaurant.businessHours.find(h => h.dayOfWeek == today);
-      
-                if (!todayHours || todayHours.isOpen !== 1) {
-                  statusText = "今日不营业";
-                  statusClass = "status-closed";
-                } else {
-                  const open = todayHours.openTime;
-                  const close = todayHours.closeTime;
-      
-                  const [oH, oM] = open.split(":").map(Number);
-                  const [cH, cM] = close.split(":").map(Number);
-      
-                  const openMin = oH * 60 + oM;
-                  const closeMin = cH * 60 + cM;
-      
-                  const now = new Date();
-                  const nowMin = now.getHours() * 60 + now.getMinutes();
-      
-                  if (nowMin >= openMin && nowMin < closeMin) {
-                    statusText = "营业中";
-                    statusClass = "status-open";
-                  } else if (nowMin < openMin) {
-                    statusText = "未营业";
-                    statusClass = "status-break";
-                  } else {
-                    statusText = "已打烊";
-                    statusClass = "status-closed";
-                  }
-      
-                  restaurant.businessHoursText = `${open} - ${close}`;
-                }
-      
-              } else {
-                restaurant.businessHoursText = "暂无营业时间";
-                statusText = "今日不营业";
-                statusClass = "status-closed";
-              }
-      
-              /* ----------- END 营业状态 ----------- */
-      
-      
-              // 处理菜品格式化价格
+              restaurant.packingFeeText = restaurant.packingFee.toFixed(2);
+    
+              // 获取餐厅营业时间并设置状态
+              let statusText = restaurant.businessStatusText || "营业状态未知";
+              let statusClass = restaurant.businessStatusClass || "status-closed";
+    
               categories.forEach(category => {
                 if (category.dishes && category.dishes.length > 0) {
                   category.dishes.forEach(dish => {
@@ -249,9 +207,10 @@ Page({
                   });
                 }
               });
-      
+    
               const activeCategoryId = categories.length > 0 ? categories[0].id : null;
               const avgRating = restaurant.avgRating !== null ? restaurant.avgRating : null;
+    
               // 设置数据
               this.setData({
                 restaurant,
@@ -263,16 +222,16 @@ Page({
                 loading: false
               }, () => {
                 this.checkFavoriteStatus(id);
-      
+    
                 if (!this.data.isGuest) {
                   this.uploadHistoryToServer(id);
                 }
-      
+    
                 setTimeout(() => {
                   this.calcCategoryPositions();
                 }, 500);
               });
-      
+    
             } else {
               this.setData({ loading: false });
               wx.showToast({
@@ -281,77 +240,20 @@ Page({
               });
             }
           },
-      
+    
           fail: (err) => {
+            // 打印错误信息
             console.error('请求餐厅详情失败:', err);
             this.setData({ loading: false });
           }
         });
-      },      
+      },
       goDishDetail(e) {
         const id = e.currentTarget.dataset.id;
         wx.navigateTo({
           url: `/pages/dish-detail/dish-detail?id=${id}`
         });
       },
-      calcBusinessStatus(businessHoursList) {
-        if (!businessHoursList || businessHoursList.length === 0) {
-          return {
-            statusText: "今日不营业",
-            statusClass: "status-closed"
-          };
-        }
-      
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      
-        let isOpen = false;
-        let minutesToClose = null;
-        let minutesToOpen = null;
-      
-        businessHoursList.forEach(period => {
-          const [startH, startM] = period.start.split(":").map(Number);
-          const [endH, endM] = period.end.split(":").map(Number);
-      
-          const startMin = startH * 60 + startM;
-          const endMin = endH * 60 + endM;
-      
-          if (currentMinutes >= startMin && currentMinutes < endMin) {
-            // 营业中
-            isOpen = true;
-            minutesToClose = endMin - currentMinutes;
-          } else if (currentMinutes < startMin) {
-            // 未营业，记录距离开业的最小值
-            const diff = startMin - currentMinutes;
-            if (minutesToOpen === null || diff < minutesToOpen) {
-              minutesToOpen = diff;
-            }
-          }
-        });
-      
-        // 状态文本生成
-        if (isOpen) {
-          return {
-            statusText: minutesToClose > 0
-              ? `营业中 · 距离打烊还有 ${minutesToClose} 分钟`
-              : "营业中",
-            statusClass: "status-open"
-          };
-        }
-      
-        if (minutesToOpen !== null) {
-          return {
-            statusText: `未营业 · 距离开业还有 ${minutesToOpen} 分钟`,
-            statusClass: "status-break"
-          };
-        }
-      
-        return {
-          statusText: "已打烊",
-          statusClass: "status-closed"
-        };
-      },
-
     calcCategoryPositions() {
         const query = wx.createSelectorQuery().in(this);
     
