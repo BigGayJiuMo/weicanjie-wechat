@@ -228,54 +228,51 @@ Page({
     },
   
     loginWithPhone(phone) {
-      const app = getApp();
-  
-      const completeUserData = {
-        code: 'phone_login_' + phone + '_' + Date.now(),
-        userInfo: {
-          nickname: '手机用户_' + phone.substring(7),
-          avatarUrl: '/images/default-avatar.png'
-        },
-        phone
-      };
-  
-      wx.request({
-        url: app.globalData.baseUrl + '/user/loginByPhone',
-        method: 'POST',
-        header: { 'content-type': 'application/json' },
-        data: completeUserData,
-        success: res => {
-          wx.hideLoading();
-  
-          if (res.data.code === 200) {
-            wx.setStorageSync('userInfo', res.data.data);
-            app.globalData.userInfo = res.data.data;
-            app.globalData.isGuest = false;
-  
-            this.setData({
-              showOtherPhoneModal: false,
-              tempOtherPhoneInfo: null
-            });
-  
-            wx.showToast({
-              title: '登录成功',
-              icon: 'success'
-            });
-  
-            setTimeout(() => wx.navigateBack(), 1500);
-          } else {
-            wx.showToast({
-              title: '登录失败: ' + res.data.message,
-              icon: 'none'
-            });
-          }
-        },
-        fail: () => {
-          wx.hideLoading();
-          this.mockLoginWithPhone(phone);
-        }
-      });
-    },
+        const app = getApp();
+      
+        const completeUserData = {
+          code: 'phone_login_' + phone + '_' + Date.now(),
+          userInfo: {
+            nickname: '手机用户_' + phone.substring(7),
+            avatarUrl: '/images/default-avatar.png'
+          },
+          phone
+        };
+      
+        wx.request({
+            url: app.globalData.baseUrl + '/user/loginByPhone',
+            method: 'POST',
+            header: { 'content-type': 'application/json' },
+            data: completeUserData,
+            success: res => {
+              wx.hideLoading();
+          
+              if (res.data.code === 200) {
+                // 保存 token 和用户信息
+                wx.setStorageSync('userInfo', res.data.data.user);  // 保存用户信息
+                wx.setStorageSync('token', res.data.data.token);     // 保存 token
+                app.globalData.userInfo = res.data.data.user;       // 更新全局用户信息
+                app.globalData.isGuest = false;  // 登录成功后不再是游客
+          
+                wx.showToast({
+                  title: '登录成功',
+                  icon: 'success'
+                });
+          
+                setTimeout(() => wx.navigateBack(), 1500);  // 登录成功后返回
+              } else {
+                wx.showToast({
+                  title: '登录失败: ' + (res.data.message || '未知错误'),
+                  icon: 'none'
+                });
+              }
+            },
+            fail: () => {
+              wx.hideLoading();
+              this.mockLoginWithPhone(phone);
+            }
+          });
+      },
   
     mockLoginWithPhone(phone) {
       const app = getApp();
@@ -330,62 +327,65 @@ Page({
     },
   
     onConfirmPhoneAuth() {
-      wx.showLoading({ title: '登录中...' });
-  
-      const phone = this.data.mockPhoneNumber;
-      const nickname = '手机用户_' + phone.substring(7);
-      const avatar = this.data.tempUserInfo.avatarUrl;
-  
-      wx.login({
-        success: loginRes => {
-          const completeUserData = {
-            code: loginRes.code,
-            userInfo: {
-              nickname, // 统一昵称格式
-              avatarUrl: avatar
-            },
-            phone
-          };
-  
-          console.log('一键登录最终提交数据：', completeUserData);
-  
-          const app = getApp();
-  
-          wx.request({
-            url: app.globalData.baseUrl + '/user/loginByPhone',
-            method: 'POST',
-            header: { 'content-type': 'application/json' },
-            data: completeUserData,
-            success: res => {
-              wx.hideLoading();
-              this.setData({ showPhoneModal: false });
-  
-              if (res.data.code === 200) {
-                wx.setStorageSync('userInfo', res.data.data);
-                app.globalData.userInfo = res.data.data;
-                app.globalData.isGuest = false;
-  
-                wx.showToast({
-                  title: '登录成功',
-                  icon: 'success'
-                });
-  
-                setTimeout(() => wx.navigateBack(), 1500);
-              } else {
-                wx.showToast({
-                  title: '登录失败: ' + res.data.message,
-                  icon: 'none'
-                });
+        wx.showLoading({ title: '登录中...' });
+      
+        const phone = this.data.mockPhoneNumber;
+        const nickname = '手机用户_' + phone.substring(7);
+        const avatar = this.data.tempUserInfo.avatarUrl;
+      
+        wx.login({
+          success: loginRes => {
+            const completeUserData = {
+              code: loginRes.code,
+              userInfo: {
+                nickname, // 统一昵称格式
+                avatarUrl: avatar
+              },
+              phone
+            };
+      
+            console.log('一键登录最终提交数据：', completeUserData);
+      
+            const app = getApp();
+      
+            // 发起请求到后端进行登录
+            wx.request({
+              url: app.globalData.baseUrl + '/user/loginByPhone',
+              method: 'POST',
+              header: { 'content-type': 'application/json' },
+              data: completeUserData,
+              success: res => {
+                wx.hideLoading();
+                this.setData({ showPhoneModal: false });
+      
+                if (res.data.code === 200) {
+                  // 登录成功，保存用户信息和token到本地
+                  wx.setStorageSync('userInfo', res.data.data.user);  // 保存用户信息
+                  wx.setStorageSync('token', res.data.data.token);     // 保存 token
+                  app.globalData.userInfo = res.data.data.user;       // 更新全局用户信息
+                  app.globalData.isGuest = false;  // 登录成功后不再是游客
+      
+                  wx.showToast({
+                    title: '登录成功',
+                    icon: 'success'
+                  });
+      
+                  setTimeout(() => wx.navigateBack(), 1500);  // 登录成功后返回
+                } else {
+                  wx.showToast({
+                    title: '登录失败: ' + (res.data.message || '未知错误'),
+                    icon: 'none'
+                  });
+                }
+              },
+              fail: () => {
+                wx.hideLoading();
+                this.mockSaveUserToDatabase();  // 模拟保存用户数据（如果请求失败）
               }
-            },
-            fail: () => {
-              wx.hideLoading();
-              this.mockSaveUserToDatabase();
-            }
-          });
-        }
-      });
-    },
+            });
+          }
+        });
+      },
   
     mockSaveUserToDatabase() {
       const app = getApp();
@@ -439,7 +439,6 @@ Page({
       return phone.substring(0, 3) + '****' + phone.substring(7);
     },
     onWeChatLogin() {
-
         if (this.data.weChatLoginLoading) return; 
         this.setData({ weChatLoginLoading: true });
       
@@ -452,10 +451,8 @@ Page({
         wx.getUserProfile({
           desc: "用于完善资料",
           success: profile => {
-      
             wx.login({
               success: res => {
-      
                 const code = res.code;
                 const app = getApp();
       
@@ -474,13 +471,14 @@ Page({
                     this.setData({ weChatLoginLoading: false });
       
                     if (resp.data.code === 200) {
-                      wx.setStorageSync('userInfo', resp.data.data);
-                      app.globalData.userInfo = resp.data.data;
+                      // 保存 token 和用户信息
+                      wx.setStorageSync('userInfo', resp.data.data.user);
+                      wx.setStorageSync('token', resp.data.data.token);  // 保存 token
+                      app.globalData.userInfo = resp.data.data.user;
       
                       wx.showToast({ title: '登录成功', icon: 'success' });
       
                       setTimeout(() => wx.navigateBack(), 1500);
-      
                     } else {
                       wx.showToast({ title: resp.data.message, icon: 'none' });
                     }
@@ -490,18 +488,16 @@ Page({
                     wx.showToast({ title: '网络错误，请稍后再试', icon: 'none' });
                   }
                 });
-      
               }
             });
-      
           },
           fail: () => {
             this.setData({ weChatLoginLoading: false }); 
             wx.showToast({ title: '用户取消授权', icon: 'none' });
           }
         });
-      
       }
+      
 
   });
   

@@ -69,27 +69,31 @@ Page({
     if (this.data.isGuest) {
       return;
     }
-
+  
     const app = getApp();
     const userId = this.data.userInfo.id;
-    
+  
     if (!userId) {
       console.error('用户ID为空，无法获取统计数据');
       this.setMockStats();
       return;
     }
-
+  
     console.log('请求用户统计数据，userId:', userId);
-    
+  
     wx.request({
       url: app.globalData.baseUrl + '/user/stats',
       method: 'GET',
       data: {
         userId: userId
       },
+      header: {
+        'Authorization': 'Bearer ' + wx.getStorageSync('token'),  // 确保携带 token
+        'content-type': 'application/json'
+      },
       success: (res) => {
         console.log('用户统计数据响应:', res.data);
-        
+  
         if (res.data.code === 200) {
           const data = res.data.data || {};
           this.setData({
@@ -104,18 +108,7 @@ Page({
       },
       fail: (err) => {
         console.error('请求用户统计数据失败:', err);
-        // 开发环境使用模拟数据
-        this.setMockStats();
       }
-    });
-  },
-
-  // 设置模拟统计数据
-  setMockStats: function() {
-    this.setData({
-      favoriteCount: 5,
-      orderCount: 12,
-      reviewCount: 8
     });
   },
 
@@ -228,8 +221,9 @@ onUserAgreementTap: function(e) {
   doLogout: function () {
     const app = getApp();
     
-    // 清除本地存储
+    // 清除本地存储的 userInfo 和 token
     wx.removeStorageSync('userInfo');
+    wx.removeStorageSync('token');  // 清除 token
     
     // 重置全局数据
     app.globalData.userInfo = null;
