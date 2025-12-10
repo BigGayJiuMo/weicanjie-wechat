@@ -377,13 +377,9 @@ id="pageScroll"
       </view>
     </view>
   </view>
-  <view
-    class="checkout-btn {{totalQuantity === 0 ? 'disabled' : ''}}"
-    catchtap="onCheckout"
-    hover-class="none"
-  >
-    {{totalQuantity === 0 ? '请选择商品' : '去结算'}}
-  </view>
+  <view class="checkout-btn {{ (!canOrder || totalQuantity === 0) ? 'disabled' : '' }}" catchtap="onCheckout">
+  {{ !canOrder ? '商家未营业' : (totalQuantity === 0 ? '请选择商品' : '去结算') }}
+</view>
 </view>
 
 <!-- 🛒 购物车详情面板 -->

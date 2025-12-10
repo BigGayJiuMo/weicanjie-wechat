@@ -39,34 +39,37 @@ Page({
             console.log('餐厅列表响应:', res.data);
       
             if (res.data.code === 200) {
-              let restaurants = res.data.data || [];
+                let restaurants = res.data.data || [];
               
-              // ⭐ 前端双重过滤：过滤掉 status=0 的餐厅
-              restaurants = restaurants.filter(r => r.status != null && r.status !== 0);
-      
-              restaurants.forEach(r => {
-                /** ⭐ 评分格式化 */
-                if (r.avgRating === undefined || r.avgRating === -1 || r.avgRating === null) {
-                  r.avgRating = null;
-                } else {
-                  r.avgRating = Number(r.avgRating).toFixed(1);
-                }
-      
-                /** 营业状态处理 */
-                if (r.businessStatusText && r.businessStatusClass) {
-                  r.statusText = r.businessStatusText;
-                  r.statusClass = r.businessStatusClass;
-                } else {
-                  r.statusText = "未知状态";
-                  r.statusClass = "status-closed";
-                }
-              });
-      
-              this.setData({
-                restaurants,
-                loading: false
-              });
-            } else {
+                // 前端过滤 status=0（已下架）
+                restaurants = restaurants.filter(r => r.status != null && r.status !== 0);
+              
+                restaurants.forEach(r => {
+              
+                  // 评分格式化
+                  if (r.avgRating === undefined || r.avgRating === -1 || r.avgRating === null) {
+                    r.avgRating = null;
+                  } else {
+                    r.avgRating = Number(r.avgRating).toFixed(1);
+                  }
+              
+                  // 营业状态格式化
+                  r.statusText = r.businessStatusText || "未知状态";
+                  r.statusClass = r.businessStatusClass || "status-closed";
+              
+                });
+              
+                // 优先按营业状态排序
+                restaurants.sort((a, b) => {
+                    const order = { 1: 1, 2: 2, 3: 3 };
+                    return (order[a.businessStatus] || 3) - (order[b.businessStatus] || 3);
+                  });
+              
+                this.setData({
+                  restaurants,
+                  loading: false
+                });
+              } else {
               console.error('获取餐厅列表失败:', res.data.message);
               this.setData({ loading: false });
               this.loadMockData();
@@ -149,7 +152,6 @@ Page({
           r.avgRating = Number(r.avgRating).toFixed(1);
         }
   
-        // 营业状态处理（与loadRestaurants一致）
         if (r.businessStatusText && r.businessStatusClass) {
           r.statusText = r.businessStatusText;
           r.statusClass = r.businessStatusClass;

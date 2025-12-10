@@ -119,7 +119,11 @@ Page({
       
                 return r;
               });
-      
+              restaurants.sort((a, b) => {
+                const order = { 1: 1, 2: 2, 3: 3 };
+                return (order[a.businessStatus] || 3) - (order[b.businessStatus] || 3);
+              });
+              
               this.setData({ 
                 restaurants,
                 loading: false 
