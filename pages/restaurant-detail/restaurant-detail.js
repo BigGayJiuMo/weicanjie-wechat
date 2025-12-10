@@ -214,7 +214,8 @@ Page({
               wx.showModal({
                 title: '未营业',
                 content: '本店尚未开始营业，请稍后再来~',
-                showCancel: false
+                showCancel: false,
+                confirmColor: '#ff6b35'
               });
             }
       
@@ -222,7 +223,8 @@ Page({
               wx.showModal({
                 title: '已打烊',
                 content: '本店今日营业已结束，暂不可下单',
-                showCancel: false
+                showCancel: false,
+                confirmColor: '#ff6b35'
               });
             }
             const categories = restaurant.categories || [];

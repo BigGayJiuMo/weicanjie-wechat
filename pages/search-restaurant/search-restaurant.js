@@ -91,65 +91,90 @@ Page({
       
         const app = getApp();
         wx.request({
-          url: `${app.globalData.baseUrl}/restaurant/search`,
-          method: "GET",
-          data: { keyword },
-          success: res => {
-            if (res.data.code === 200) {
-              let list = res.data.data;
-              
-              //  前端过滤：过滤掉 status=0 的餐厅
-              list = list.filter(item => item.status != null && item.status !== 0);
-            
-              list.forEach(r => {
-                // 评分格式化
-                r.avgRating = (r.avgRating == null || r.avgRating === -1) 
-                  ? null 
-                  : Number(r.avgRating).toFixed(1);
+            url: `${app.globalData.baseUrl}/restaurant/search`,
+            method: "GET",
+            data: { keyword },
+            success: res => {
+                if (res.data.code === 200) {
+                    let list = res.data.data;
+                    
+                    //  前端过滤：过滤掉 status=0 的餐厅
+                    list = list.filter(item => item.status != null && item.status !== 0);
                 
-                // 打包费格式化
-                if (r.packingFee !== undefined && r.packingFee !== null) {
-                  r.packingFee = Number(r.packingFee).toFixed(2);
-                }
-          
-                //  营业状态处理
-                if (r.businessStatusText && r.businessStatusClass) {
-                  r.statusText = r.businessStatusText;
-                  r.statusClass = r.businessStatusClass;
+                    list.forEach(r => {
+                        // 评分格式化
+                        r.avgRating = (r.avgRating == null || r.avgRating === -1) 
+                        ? null 
+                        : Number(r.avgRating).toFixed(1);
+                        
+                        // 打包费格式化
+                        if (r.packingFee !== undefined && r.packingFee !== null) {
+                            r.packingFee = Number(r.packingFee).toFixed(2);
+                        }
+                
+                        //  营业状态处理 - 添加手动状态逻辑
+                        if (r.status === 0) {
+                            // 已停业（最高优先级）
+                            r.statusText = "已停业";
+                            r.statusClass = "status-closed";
+                            r.businessStatus = 0;
+                        } else if (r.manualBusinessStatus != null && r.manualBusinessStatus !== 0) {
+                            // 手动设置状态（第二优先级）
+                            if (r.manualBusinessStatus === 1) {
+                                r.statusText = "营业中）";
+                                r.statusClass = "status-open";
+                                r.businessStatus = 1;
+                            } else if (r.manualBusinessStatus === 2) {
+                                r.statusText = "休息中";
+                                r.statusClass = "status-break";
+                                r.businessStatus = 3; // 注意：手动未营业对应的是 3
+                            }
+                        } else if (r.businessStatusText && r.businessStatusClass) {
+                            // 后台已计算好的自动状态
+                            r.statusText = r.businessStatusText;
+                            r.statusClass = r.businessStatusClass;
+                        } else {
+                            // 后台没有返回文本，则按 businessStatus 数字推断
+                            switch (r.businessStatus) {
+                                case 1: 
+                                    r.statusText = "营业中"; 
+                                    r.statusClass = "status-open"; 
+                                    break;
+                                case 2: 
+                                    r.statusText = "休息中"; 
+                                    r.statusClass = "status-break"; 
+                                    break;
+                                case 3:
+                                    r.statusText = "已打烊";
+                                    r.statusClass = "status-closed";
+                                    break;
+                                default: 
+                                    r.statusText = "未知状态"; 
+                                    r.statusClass = "status-closed";
+                            }
+                        }
+                    });
+                    
+                    // 排序：营业中的在前，按营业状态排序
+                    list.sort((a, b) => {
+                        const order = { 1: 1, 2: 2, 3: 3, 0: 4 };
+                        return (order[a.businessStatus] || 4) - (order[b.businessStatus] || 4);
+                    });
+                    
+                    this.setData({ 
+                        results: list,
+                        showResult: true
+                    });
                 } else {
-                  switch (r.businessStatus) {
-                    case 1: 
-                      r.statusText = "营业中"; 
-                      r.statusClass = "status-open"; 
-                      break;
-                    case 2: 
-                      r.statusText = "休息中"; 
-                      r.statusClass = "status-break"; 
-                      break;
-                    default: 
-                      r.statusText = "已打烊"; 
-                      r.statusClass = "status-closed";
-                  }
+                    this.setData({ 
+                        results: [],
+                        showResult: true
+                    });
                 }
-              });
-              list.sort((a, b) => {
-                const order = { 1: 1, 2: 2, 3: 3 };
-                return (order[a.businessStatus] || 3) - (order[b.businessStatus] || 3);
-              });
-              this.setData({ 
-                results: list,
-                showResult: true
-              });
-            } else {
-              this.setData({ 
-                results: [],
-                showResult: true
-              });
-            }
-          },
-          complete: () => this.setData({ loading: false })
+            },
+            complete: () => this.setData({ loading: false })
         });
-      },
+    },
   
     /** 加载历史记录 */
     loadHistory() {
