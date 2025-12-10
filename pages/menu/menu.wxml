@@ -43,8 +43,13 @@
 
       <view class="info">
 
-        <!-- 标题 -->
-        <text class="title">{{item.name}}</text>
+        <!-- 标题行：名称 + 营业状态 -->
+        <view class="title-row">
+          <text class="title">{{item.name}}</text>
+          <view class="restaurant-status {{item.statusClass}}">
+            {{item.statusText}}
+          </view>
+        </view>
 
         <!-- 评分 & 月售 -->
         <view class="rating-row">
@@ -56,7 +61,7 @@
           </view>
 
           <!-- 月售 -->
-          <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+          <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
         </view>
 
         <!-- 打包费（替代配送时间） -->
@@ -64,6 +69,17 @@
         
       </view>
 
+    </view>
+
+    <!-- 空状态提示 -->
+    <view wx:if="{{restaurants.length === 0 && !loading}}" class="empty-container">
+      <image class="empty-image" src="/images/empty-restaurant.png"></image>
+      <text class="empty-text">暂无餐厅数据</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:if="{{loading}}" class="loading-container">
+      <text class="loading-text">加载中...</text>
     </view>
 
   </scroll-view>

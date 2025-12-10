@@ -43,7 +43,7 @@
           <view class="restaurant-rating">
             <text class="rating-star">★</text>
             <text class="rating-score">{{item.avgRating || 5.0}}</text>
-            <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+            <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
           </view>
           <view class="restaurant-desc">
                     <text class="desc-text">{{item.description}}</text>

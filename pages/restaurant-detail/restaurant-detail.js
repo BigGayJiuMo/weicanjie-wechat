@@ -10,7 +10,8 @@ Page({
       swiperIndex: 0,
       statusText: "",
       statusClass: "",
-        
+      isClosed: false,
+
       cartItems: {},
       totalQuantity: 0,
       totalPrice: 0,
@@ -176,78 +177,96 @@ Page({
         }
       },
       loadRestaurantDetail(id) {
-        const app = getApp();
-        this.setData({ loading: true });
-    
-        wx.request({
-          url: app.globalData.baseUrl + '/restaurant/' + id,
-          method: 'GET',
-          success: (res) => {
-            // 打印后端返回的完整数据
-            console.log("获取餐厅详情成功:", res);
-    
-            if (res.data.code === 200) {
-              const restaurant = res.data.data;
-              const categories = restaurant.categories || [];
-    
-              if (restaurant.avgRating !== null && restaurant.avgRating !== undefined) {
-                restaurant.avgRating = Number(restaurant.avgRating).toFixed(1);
-              }
-              restaurant.packingFee = Number(restaurant.packingFee || 0);
-              restaurant.packingFeeText = restaurant.packingFee.toFixed(2);
-    
-              // 获取餐厅营业时间并设置状态
-              let statusText = restaurant.businessStatusText || "营业状态未知";
-              let statusClass = restaurant.businessStatusClass || "status-closed";
-    
-              categories.forEach(category => {
-                if (category.dishes && category.dishes.length > 0) {
-                  category.dishes.forEach(dish => {
-                    dish.formattedPrice = Number(dish.price).toFixed(2);
-                  });
-                }
-              });
-    
-              const activeCategoryId = categories.length > 0 ? categories[0].id : null;
-              const avgRating = restaurant.avgRating !== null ? restaurant.avgRating : null;
-    
-              // 设置数据
-              this.setData({
-                restaurant,
-                categories,
-                activeCategoryId,
-                statusText,
-                statusClass,
-                avgRating,
-                loading: false
-              }, () => {
-                this.checkFavoriteStatus(id);
-    
-                if (!this.data.isGuest) {
-                  this.uploadHistoryToServer(id);
-                }
-    
-                setTimeout(() => {
-                  this.calcCategoryPositions();
-                }, 500);
-              });
-    
-            } else {
-              this.setData({ loading: false });
-              wx.showToast({
-                title: '加载失败',
-                icon: 'none'
+    const app = getApp();
+    this.setData({ loading: true });
+
+    wx.request({
+      url: app.globalData.baseUrl + '/restaurant/' + id,
+      method: 'GET',
+      success: (res) => {
+        console.log("获取餐厅详情成功:", res);
+
+        if (res.data.code === 200) {
+          const restaurant = res.data.data;
+          
+          // 检查餐厅是否已停业 (status == 0)
+          const isClosed = restaurant.status === 0;
+          
+          if (isClosed) {
+            // 如果已停业，只设置必要信息，不加载其他数据
+            this.setData({
+              restaurant: {
+                id: restaurant.id,
+                name: restaurant.name,
+                status: 0
+              },
+              isClosed: true,
+              loading: false
+            });
+            return;
+          }
+          
+          // 正常营业状态的逻辑保持不变
+          const categories = restaurant.categories || [];
+
+          if (restaurant.avgRating !== null && restaurant.avgRating !== undefined) {
+            restaurant.avgRating = Number(restaurant.avgRating).toFixed(1);
+          }
+          restaurant.packingFee = Number(restaurant.packingFee || 0);
+          restaurant.packingFeeText = restaurant.packingFee.toFixed(2);
+
+          // 获取餐厅营业时间并设置状态
+          let statusText = restaurant.businessStatusText || "营业状态未知";
+          let statusClass = restaurant.businessStatusClass || "status-closed";
+
+          categories.forEach(category => {
+            if (category.dishes && category.dishes.length > 0) {
+              category.dishes.forEach(dish => {
+                dish.formattedPrice = Number(dish.price).toFixed(2);
               });
             }
-          },
-    
-          fail: (err) => {
-            // 打印错误信息
-            console.error('请求餐厅详情失败:', err);
-            this.setData({ loading: false });
-          }
-        });
+          });
+
+          const activeCategoryId = categories.length > 0 ? categories[0].id : null;
+          const avgRating = restaurant.avgRating !== null ? restaurant.avgRating : null;
+
+          // 设置数据
+          this.setData({
+            restaurant,
+            categories,
+            activeCategoryId,
+            statusText,
+            statusClass,
+            avgRating,
+            isClosed: false,
+            loading: false
+          }, () => {
+            this.checkFavoriteStatus(id);
+
+            if (!this.data.isGuest) {
+              this.uploadHistoryToServer(id);
+            }
+
+            setTimeout(() => {
+              this.calcCategoryPositions();
+            }, 500);
+          });
+
+        } else {
+          this.setData({ loading: false });
+          wx.showToast({
+            title: '加载失败',
+            icon: 'none'
+          });
+        }
       },
+      
+      fail: (err) => {
+        console.error('请求餐厅详情失败:', err);
+        this.setData({ loading: false });
+      }
+    });
+    },
       goDishDetail(e) {
         const id = e.currentTarget.dataset.id;
         wx.navigateTo({
@@ -428,21 +447,46 @@ Page({
     },
   
     onDecreaseQuantity(e) {
-      const dish = e.currentTarget.dataset.dish;
-      const { cartItems } = this.data;
-      const currentQuantity = cartItems[dish.id] || 0;
-  
-      if (currentQuantity <= 0) return;
-  
-      if (currentQuantity === 1) {
-        delete cartItems[dish.id];
-      } else {
-        cartItems[dish.id] = currentQuantity - 1;
-      }
-  
-      this.updateCart(cartItems);
-    },
-  
+        const dish = e.currentTarget.dataset.dish;
+        const { cartItems } = this.data;
+        const currentQuantity = cartItems[dish.id] || 0;
+      
+        if (currentQuantity <= 0) return;
+      
+        if (currentQuantity === 1) {
+          delete cartItems[dish.id];  // 前端删除
+      
+          // ⭐⭐ 同步后端删除（真正删除数据库记录）
+          this.removeItemFromServer(dish.id);
+        } else {
+          cartItems[dish.id] = currentQuantity - 1;
+        }
+      
+        this.updateCart(cartItems);
+      },
+      removeItemFromServer(dishId) {
+        if (this.data.isGuest) return;
+      
+        const app = getApp();
+        const userId = this.data.userInfo.id;
+        const restaurantId = this.data.restaurantId;
+      
+        wx.request({
+          url: app.globalData.baseUrl + "/cart/remove",
+          method: "POST",
+          header: {
+            "content-type": "application/json"
+          },
+          data: {
+            userId,
+            restaurantId,
+            dishId
+          },
+          success: (res) => {
+            console.log("删除购物车项成功:", res.data);
+          }
+        });
+      },
     findDishById(dishId) {
       const { categories } = this.data;
       const id = parseInt(dishId);
@@ -457,19 +501,21 @@ Page({
     },
   
     onCartBarTap() {
-      if (this.data.totalQuantity === 0) {
-        wx.showToast({
-          title: '请先选择商品',
-          icon: 'none'
-        });
-        return;
-      }
-  
-      if (this.data.showOrderPanel) {
-        this.hideOrderPanel();
-      } else {
-        this.showOrderPanel();
-      }
+        if (this.data.isClosed) return;
+        
+        if (this.data.totalQuantity === 0) {
+          wx.showToast({
+            title: '请先选择商品',
+            icon: 'none'
+          });
+          return;
+        }
+    
+        if (this.data.showOrderPanel) {
+          this.hideOrderPanel();
+        } else {
+          this.showOrderPanel();
+        }
     },
   
     showOrderPanel() {
@@ -688,6 +734,7 @@ Page({
     },
   
     onCheckout() {
+        if (this.data.isClosed) return;
       if (this.data.totalQuantity === 0) {
         wx.showToast({
           title: '请先选择菜品',

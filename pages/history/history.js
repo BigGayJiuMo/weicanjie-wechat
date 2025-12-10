@@ -38,11 +38,11 @@ Page({
       },
   
     goDetail(e) {
-      const id = e.currentTarget.dataset.id;
-      wx.navigateTo({
-        url: `/pages/detail/detail?id=${id}`
-      });
-    },
+  const id = e.currentTarget.dataset.id;
+  wx.navigateTo({
+    url: `/pages/restaurant-detail/restaurant-detail?id=${id}`
+  });
+},
     
     onBack() {
         wx.navigateBack();

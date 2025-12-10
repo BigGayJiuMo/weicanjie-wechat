@@ -23,6 +23,20 @@ id="pageScroll"
   scroll-with-animation="true"
   bindscroll="onPageScroll"
 >
+    <!-- 餐厅停业提示 -->
+    <view class="closed-tip-container" wx:if="{{isClosed}}">
+    <view class="closed-tip-box">
+        <image class="closed-icon" src="/images/logo.png"></image>
+        <text class="closed-title">商家已下架</text>
+        <text class="closed-subtitle">请选择其他商家</text>
+        <view class="closed-btns">
+        <view class="back-home-btn" bindtap="onBack">
+            返回
+        </view>
+        </view>
+    </view>
+    </view>
+    <view wx:if="{{!isClosed}}">
   <!-- 餐厅基本信息 -->
   <view class="restaurant-info-card" wx:if="{{restaurant}}">
     <view class="restaurant-header">
@@ -346,11 +360,11 @@ id="pageScroll"
 
   <!-- 给底部一点空隙，避免被购物车栏压住 -->
   <view style="height: 150rpx;"></view>
-
+</view>
 </scroll-view>
 
 <!-- 购物车底部栏：固定在底部 -->
-<view class="cart-bar" bindtap="onCartBarTap">
+<view class="cart-bar" bindtap="onCartBarTap" wx:if="{{!isClosed}}">
   <view class="cart-info">
     <view class="cart-icon-container">
       <image class="cart-icon" src="/images/cart.png"></image>

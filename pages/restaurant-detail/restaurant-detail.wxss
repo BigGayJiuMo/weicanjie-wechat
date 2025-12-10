@@ -57,7 +57,76 @@
     right: 0;
     /* background: #000000; */
   }
+  /* 餐厅停业提示容器 */
+.closed-tip-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 200rpx);
+    background: #f8f9fa;
+  }
   
+  .closed-tip-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60rpx;
+    width: 80%;
+    margin: 20rpx;
+    background: white;
+    border-radius: 24rpx;
+    box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+  }
+  
+  .closed-icon {
+    width: 160rpx;
+    height: 160rpx;
+    margin-bottom: 40rpx;
+    opacity: 0.7;
+  }
+  
+  .closed-title {
+    font-size: 40rpx;
+    font-weight: bold;
+    color: #ff4757;
+    margin-bottom: 16rpx;
+    text-align: center;
+  }
+  
+  .closed-subtitle {
+    font-size: 28rpx;
+    color: #666;
+    margin-bottom: 60rpx;
+    text-align: center;
+  }
+  
+  /* 按钮容器 */
+  .closed-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 24rpx;
+    width: 100%;
+  }
+  
+  .back-home-btn {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 50rpx;
+    padding: 28rpx 0;
+    font-size: 30rpx;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .back-home-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2rpx 8rpx rgba(255, 107, 53, 0.2);
+  }
   /* 餐厅信息卡片 */
   .restaurant-info-card {
     background: white;
