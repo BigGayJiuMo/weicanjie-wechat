@@ -49,6 +49,9 @@ Page({
       remarkTemp: "",             
       remark: "",
       eatType: 2,
+
+      hoursDialogVisible: false,
+      businessHoursFormatted: [],
     },
     
     onLoad(options) {
@@ -1179,38 +1182,73 @@ openRemarkDialog() {
     });
   },
   
-  // 点击确定按钮
-  submitRemark() {
-    this.setData({
-      remark: this.data.remarkTemp,  // 保存备注
-      remarkDialogVisible: false
-    });
-  },
-      selectEatType(e) {
-        const type = e.currentTarget.dataset.type;
-        this.setData({ eatType: type });
+    // 点击确定按钮
+    submitRemark() {
+        this.setData({
+        remark: this.data.remarkTemp,  // 保存备注
+        remarkDialogVisible: false
+        });
+    },
+
+    showBusinessHoursDialog() {
+        const list = this.data.restaurant.restaurantBusinessHours || [];
       
-        this.updateCart(this.data.cartItems);
-      },
-      onReport(e) {
-        const app = getApp();
-        if (!app.globalData.userInfo) {
-          wx.showToast({ title: "请先登录", icon: "none" });
+        if (!list.length) {
+          wx.showToast({
+            title: "暂无营业时间信息",
+            icon: "none"
+          });
           return;
         }
       
-        const reviewId = e.currentTarget.dataset.id;
-        wx.navigateTo({
-          url: `/pages/review-report/review-report?reviewId=${reviewId}`
-        });
-      },
-      onRemarkInput(e) {
+        // 格式化成可读结构
+        const dayMap = {
+          1: "周一", 2: "周二", 3: "周三", 4: "周四",
+          5: "周五", 6: "周六", 7: "周日"
+        };
+      
+        const formatted = list.map(item => ({
+          day: dayMap[item.dayOfWeek],
+          time: item.isOpen === 1
+            ? `${item.openTime.substring(0,5)} - ${item.closeTime.substring(0,5)}`
+            : "休息"
+        }));
+      
         this.setData({
-          remark: e.detail.value
+          businessHoursFormatted: formatted,
+          hoursDialogVisible: true
         });
       },
-    onBack() {
-      wx.navigateBack();
+      
+      hideHoursDialog() {
+        this.setData({ hoursDialogVisible: false });
+      },
+
+    selectEatType(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({ eatType: type });
+    
+    this.updateCart(this.data.cartItems);
+    },
+    onReport(e) {
+    const app = getApp();
+    if (!app.globalData.userInfo) {
+        wx.showToast({ title: "请先登录", icon: "none" });
+        return;
     }
-  });
+    
+    const reviewId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+        url: `/pages/review-report/review-report?reviewId=${reviewId}`
+    });
+    },
+    onRemarkInput(e) {
+    this.setData({
+        remark: e.detail.value
+    });
+    },
+    onBack() {
+        wx.navigateBack();
+    }
+});
   

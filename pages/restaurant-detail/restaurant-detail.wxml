@@ -318,11 +318,14 @@ id="pageScroll"
     <text class="shop-text">{{restaurant.address}}</text>
   </view>
 
-  <view class="shop-row">
+  <view class="shop-row" bindtap="showBusinessHoursDialog">
     <image class="shop-icon" src="/images/clock.png"></image>
-    <text class="shop-text">{{restaurant.businessHoursText}}</text>
+    <text class="shop-text">查看营业时间表</text>
   </view>
-
+  <view class="shop-row">
+    <image class="shop-icon" src="/images/phone.png"></image>
+    <text class="shop-text">{{restaurant.contactPhone}}</text>
+  </view>
   <view class="shop-photos-row">
   <image
     wx:for="{{restaurant.shopImages}}"
@@ -550,4 +553,24 @@ id="pageScroll"
             <button class="confirm-btn" bindtap="submitRemark">确定</button>
         </view>
     </view>
+</view>
+
+<!-- 营业时间弹窗 -->
+<view class="hours-dialog-mask" wx:if="{{hoursDialogVisible}}" catchtap="hideHoursDialog">
+  <view class="hours-dialog" catchtap="stopPropagation">
+
+    <view class="dialog-title">营业时间</view>
+
+    <view class="hours-list">
+      <view wx:for="{{businessHoursFormatted}}" wx:key="day" class="hours-item">
+        <text class="day">{{item.day}}</text>
+        <text class="time">{{item.time}}</text>
+      </view>
+    </view>
+
+    <view class="dialog-footer">
+      <button class="close-btn" bindtap="hideHoursDialog">关闭</button>
+    </view>
+
+  </view>
 </view>

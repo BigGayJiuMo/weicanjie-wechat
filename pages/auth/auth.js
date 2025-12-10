@@ -439,21 +439,24 @@ Page({
       return phone.substring(0, 3) + '****' + phone.substring(7);
     },
     onWeChatLogin() {
-        if (this.data.weChatLoginLoading) return; 
-        this.setData({ weChatLoginLoading: true });
-      
         if (!this.data.agreementChecked) {
           wx.showToast({ title: '请先勾选用户协议', icon: 'none' });
-          this.setData({ weChatLoginLoading: false });
           return;
         }
       
+        if (this.data.weChatLoginLoading) return;
+      
+        this.setData({ weChatLoginLoading: true });
+      
+        // 显示加载提示
+        wx.showLoading({ title: '登录中...', mask: true });
+      
         wx.getUserProfile({
-          desc: "用于完善资料",
+          desc: "用于完善您的资料",
           success: profile => {
             wx.login({
-              success: res => {
-                const code = res.code;
+              success: loginRes => {
+                const code = loginRes.code;
                 const app = getApp();
       
                 wx.request({
@@ -468,31 +471,43 @@ Page({
                     }
                   },
                   success: resp => {
+                    wx.hideLoading();
                     this.setData({ weChatLoginLoading: false });
       
                     if (resp.data.code === 200) {
-                      // 保存 token 和用户信息
                       wx.setStorageSync('userInfo', resp.data.data.user);
-                      wx.setStorageSync('token', resp.data.data.token);  // 保存 token
+                      wx.setStorageSync('token', resp.data.data.token);
+      
                       app.globalData.userInfo = resp.data.data.user;
+                      app.globalData.isGuest = false;
       
                       wx.showToast({ title: '登录成功', icon: 'success' });
       
                       setTimeout(() => wx.navigateBack(), 1500);
                     } else {
-                      wx.showToast({ title: resp.data.message, icon: 'none' });
+                      wx.showToast({
+                        title: resp.data.message || '登录失败',
+                        icon: 'none'
+                      });
                     }
                   },
                   fail: () => {
-                    this.setData({ weChatLoginLoading: false }); 
+                    wx.hideLoading();
+                    this.setData({ weChatLoginLoading: false });
                     wx.showToast({ title: '网络错误，请稍后再试', icon: 'none' });
                   }
                 });
+              },
+              fail: () => {
+                wx.hideLoading();
+                this.setData({ weChatLoginLoading: false });
+                wx.showToast({ title: '微信登录失败', icon: 'none' });
               }
             });
           },
           fail: () => {
-            this.setData({ weChatLoginLoading: false }); 
+            wx.hideLoading();
+            this.setData({ weChatLoginLoading: false });
             wx.showToast({ title: '用户取消授权', icon: 'none' });
           }
         });
