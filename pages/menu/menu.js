@@ -12,40 +12,45 @@ Page({
   
     /** 加载左侧分类列表 */
     loadCategoryList() {
-      const app = getApp();
-      this.setData({ loading: true });
-  
-      wx.request({
-        url: app.globalData.baseUrl + "/category/list",
-        method: "GET",
-        success: (res) => {
-          if (res.data.code !== 200) {
-            wx.showToast({ title: "分类加载失败", icon: "none" });
+        const app = getApp();
+        this.setData({ loading: true });
+      
+        wx.request({
+          url: app.globalData.baseUrl + "/category/list",
+          method: "GET",
+          success: (res) => {
+            if (res.data.code !== 200) {
+              wx.showToast({ title: "分类加载失败", icon: "none" });
+              this.setData({ loading: false });
+              return;
+            }
+      
+            let list = res.data.data || [];
+      
+            // ⭐ 按 sortOrder 排序（没有 sortOrder 的默认为 999）
+            list = list.sort((a, b) => {
+              return (a.sortOrder ?? 999) - (b.sortOrder ?? 999);
+            });
+      
+            if (list.length === 0) {
+              this.setData({ loading: false });
+              return;
+            }
+      
+            this.setData({
+              categoryList: list,
+              activeCategoryId: list[0].id,
+              loading: false
+            });
+      
+            this.loadRestaurantList(list[0].id);
+          },
+          fail: () => {
             this.setData({ loading: false });
-            return;
+            wx.showToast({ title: "网络异常", icon: "none" });
           }
-  
-          const list = res.data.data || [];
-  
-          if (list.length === 0) {
-            this.setData({ loading: false });
-            return;
-          }
-  
-          this.setData({
-            categoryList: list,
-            activeCategoryId: list[0].id,
-            loading: false
-          });
-  
-          this.loadRestaurantList(list[0].id);
-        },
-        fail: () => {
-          this.setData({ loading: false });
-          wx.showToast({ title: "网络异常", icon: "none" });
-        }
-      });
-    },
+        });
+      },
   
     /** 左侧分类点击 */
     onCategoryTap(e) {
