@@ -1,4 +1,5 @@
 // pages/edit-profile/edit-profile.js
+import request from "../../utils/request";
 Page({
     data: {
         userInfo: null,
@@ -118,59 +119,42 @@ Page({
     },
 
     // 保存头像到数据库
-    saveAvatarToDatabase: function(avatarUrl) {
+    saveAvatarToDatabase: function (avatarUrl) {
         const app = getApp();
         const userInfo = this.data.userInfo;
-        
+    
         if (!userInfo || !userInfo.id) {
             this.showToast('用户信息不完整');
             this.setData({ isSavingAvatar: false });
             return;
         }
-
-        console.log('保存头像到数据库:', {
-            userId: userInfo.id,
-            avatarUrl: avatarUrl
-        });
-        
-        wx.request({
-            url: app.globalData.baseUrl + '/user/updateProfile',
+    
+        request(app.globalData.baseUrl + '/user/updateProfile', {
             method: 'POST',
-            header: {
-                'content-type': 'application/json'
-            },
             data: {
                 userId: userInfo.id,
-                nickname: userInfo.nickname, // 保持原昵称不变
+                nickname: userInfo.nickname,
                 avatarUrl: avatarUrl
-            },
-            success: (res) => {
-                this.setData({ isSavingAvatar: false });
-                console.log('更新头像响应:', res.data);
-                
-                if (res.data.code === 200) {
-                    // 更新本地存储和全局数据
-                    const updatedUserInfo = res.data.data;
-                    wx.setStorageSync('userInfo', updatedUserInfo);
-                    app.globalData.userInfo = updatedUserInfo;
-                    
-                    this.showToast('头像更新成功');
-                    
-                    // 刷新页面显示
-                    this.setData({
-                        userInfo: updatedUserInfo,
-                        avatarUrl: updatedUserInfo.avatarUrl
-                    });
-                } else {
-                    console.error('头像更新失败:', res.data);
-                    this.showToast('头像更新失败: ' + (res.data.message || '未知错误'));
-                }
-            },
-            fail: (err) => {
-                this.setData({ isSavingAvatar: false });
-                console.error('更新头像请求失败:', err);
-                this.showToast('网络错误，请重试');
             }
+        }).then(res => {
+            this.setData({ isSavingAvatar: false });
+    
+            if (res.code === 200) {
+                const updatedUserInfo = res.data;
+                wx.setStorageSync('userInfo', updatedUserInfo);
+                app.globalData.userInfo = updatedUserInfo;
+    
+                this.showToast('头像更新成功');
+                this.setData({
+                    userInfo: updatedUserInfo,
+                    avatarUrl: updatedUserInfo.avatarUrl
+                });
+            } else {
+                this.showToast('头像更新失败: ' + (res.message || '未知错误'));
+            }
+        }).catch(err => {
+            this.setData({ isSavingAvatar: false });
+            this.showToast('网络错误，请重试');
         });
     },
 
@@ -225,68 +209,52 @@ Page({
     },
 
     // 保存昵称到数据库
-    saveNicknameToDatabase: function(nickname) {
+    saveNicknameToDatabase: function (nickname) {
         const app = getApp();
         const userInfo = this.data.userInfo;
-        
+    
         if (!userInfo || !userInfo.id) {
             this.showToast('用户信息不完整');
-            this.setData({ 
+            this.setData({
                 isSavingNickname: false,
-                showNicknameModal: false 
+                showNicknameModal: false
             });
             return;
         }
-
-        console.log('保存昵称到数据库:', {
-            userId: userInfo.id,
-            nickname: nickname
-        });
-        
-        wx.request({
-            url: app.globalData.baseUrl + '/user/updateProfile',
+    
+        request(app.globalData.baseUrl + '/user/updateProfile', {
             method: 'POST',
-            header: {
-                'content-type': 'application/json'
-            },
             data: {
                 userId: userInfo.id,
                 nickname: nickname,
-                avatarUrl: userInfo.avatarUrl // 保持原头像不变
-            },
-            success: (res) => {
-                this.setData({ 
-                    isSavingNickname: false,
-                    showNicknameModal: false 
-                });
-                console.log('更新昵称响应:', res.data);
-                
-                if (res.data.code === 200) {
-                    // 更新本地存储和全局数据
-                    const updatedUserInfo = res.data.data;
-                    wx.setStorageSync('userInfo', updatedUserInfo);
-                    app.globalData.userInfo = updatedUserInfo;
-                    
-                    // 更新页面显示
-                    this.setData({
-                        nickname: nickname,
-                        userInfo: updatedUserInfo
-                    });
-                    
-                    this.showToast('昵称更新成功');
-                } else {
-                    console.error('昵称更新失败:', res.data);
-                    this.showToast('昵称更新失败: ' + (res.data.message || '未知错误'));
-                }
-            },
-            fail: (err) => {
-                this.setData({ 
-                    isSavingNickname: false,
-                    showNicknameModal: false 
-                });
-                console.error('更新昵称请求失败:', err);
-                this.showToast('网络错误，请重试');
+                avatarUrl: userInfo.avatarUrl
             }
+        }).then(res => {
+            this.setData({
+                isSavingNickname: false,
+                showNicknameModal: false
+            });
+    
+            if (res.code === 200) {
+                const updatedUserInfo = res.data;
+                wx.setStorageSync('userInfo', updatedUserInfo);
+                app.globalData.userInfo = updatedUserInfo;
+    
+                this.setData({
+                    nickname: nickname,
+                    userInfo: updatedUserInfo
+                });
+    
+                this.showToast('昵称更新成功');
+            } else {
+                this.showToast('昵称更新失败: ' + (res.message || '未知错误'));
+            }
+        }).catch(err => {
+            this.setData({
+                isSavingNickname: false,
+                showNicknameModal: false
+            });
+            this.showToast('网络错误，请重试');
         });
     },
 
@@ -414,71 +382,50 @@ Page({
     },
 
     // 保存手机号到数据库
-    savePhoneToDatabase: function(phone) {
+    savePhoneToDatabase: function (phone) {
         const app = getApp();
         const userInfo = this.data.userInfo;
-        
+    
         if (!userInfo || !userInfo.id) {
             this.showToast('用户信息不完整');
-            this.setData({ 
-                isSavingPhone: false
-            });
+            this.setData({ isSavingPhone: false });
             return;
         }
-
-        console.log('保存手机号到数据库:', {
-            userId: userInfo.id,
-            phone: phone
-        });
-        
-        wx.request({
-            url: app.globalData.baseUrl + '/user/bindPhone',
+    
+        request(app.globalData.baseUrl + '/user/bindPhone', {
             method: 'POST',
-            header: {
-                'content-type': 'application/json'
-            },
             data: {
                 userId: userInfo.id,
                 phone: phone
-            },
-            success: (res) => {
-                this.setData({ 
-                    isSavingPhone: false,
-                    showPhoneModal: false
-                });
-                console.log('更新手机号响应:', res.data);
-                
-                if (res.data.code === 200) {
-                    // 更新本地存储和全局数据
-                    const updatedUserInfo = {...userInfo, phone: phone};
-                    wx.setStorageSync('userInfo', updatedUserInfo);
-                    app.globalData.userInfo = updatedUserInfo;
-                    
-                    // 更新页面显示
-                    const processedInfo = this.processUserInfo(updatedUserInfo);
-                    this.setData({
-                        userInfo: processedInfo,
-                        displayPhone: processedInfo.displayPhone
-                    });
-                    
-                    this.showToast('手机号更新成功');
-                    
-                    // 清除倒计时
-                    if (this.data.countdownTimer) {
-                        clearInterval(this.data.countdownTimer);
-                    }
-                } else {
-                    console.error('手机号更新失败:', res.data);
-                    this.showToast((res.data.message || '未知错误'));
-                }
-            },
-            fail: (err) => {
-                this.setData({ 
-                    isSavingPhone: false
-                });
-                console.error('更新手机号请求失败:', err);
-                this.showToast('网络错误，请重试');
             }
+        }).then(res => {
+            this.setData({
+                isSavingPhone: false,
+                showPhoneModal: false
+            });
+    
+            if (res.code === 200) {
+                const updatedUserInfo = { ...userInfo, phone: phone };
+                wx.setStorageSync('userInfo', updatedUserInfo);
+                app.globalData.userInfo = updatedUserInfo;
+    
+                const processedInfo = this.processUserInfo(updatedUserInfo);
+                this.setData({
+                    userInfo: processedInfo,
+                    displayPhone: processedInfo.displayPhone
+                });
+    
+                this.showToast('手机号更新成功');
+    
+                if (this.data.countdownTimer) {
+                    clearInterval(this.data.countdownTimer);
+                }
+            } else {
+                this.showToast(res.message || '绑定失败');
+            }
+        }).catch(err => {
+            this.setData({ isSavingPhone: false });
+            this.showToast('网络错误，请重试');
         });
     },
 
@@ -527,37 +474,33 @@ Page({
                 // 用户点击确认 → 执行绑定
                 wx.login({
                     success: res => {
-                        wx.showLoading({ title: "绑定中..." });
-    
-                        const openid = "mock_openid_" + res.code; // 模拟 openid
-    
-                        wx.request({
-                            url: app.globalData.baseUrl + "/user/bindWeChat",
+                
+                        const openid = "mock_openid_" + res.code;
+                
+                        request(app.globalData.baseUrl + "/user/bindWeChat", {
                             method: "POST",
-                            header: { "content-type": "application/json" },
                             data: {
                                 userId: userInfo.id,
-                                openid
-                            },
-                            success: res => {
-                                wx.hideLoading();
-    
-                                if (res.data.code === 200) {
-                                    userInfo.openid = openid;
-                                    wx.setStorageSync("userInfo", userInfo);
-                                    app.globalData.userInfo = userInfo;
-    
-                                    this.setData({ userInfo });
-                                    this.showToast("微信绑定成功");
-                                } else {
-                                    this.showToast(res.data.message || "绑定失败");
-                                }
-                            },
-                            fail: () => {
-                                wx.hideLoading();
-                                this.showToast("网络异常，请重试");
+                                openid: openid
                             }
+                        }).then(res2 => {
+                            wx.hideLoading();
+                
+                            if (res2.code === 200) {
+                                userInfo.openid = openid;
+                                wx.setStorageSync("userInfo", userInfo);
+                                app.globalData.userInfo = userInfo;
+                
+                                this.setData({ userInfo });
+                                this.showToast("微信绑定成功");
+                            } else {
+                                this.showToast(res2.message || "绑定失败");
+                            }
+                        }).catch(err => {
+                            wx.hideLoading();
+                            this.showToast("网络异常，请重试");
                         });
+                
                     }
                 });
             }

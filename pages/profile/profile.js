@@ -13,6 +13,7 @@ Page({
      * 页面加载时，初始化用户信息
      */
     onLoad: function () {
+        console.log(wx.getStorageSync('token'))
       this.loadUserInfo();
     },
   

@@ -41,13 +41,13 @@ Page({
   
             /** 状态：4 = 已完成; 24h 后不能评价 */
             list.forEach(item => {
-              const created = new Date(item.createdTime.replace(/-/g, "/"));
-              const diffHour = (new Date() - created) / 3600000;
-              const expire = diffHour > 24;
-  
-              item._expired = expire;
-              item._canReview = (item.status === 4) && !expire;
-            });
+                const created = new Date(item.createdTime.replace(/-/g, "/"));
+                const diffHour = (new Date() - created) / 3600000;
+                const expire = diffHour > 24;
+              
+                item._expired = expire;
+                item._canReview = (item.status === 6) && !expire;
+              });
   
             this.setData({
               orderList: list,
@@ -66,10 +66,11 @@ Page({
         case 1: return "pending";        // 待支付
         case 2: return "processing";     // 待处理
         case 3: return "making";         // 制作中
-        case 4: return "completed";      // 已完成
+        case 4: return "making";         // 待取餐
         case 5: return "cancelled";      // 已取消
-        case 6: return "refunding";      // 退款中
-        case 7: return "refunded";       // 已退款
+        case 6: return "completed";      // 已完成
+        case 7: return "refunding";      // 退款中
+        case 8: return "refunded";       // 已退款
         default: return "";
       }
     },
@@ -80,10 +81,11 @@ Page({
         1: "待支付",
         2: "待处理",
         3: "制作中",
-        4: "已完成",
+        4: "待取餐",
         5: "已取消",
-        6: "退款中",   
-        7: "已退款"    
+        6: "已完成",
+        7: "退款中",
+        8: "已退款" 
       };
       return map[status] || "未知状态";
     },
@@ -178,19 +180,19 @@ Page({
   
     /** 标签切换 */
     onTabChange(e) {
-      const type = e.currentTarget.dataset.type;
-      this.setData({ activeTab: type });
-  
-      if (type === "all") {
-        this.setData({ orderList: this.data.allOrders });
-      } else if (type === "pending") {
-        this.setData({ orderList: this.data.allOrders.filter(o => o.status === 1) });
-      } else if (type === "review") {
-        this.setData({
-          orderList: this.data.allOrders.filter(o => o._canReview && !o._hasReview)
-        });
-      }
-    },
+        const type = e.currentTarget.dataset.type;
+        this.setData({ activeTab: type });
+      
+        if (type === "all") {
+          this.setData({ orderList: this.data.allOrders });
+        } else if (type === "pending") {
+          this.setData({ orderList: this.data.allOrders.filter(o => o.status === 1) });
+        } else if (type === "review") {
+          this.setData({
+            orderList: this.data.allOrders.filter(o => o._canReview && !o._hasReview)
+          });
+        }
+      },
     onBack() {
         wx.navigateBack();
       }

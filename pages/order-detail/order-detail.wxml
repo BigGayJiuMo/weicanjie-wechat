@@ -118,7 +118,7 @@
         </view>
     </scroll-view>
 
-    <!--  底部横向滚动按钮栏（方案 A） -->
+    <!--  底部横向滚动按钮栏 -->
     <view class="action-bar" wx:if="{{order && !loading}}">
         <scroll-view scroll-x="true" class="action-scroll">
             <view class="action-buttons">
@@ -135,59 +135,66 @@
                     联系客服
                 </view>
 
-                <!-- 再次下单 -->
+                <!-- 再次下单 - 已完成、已取消、已退款可以再次下单 -->
                 <view class="action-btn primary"
                     bindtap="onReorder"
-                    wx:if="{{order.status === 4 || order.status === 5}}">
+                    wx:if="{{order.status === 6 || order.status === 5 || order.status === 8}}">
                     再次下单
                 </view>
 
-                <!-- 取消订单 -->
+                <!-- 取消订单 - 只有待支付(1)和待处理(2)可以取消 -->
                 <view class="action-btn primary"
                     bindtap="onCancelOrder"
                     wx:if="{{order.status === 1 || order.status === 2}}">
                     取消订单
                 </view>
 
-                <!-- 申请退款 -->
+                <!-- 申请退款 - 根据后端逻辑，只有待取餐(4)和已完成(6)可以申请 -->
                 <view class="action-btn primary"
                     bindtap="onRefund"
-                    wx:if="{{order.status === 3 || order.status === 4}}">
+                    wx:if="{{order.status === 4 || order.status === 6}}">
                     申请退款
                 </view>
 
                 <!-- 退款中 -->
                 <view class="action-btn secondary disabled"
-                    wx:if="{{order.status === 6}}">
+                    wx:if="{{order.status === 7}}">
                     退款中
                 </view>
 
                 <!-- 已退款 -->
                 <view class="action-btn secondary disabled"
-                    wx:if="{{order.status === 7}}">
+                    wx:if="{{order.status === 8}}">
                     已退款
                 </view>
 
-                <!-- 去评价 -->
+                <!-- 待取餐确认按钮（如果后端提供了确认取餐接口） -->
                 <view class="action-btn primary"
-                    wx:if="{{order.status === 4 && canReview}}"
+                    bindtap="confirmPickup"
+                    wx:if="{{order.status === 4}}">
+                    确认取餐
+                </view>
+
+                <!-- 去评价 - 只有在已完成(6)且可评价时显示 -->
+                <view class="action-btn primary"
+                    wx:if="{{order.status === 6 && canReview}}"
                     bindtap="goReview">
                     去评价
                 </view>
 
                 <!-- 已评价 -->
                 <view class="action-btn secondary disabled"
-                    wx:if="{{order.status === 4 && hasReview}}">
+                    wx:if="{{order.status === 6 && hasReview}}">
                     已评价
                 </view>
 
                 <!-- 评价过期 -->
                 <view class="action-btn secondary disabled"
-                    wx:if="{{order.status === 4 && !hasReview && !canReview}}">
+                    wx:if="{{order.status === 6 && !hasReview && !canReview}}">
                     评价已过期
                 </view>
 
-                <!-- 去支付 -->
+                <!-- 去支付 - 待支付状态 -->
                 <view class="action-btn primary"
                     wx:if="{{order.status === 1}}"
                     bindtap="onPayNow">
