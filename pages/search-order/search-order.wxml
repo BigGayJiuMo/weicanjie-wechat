@@ -103,19 +103,22 @@
 
       <!-- 评价按钮 -->
       <view class="review-box">
+        <!-- 去评价 -->
         <view
-          wx:if="{{item._canReview && !item._hasReview}}"
-          class="review-view"
-          bindtap="goReview"
-          data-id="{{item.id}}"
+        wx:if="{{item.status === 6 && item._canReview && !item._hasReview}}"
+        class="review-view"
+        bindtap="goReview"
+        data-id="{{item.id}}"
         >去评价</view>
 
-        <view wx:if="{{item._hasReview}}" class="review-view disabled">
-          已评价
+        <!-- 已评价 -->
+        <view wx:if="{{item.status === 6 && item._hasReview}}" class="review-view disabled">
+        已评价
         </view>
 
-        <view wx:if="{{!item._hasReview && item._expired}}" class="review-view disabled">
-          评价已过期
+        <!-- 已过期 -->
+        <view wx:if="{{item.status === 6 && !item._hasReview && item._expired}}" class="review-view disabled">
+        评价已过期
         </view>
       </view>
 

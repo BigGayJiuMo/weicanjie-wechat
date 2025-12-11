@@ -71,20 +71,21 @@ Page({
   
     /** ⭐ 计算评价状态 */
     computeReviewStatus(list) {
-      // 计算是否过期是否可评价
-      list.forEach(item => {
-        const isFinished = item.status === 3 || item.status === 4;
-  
-        const created = new Date(item.createdTime.replace(/-/g, "/"));
-        const diffHour = (new Date() - created) / 3600000;
-        const expired = diffHour > 24;
-  
-        item._expired = expired;
-        item._canReview = isFinished && !expired;
-      });
-  
-      // 再查已评价订单
-      this.fetchReviewedOrders(list);
+
+        list.forEach(item => {
+      
+          // 只有已完成（6）才允许评价
+          const isFinished = item.status === 6;
+      
+          const created = new Date(item.createdTime.replace(/-/g, "/"));
+          const diffHour = (new Date() - created) / 3600000;
+          const expired = diffHour > 24;
+      
+          item._expired = expired;
+          item._canReview = isFinished && !expired;
+        });
+      
+        this.fetchReviewedOrders(list);
     },
   
     /** ⭐ 查询已评价订单 */
@@ -119,10 +120,11 @@ Page({
             1: "待支付",
             2: "待处理",
             3: "制作中",
-            4: "已完成",
+            4: "待取餐",
             5: "已取消",
-            6: "退款中",
-            7: "已退款"
+            6: "已完成",
+            7: "退款中",
+            8: "已退款"
           }[status] || "未知状态";
     },
   
@@ -132,10 +134,11 @@ Page({
           1: "pending",       // 待支付
           2: "processing",    // 待处理
           3: "making",        // 制作中
-          4: "completed",     // 已完成
+          4: "making",         // 待取餐
           5: "cancelled",     // 已取消
-          6: "refunding",     // 退款中
-          7: "refunded"       // 已退款
+          6: "completed",      // 已完成
+          7: "refunding",      // 退款中
+          8: "refunded"         // 已退款
         }[status] || "";
     },
   
