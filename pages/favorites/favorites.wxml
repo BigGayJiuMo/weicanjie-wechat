@@ -46,9 +46,11 @@
 
                 <!-- 评分 + 月售 -->
                 <view class="restaurant-rating">
-                    <text class="rating-star">★</text>
-                    <text class="rating-score">{{item.avgRating || 5.0}}</text>
-                    <text class="rating-count">月售{{item.monthlySales || 0}}</text>
+                    <block wx:if="{{item.avgRating !== null}}">
+                        <text class="rating-star">★</text>
+                        <text class="rating-score">{{item.avgRating}}</text>
+                    </block>
+                    <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
                 </view>
 
                 <!-- 餐厅描述（删除起送、配送） -->

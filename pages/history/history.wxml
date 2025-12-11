@@ -41,10 +41,14 @@
 
           <!-- 评分 + 月售 -->
           <view class="restaurant-rating">
-            <text class="rating-star">★</text>
-            <text class="rating-score">{{item.avgRating || 5.0}}</text>
+            <block wx:if="{{item.avgRating !== null}}">
+                <text class="rating-star">★</text>
+                <text class="rating-score">{{item.avgRating}}</text>
+            </block>
+
+            <!-- 永远显示的月售 -->
             <text class="rating-count">月售 {{item.monthlySales || 0}}</text>
-          </view>
+            </view>
           <view class="restaurant-desc">
                     <text class="desc-text">{{item.description}}</text>
             </view>
