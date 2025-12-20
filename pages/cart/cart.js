@@ -13,7 +13,7 @@ Page({
   
     onShow() {
         const app = getApp();
-    
+        
         // 只有 shouldRestoreCart = true 时才恢复
         if (app.globalData.shouldRestoreCart && app.globalData.cartCache) {
             console.log("恢复购物车缓存数据（用户未下单返回）");
@@ -23,12 +23,12 @@ Page({
             this.updateRestaurantSelection();
             this.updateAllSelectedState();
             this.calculateTotal();
-            // 恢复时也需要检查餐厅状态
+            // 恢复时也需要检查餐厅状态（过滤后的餐厅可能处于休息中等状态）
             this.checkRestaurantStatus();
             return;
         }
-    
-        // 从后端拉取最新购物车
+        
+        // 从后端拉取最新购物车（已过滤停业餐厅）
         this.loadCartData();
     },
 
@@ -56,6 +56,7 @@ Page({
             this.loadRestaurantStatuses(restaurantIds);
         }
     },
+    
     // 批量加载餐厅状态
     loadRestaurantStatuses(restaurantIds) {
         const requests = restaurantIds.map(id => {
@@ -87,34 +88,33 @@ Page({
         });
         
         Promise.all(requests).then(results => {
-            const restaurantStatusMap = { ...this.data.restaurantStatusMap };
+            // 避免使用展开运算符，使用 Object.assign 替代
+            const restaurantStatusMap = Object.assign({}, this.data.restaurantStatusMap);
             let hasChanged = false;
             
             results.forEach(result => {
                 const status = result.status;
                 let statusText = "营业中";
-                let statusClass = "status-open"; // 默认样式类
+                let statusClass = "status-open";
                 let disabled = false;
                 
-                // 根据状态设置
-                if (status === 0) {
-                    statusText = "已停业";
-                    statusClass = "status-closed";
-                    disabled = true;
-                } else if (status === 2) {
+                // 根据状态设置（注意：这里不会有status=0的情况，因为已过滤）
+                if (status === 2) {
                     statusText = "未营业";
                     statusClass = "status-break";
                     disabled = false;
                 } else if (status === 3) {
                     statusText = "休息中";
                     statusClass = "status-break";
-                    disabled = true;
+                    disabled = true; // 休息中时禁用选择
                 }
+                // status=1: 营业中，保持默认值
+                // status=0: 已停业，不会出现，因为已过滤
                 
                 restaurantStatusMap[result.restaurantId] = {
                     status: status,
                     statusText: statusText,
-                    statusClass: statusClass, // 添加样式类
+                    statusClass: statusClass,
                     disabled: disabled
                 };
                 
@@ -123,40 +123,54 @@ Page({
             
             if (hasChanged) {
                 this.setData({ restaurantStatusMap });
-                // 过滤掉已停业的餐厅
-                this.filterClosedRestaurants();
-                // 更新选择状态
+                // 排序购物车数据：营业中的餐厅在前，休息中的在后
+                this.sortCartDataByStatus();
+                // 更新选择状态（主要是禁用休息中的餐厅）
                 this.updateRestaurantSelection();
                 this.updateAllSelectedState();
                 this.calculateTotal();
             }
         });
     },
-
-    filterClosedRestaurants() {
-        const cartData = this.data.cartData;
+    
+    // 新增：按餐厅状态排序购物车数据
+    sortCartDataByStatus() {
+        // 避免使用展开运算符，使用 slice() 创建新数组
+        const cartData = this.data.cartData.slice();
         const restaurantStatusMap = this.data.restaurantStatusMap;
         
-        // 过滤掉已停业(status=0)的餐厅
-        const filteredCartData = cartData.filter(restaurant => {
-            const statusInfo = restaurantStatusMap[restaurant.restaurantId];
-            // 如果状态为0（已停业），则过滤掉
-            if (statusInfo && statusInfo.status === 0) {
-                return false;
+        cartData.sort((a, b) => {
+            const statusA = restaurantStatusMap[a.restaurantId] ? restaurantStatusMap[a.restaurantId].status : 1;
+            const statusB = restaurantStatusMap[b.restaurantId] ? restaurantStatusMap[b.restaurantId].status : 1;
+            
+            // 详细排序规则：
+            // 1. 营业中(status=1)的餐厅排在最前面
+            // 2. 未营业(status=2)的餐厅排在中间
+            // 3. 休息中(status=3)的餐厅排在最后面
+            
+            if (statusA === statusB) {
+                // 状态相同，按餐厅名称字母顺序排序（可选）
+                return a.restaurantName.localeCompare(b.restaurantName);
             }
-            return true;
+            
+            // 自定义优先级顺序
+            const priority = {
+                1: 1, // 营业中 - 优先级最高
+                2: 2, // 未营业 - 优先级中等
+                3: 3  // 休息中 - 优先级最低
+            };
+            
+            return priority[statusA] - priority[statusB];
         });
         
-        if (filteredCartData.length !== cartData.length) {
-            this.setData({ cartData: filteredCartData });
-        }
+        this.setData({ cartData });
     },
+    
     // 修复购物车数据加载方法
     loadCartData() {
         const app = getApp();
         const user = app.globalData.userInfo;
     
-        // 如果用户没有登录
         if (!user || !user.id) {
             wx.showToast({
                 title: "请先登录后查看购物车",
@@ -181,8 +195,17 @@ Page({
                 }
     
                 const cartList = res.data.data || [];
-                console.log("原始购物车数据:", cartList);
-    
+                
+                // 如果购物车为空，显示提示信息
+                if (cartList.length === 0) {
+                    wx.showToast({
+                        title: "购物车为空",
+                        icon: "none",
+                        duration: 1500
+                    });
+                }
+                
+                console.log("已过滤的购物车数据:", cartList);
                 this.processCartData(cartList);
             },
             fail: () => {
@@ -201,7 +224,7 @@ Page({
     
             if (!restaurantMap[restaurantId]) {
                 restaurantMap[restaurantId] = {
-                    restaurantId,
+                    restaurantId: restaurantId,
                     restaurantName: "加载中...",
                     deliveryFee: 0,
                     packingFee: 0,
@@ -222,25 +245,29 @@ Page({
                 }
             }
     
-            const price = parseFloat(item.dishPrice || item?.dish?.price || 0);
+            const price = parseFloat(item.dishPrice || (item.dish ? item.dish.price : 0) || 0);
             const quantity = item.quantity || 1;
     
             restaurantMap[restaurantId].items.push({
                 id: item.id,
                 cartId: item.id,
                 dishId: item.dishId,
-                dishName: item.dishName || item?.dish?.name || "未知菜品",
+                dishName: item.dishName || (item.dish ? item.dish.name : "未知菜品"),
                 dishPrice: price.toFixed(2),
                 dishImageUrl:
-                    item.dishImageUrl || item?.dish?.imageUrl || "/images/default-dish.png",
-                quantity,
-                restaurantId,
+                    item.dishImageUrl || (item.dish ? item.dish.imageUrl : "/images/default-dish.png"),
+                quantity: quantity,
+                restaurantId: restaurantId,
                 selected: false,
                 totalPrice: (price * quantity).toFixed(2)
             });
         });
     
-        const cartData = Object.values(restaurantMap);
+        const cartData = [];
+        for (const key in restaurantMap) {
+            cartData.push(restaurantMap[key]);
+        }
+        
         this.setData({ cartData });
     
         this.calculateTotal();
@@ -249,7 +276,11 @@ Page({
     
         // 加载餐厅信息后检查状态
         if (restaurantsToLoad.size > 0) {
-            this.loadMissingRestaurantInfo(Array.from(restaurantsToLoad), () => {
+            // 避免使用 Array.from，使用 forEach 替代
+            const idsArray = [];
+            restaurantsToLoad.forEach(id => idsArray.push(id));
+            
+            this.loadMissingRestaurantInfo(idsArray, () => {
                 // 所有餐厅信息加载完成后，检查状态
                 this.checkRestaurantStatus();
             });
@@ -310,7 +341,7 @@ Page({
         const statusInfo = this.data.restaurantStatusMap[restaurantId];
         if (statusInfo && statusInfo.disabled) {
             wx.showToast({
-                title: `${restaurant.restaurantName}${statusInfo.statusText}，无法选择`,
+                title: restaurant.restaurantName + statusInfo.statusText + "，无法选择",
                 icon: "none"
             });
             return;
@@ -345,7 +376,7 @@ Page({
         const statusInfo = this.data.restaurantStatusMap[restaurantId];
         if (statusInfo && statusInfo.disabled) {
             wx.showToast({
-                title: `餐厅${statusInfo.statusText}，无法选择商品`,
+                title: "餐厅" + statusInfo.statusText + "，无法选择商品",
                 icon: "none"
             });
             return;
@@ -490,7 +521,7 @@ Page({
         const statusInfo = this.data.restaurantStatusMap[item.restaurantId];
         if (statusInfo && statusInfo.disabled) {
             wx.showToast({
-                title: `餐厅${statusInfo.statusText}，无法操作商品`,
+                title: "餐厅" + statusInfo.statusText + "，无法操作商品",
                 icon: "none"
             });
             return;
@@ -509,7 +540,7 @@ Page({
         const statusInfo = this.data.restaurantStatusMap[item.restaurantId];
         if (statusInfo && statusInfo.disabled) {
             wx.showToast({
-                title: `餐厅${statusInfo.statusText}，无法操作商品`,
+                title: "餐厅" + statusInfo.statusText + "，无法操作商品",
                 icon: "none"
             });
             return;
@@ -538,7 +569,7 @@ Page({
     updateCartQuantity(item, newQuantity) {
         const userId = getApp().globalData.userInfo.id;
       
-        const oldQuantity = item.quantity; // ⭐ 保存旧值
+        const oldQuantity = item.quantity; //  保存旧值
       
         // 本地更新
         this.updateLocalCartItem(item, newQuantity);
@@ -677,7 +708,7 @@ Page({
     
       wx.showModal({
         title: '提示',
-        content: `确定要删除${restaurant.restaurantName}的所有商品吗？`,
+        content: '确定要删除' + restaurant.restaurantName + '的所有商品吗？',
         success(res) {
           if (res.confirm) {
             that.removeLocalRestaurantCart(restaurant.restaurantId);
@@ -735,7 +766,7 @@ Page({
         }
 
         // 检查是否有选中的商品来自禁用状态的餐厅
-        const cartData = this.data.cartData;  // ← 这里声明了 cartData
+        const cartData = this.data.cartData;
         const restaurantStatusMap = this.data.restaurantStatusMap;
         let hasDisabledRestaurantItems = false;
         let disabledRestaurantName = "";
@@ -753,20 +784,22 @@ Page({
         });
         
         if (hasDisabledRestaurantItems) {
+            const statusText = restaurantStatusMap[disabledRestaurantName] ? 
+                restaurantStatusMap[disabledRestaurantName].statusText : "";
             wx.showToast({
-                title: `${disabledRestaurantName}${restaurantStatusMap[disabledRestaurantName]?.statusText}，无法结算`,
+                title: disabledRestaurantName + statusText + "，无法结算",
                 icon: "none"
             });
             return;
         }
 
         const app = getApp();
+        // 使用 JSON 序列化/反序列化来深度复制对象
         app.globalData.cartCache = JSON.parse(JSON.stringify(this.data.cartData));
         app.globalData.shouldRestoreCart = true;
         
         // 收集选中的商品
         const selectedItems = [];
-        // 注意：这里不要再声明 cartData，因为已经在函数开头声明了
         
         cartData.forEach(restaurant => {
             if (restaurant.items && restaurant.items.length > 0) {
@@ -818,8 +851,10 @@ Page({
         
         // 计算每个餐厅的小计和总金额
         let totalAmount = 0;
-        const restaurants = Object.values(checkoutRestaurants).map(restaurant => {
-            const dishSubTotal = restaurant.items.reduce((sum, item) => {
+        const restaurants = [];
+        for (const key in checkoutRestaurants) {
+            const restaurant = checkoutRestaurants[key];
+            const dishSubTotal = restaurant.items.reduce(function(sum, item) {
                 return sum + (parseFloat(item.dishPrice) * parseInt(item.quantity));
             }, 0);
             
@@ -828,13 +863,20 @@ Page({
             const subTotal = dishSubTotal + packingFee;
             totalAmount += subTotal;
             
-            return {
-                ...restaurant,
+            // 避免使用展开运算符
+            const restaurantData = {
+                restaurantId: restaurant.restaurantId,
+                restaurantName: restaurant.restaurantName,
+                eatType: restaurant.eatType,
+                packingFee: packingFee,
+                items: restaurant.items,
                 dishSubTotal: dishSubTotal.toFixed(2),
                 subTotal: subTotal.toFixed(2),
                 packingFee: packingFee.toFixed(2)
             };
-        });
+            
+            restaurants.push(restaurantData);
+        }
         
         // 准备订单数据
         const orderData = {
@@ -847,7 +889,7 @@ Page({
         
         // 跳转到提交订单页面
         wx.navigateTo({
-            url: `/pages/submitOrder/submitOrder?data=${encodeURIComponent(JSON.stringify(orderData))}`
+            url: '/pages/submitOrder/submitOrder?data=' + encodeURIComponent(JSON.stringify(orderData))
         });
     },
   
@@ -856,7 +898,7 @@ Page({
         const restaurantId = e.currentTarget.dataset.restaurant;
       
         wx.navigateTo({
-          url: `/pages/dish-detail/dish-detail?id=${dishId}&restaurantId=${restaurantId}`
+          url: '/pages/dish-detail/dish-detail?id=' + dishId + '&restaurantId=' + restaurantId
         });
       },
     // 去逛逛
