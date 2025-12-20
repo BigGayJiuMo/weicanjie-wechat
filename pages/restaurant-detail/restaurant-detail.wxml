@@ -383,9 +383,10 @@ id="pageScroll"
       </view>
     </view>
   </view>
-  <view class="checkout-btn {{ (!canOrder || totalQuantity === 0) ? 'disabled' : '' }}" catchtap="onCheckout">
-  {{ !canOrder ? '商家未营业' : (totalQuantity === 0 ? '请选择商品' : '去结算') }}
-</view>
+  <!-- 不可点击状态 -->
+    <view class="checkout-btn disabled" wx:if="{{!canOrder || totalQuantity === 0}}">{{ !canOrder ? '商家未营业' : '请选择商品' }}</view>
+    <!-- 可点击状态 -->
+    <view class="checkout-btn" wx:else catchtap="onCheckout">去结算</view>
 </view>
 
 <!-- 🛒 购物车详情面板 -->
