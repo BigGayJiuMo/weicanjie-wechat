@@ -14,59 +14,111 @@
     <!-- 购物车内容区域 -->
     <scroll-view class="cart-scroll" scroll-y="true" wx:if="{{cartData && cartData.length > 0}}">
         <!-- 按餐厅分组的购物车商品 -->
-        <view class="restaurant-cart-section" wx:for="{{cartData}}" wx:key="restaurantId">
+        <view class="restaurant-cart-section" wx:for="{{cartData}}" wx:key="restaurantId" wx:for-item="restaurant" wx:for-index="rIndex">
             <!-- 餐厅头部 -->
             <view class="restaurant-header">
                 <view class="restaurant-selector">
-                    <view class="checkbox {{item.selected ? 'checked' : ''}}" 
+                    <!-- 复选框 - 根据餐厅状态判断是否禁用 -->
+                    <view 
+                        class="checkbox {{restaurant.selected ? 'checked' : ''}} {{restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].disabled ? 'disabled' : ''}}" 
                         catchtap="toggleRestaurantSelection" 
-                        data-restaurant="{{item}}">
-                        <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>
+                        data-restaurant="{{restaurant}}">
+                        <view class="checkbox-inner {{restaurant.selected ? 'checked' : ''}}"></view>
                     </view>
                 </view>
-                <text class="restaurant-name">{{item.restaurantName}}</text>
-
-                <view class="eat-type-row">
-                    <view class="eat-select">
-                        <view class="eat-btn {{item.eatType == 1 ? 'active' : ''}}" data-type="1" data-restaurant="{{item.restaurantId}}" bindtap="selectEatType">堂食</view>
-                        <view class="eat-btn {{item.eatType == 2 ? 'active' : ''}}" data-type="2" data-restaurant="{{item.restaurantId}}" bindtap="selectEatType">外带</view>
-                    </view>
+                
+                <!-- 餐厅名称 -->
+                <view class="restaurant-main-info">
+                    <text class="restaurant-name">{{restaurant.restaurantName}}</text>
                 </view>
 
-                <view class="delete-restaurant" bindtap="deleteRestaurantCart" data-restaurant="{{item}}">
-                    <image class="delete-icon" src="/images/delete.png"></image>
+                <!-- 右侧操作区域 -->
+                <view class="restaurant-right-actions">
+                    <!-- 用餐类型选择 - 只在餐厅可用时显示 -->
+                    <view class="eat-type-row" wx:if="{{!(restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].disabled)}}">
+                        <view class="eat-select">
+                            <view 
+                                class="eat-btn {{restaurant.eatType == 1 ? 'active' : ''}}" 
+                                data-type="1" 
+                                data-restaurant="{{restaurant.restaurantId}}" 
+                                bindtap="selectEatType">堂食</view>
+                            <view 
+                                class="eat-btn {{restaurant.eatType == 2 ? 'active' : ''}}" 
+                                data-type="2" 
+                                data-restaurant="{{restaurant.restaurantId}}" 
+                                bindtap="selectEatType">外带</view>
+                        </view>
+                    </view>
+
+                    <!-- 餐厅状态 - 显示在删除图标左边 -->
+                    <view 
+                        class="restaurant-status {{restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].statusClass}}"
+                        wx:if="{{restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].status !== 1}}">
+                        {{restaurantStatusMap[restaurant.restaurantId].statusText}}
+                    </view>
+
+                    <!-- 删除按钮 -->
+                    <view class="delete-restaurant" bindtap="deleteRestaurantCart" data-restaurant="{{restaurant}}">
+                        <image class="delete-icon" src="/images/delete.png"></image>
+                    </view>
                 </view>
             </view>
 
             <!-- 该餐厅的商品列表 -->
             <view class="cart-items">
-                <view class="cart-item" wx:for="{{item.items}}" wx:key="id"
-                        bindtap="goDishDetail"
-                        data-id="{{item.dishId}}"
-                        data-restaurant="{{item.restaurantId}}"
-                    >
+                <!-- 遍历餐厅的商品 -->
+                <view 
+                    class="cart-item {{restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].disabled ? 'item-disabled' : ''}}" 
+                    wx:for="{{restaurant.items}}" 
+                    wx:key="id" 
+                    wx:for-item="item" 
+                    wx:for-index="iIndex"
+                    bindtap="goDishDetail"
+                    data-id="{{item.dishId}}"
+                    data-restaurant="{{item.restaurantId}}">
+                    
+                    <!-- 商品选择框 -->
                     <view class="item-selector">
-                        <view class="checkbox {{item.selected ? 'checked' : ''}}" 
+                        <view 
+                            class="checkbox {{item.selected ? 'checked' : ''}} {{restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].disabled ? 'disabled' : ''}}" 
                             catchtap="toggleItemSelection"
                             data-item="{{item}}" 
                             data-restaurant="{{item.restaurantId}}">
                             <view class="checkbox-inner {{item.selected ? 'checked' : ''}}"></view>
                         </view>
                     </view>
-                    <image class="item-image" src="{{item.dishImageUrl || '/images/default-dish.png'}}" mode="aspectFill"></image>
+                    
+                    <!-- 商品图片 -->
+                    <image 
+                        class="item-image" 
+                        src="{{item.dishImageUrl || '/images/default-dish.png'}}" 
+                        mode="aspectFill">
+                    </image>
+                    
+                    <!-- 商品详情 -->
                     <view class="item-details">
                         <view class="item-header">
-                            <text class="item-name">{{item.dishName || item.name}}</text>
-                            <text class="item-price">¥{{item.dishPrice || item.price}}</text>
+                            <text class="item-name">{{item.dishName}}</text>
+                            <text class="item-price">¥{{item.dishPrice}}</text>
                         </view>
                         <view class="item-controls">
                             <view class="item-total-price">
-                                ¥{{item.totalPrice || '0.00'}}
+                                ¥{{item.totalPrice}}
                             </view>
-                            <view class="quantity-control">
-                                <view class="quantity-btn minus" catchtap="decreaseQuantity" data-item="{{item}}">-</view>
+                            
+                            <!-- 数量控件 - 只在餐厅可用时显示 -->
+                            <view 
+                                class="quantity-control" 
+                                wx:if="{{!(restaurantStatusMap[restaurant.restaurantId] && restaurantStatusMap[restaurant.restaurantId].disabled)}}">
+                                <view 
+                                    class="quantity-btn minus" 
+                                    catchtap="decreaseQuantity" 
+                                    data-item="{{item}}">-</view>
                                 <text class="quantity-text">{{item.quantity}}</text>
-                                <view class="quantity-btn plus" catchtap="increaseQuantity" data-item="{{item}}">+</view>
+                                <view 
+                                    class="quantity-btn plus" 
+                                    catchtap="increaseQuantity" 
+                                    data-item="{{item}}">+</view>
                             </view>
                         </view>
                     </view>

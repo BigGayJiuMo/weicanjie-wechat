@@ -4,7 +4,8 @@ Page({
       cartData: [],
       allSelected: false,
       totalPrice: '0.00',
-      selectedCount: 0
+      selectedCount: 0,
+      restaurantStatusMap: {}
     },
   
     onLoad: function(options) {
@@ -15,111 +16,227 @@ Page({
     
         // 只有 shouldRestoreCart = true 时才恢复
         if (app.globalData.shouldRestoreCart && app.globalData.cartCache) {
-    
             console.log("恢复购物车缓存数据（用户未下单返回）");
-    
             this.setData({
                 cartData: app.globalData.cartCache
             });
-    
-            // 恢复选中状态等
             this.updateRestaurantSelection();
             this.updateAllSelectedState();
             this.calculateTotal();
-    
+            // 恢复时也需要检查餐厅状态
+            this.checkRestaurantStatus();
             return;
         }
     
-        //  从后端拉取最新购物车
+        // 从后端拉取最新购物车
         this.loadCartData();
     },
-  
+
+    // 检查所有餐厅状态
+    checkRestaurantStatus() {
+        const cartData = this.data.cartData;
+        const restaurantIds = [];
+        const restaurantStatusMap = {};
+        
+        // 收集所有餐厅ID
+        cartData.forEach(restaurant => {
+            restaurantIds.push(restaurant.restaurantId);
+            // 初始化状态为未知
+            restaurantStatusMap[restaurant.restaurantId] = {
+                status: 1, // 默认营业中
+                statusText: "营业中",
+                disabled: false
+            };
+        });
+        
+        this.setData({ restaurantStatusMap });
+        
+        // 批量获取餐厅状态
+        if (restaurantIds.length > 0) {
+            this.loadRestaurantStatuses(restaurantIds);
+        }
+    },
+    // 批量加载餐厅状态
+    loadRestaurantStatuses(restaurantIds) {
+        const requests = restaurantIds.map(id => {
+            return new Promise((resolve, reject) => {
+                wx.request({
+                    url: `http://localhost:8080/api/restaurant/status/${id}`,
+                    method: "GET",
+                    success: (res) => {
+                        if (res.data.code === 200) {
+                            resolve({
+                                restaurantId: id,
+                                status: res.data.data
+                            });
+                        } else {
+                            resolve({
+                                restaurantId: id,
+                                status: 1 // 默认营业中
+                            });
+                        }
+                    },
+                    fail: () => {
+                        resolve({
+                            restaurantId: id,
+                            status: 1 // 默认营业中
+                        });
+                    }
+                });
+            });
+        });
+        
+        Promise.all(requests).then(results => {
+            const restaurantStatusMap = { ...this.data.restaurantStatusMap };
+            let hasChanged = false;
+            
+            results.forEach(result => {
+                const status = result.status;
+                let statusText = "营业中";
+                let statusClass = "status-open"; // 默认样式类
+                let disabled = false;
+                
+                // 根据状态设置
+                if (status === 0) {
+                    statusText = "已停业";
+                    statusClass = "status-closed";
+                    disabled = true;
+                } else if (status === 2) {
+                    statusText = "未营业";
+                    statusClass = "status-break";
+                    disabled = false;
+                } else if (status === 3) {
+                    statusText = "休息中";
+                    statusClass = "status-break";
+                    disabled = true;
+                }
+                
+                restaurantStatusMap[result.restaurantId] = {
+                    status: status,
+                    statusText: statusText,
+                    statusClass: statusClass, // 添加样式类
+                    disabled: disabled
+                };
+                
+                hasChanged = true;
+            });
+            
+            if (hasChanged) {
+                this.setData({ restaurantStatusMap });
+                // 过滤掉已停业的餐厅
+                this.filterClosedRestaurants();
+                // 更新选择状态
+                this.updateRestaurantSelection();
+                this.updateAllSelectedState();
+                this.calculateTotal();
+            }
+        });
+    },
+
+    filterClosedRestaurants() {
+        const cartData = this.data.cartData;
+        const restaurantStatusMap = this.data.restaurantStatusMap;
+        
+        // 过滤掉已停业(status=0)的餐厅
+        const filteredCartData = cartData.filter(restaurant => {
+            const statusInfo = restaurantStatusMap[restaurant.restaurantId];
+            // 如果状态为0（已停业），则过滤掉
+            if (statusInfo && statusInfo.status === 0) {
+                return false;
+            }
+            return true;
+        });
+        
+        if (filteredCartData.length !== cartData.length) {
+            this.setData({ cartData: filteredCartData });
+        }
+    },
     // 修复购物车数据加载方法
     loadCartData() {
         const app = getApp();
         const user = app.globalData.userInfo;
     
-        //  如果用户没有登录
+        // 如果用户没有登录
         if (!user || !user.id) {
-          wx.showToast({
-            title: "请先登录后查看购物车",
-            icon: "none"
-          });
-          this.setData({ cartData: [] });
-          return;
+            wx.showToast({
+                title: "请先登录后查看购物车",
+                icon: "none"
+            });
+            this.setData({ cartData: [] });
+            return;
         }
     
-        const userId = user.id; //  正确 userId
+        const userId = user.id;
     
         wx.showLoading({ title: "加载中..." });
     
         wx.request({
-          url: `http://localhost:8080/api/cart/user/${userId}/list`,
-          method: "GET",
-          success: (res) => {
-            wx.hideLoading();
-            if (res.data.code !== 200) {
-              wx.showToast({ title: "加载失败", icon: "none" });
-              return;
+            url: `http://localhost:8080/api/cart/user/${userId}/list`,
+            method: "GET",
+            success: (res) => {
+                wx.hideLoading();
+                if (res.data.code !== 200) {
+                    wx.showToast({ title: "加载失败", icon: "none" });
+                    return;
+                }
+    
+                const cartList = res.data.data || [];
+                console.log("原始购物车数据:", cartList);
+    
+                this.processCartData(cartList);
+            },
+            fail: () => {
+                wx.hideLoading();
+                wx.showToast({ title: "网络错误", icon: "none" });
             }
-    
-            const cartList = res.data.data || [];
-            console.log("原始购物车数据:", cartList);
-    
-            this.processCartData(cartList);
-          },
-          fail: () => {
-            wx.hideLoading();
-            wx.showToast({ title: "网络错误", icon: "none" });
-          }
         });
-      },
-  
-      processCartData(cartList) {
+    },
+
+    processCartData(cartList) {
         const restaurantMap = {};
         const restaurantsToLoad = new Set();
     
         cartList.forEach((item) => {
-          const restaurantId = item.restaurantId;
+            const restaurantId = item.restaurantId;
     
-          if (!restaurantMap[restaurantId]) {
-            restaurantMap[restaurantId] = {
-              restaurantId,
-              restaurantName: "加载中...",
-              deliveryFee: 0,
-              packingFee: 0,
-              selected: false,
-              eatType: 2,
-              items: []
-            };
+            if (!restaurantMap[restaurantId]) {
+                restaurantMap[restaurantId] = {
+                    restaurantId,
+                    restaurantName: "加载中...",
+                    deliveryFee: 0,
+                    packingFee: 0,
+                    selected: false,
+                    eatType: 2,
+                    items: []
+                };
     
-            if (!item.restaurant) {
-              restaurantsToLoad.add(restaurantId);
-            } else {
-              restaurantMap[restaurantId].restaurantName =
-                item.restaurant.name || "未知餐厅";
-              restaurantMap[restaurantId].deliveryFee =
-                item.restaurant.deliveryFee || 0;
-              restaurantMap[restaurantId].packingFee =
-                item.restaurant.packingFee || 0;
+                if (!item.restaurant) {
+                    restaurantsToLoad.add(restaurantId);
+                } else {
+                    restaurantMap[restaurantId].restaurantName =
+                        item.restaurant.name || "未知餐厅";
+                    restaurantMap[restaurantId].deliveryFee =
+                        item.restaurant.deliveryFee || 0;
+                    restaurantMap[restaurantId].packingFee =
+                        item.restaurant.packingFee || 0;
+                }
             }
-          }
     
-          const price = parseFloat(item.dishPrice || item?.dish?.price || 0);
-          const quantity = item.quantity || 1;
+            const price = parseFloat(item.dishPrice || item?.dish?.price || 0);
+            const quantity = item.quantity || 1;
     
-          restaurantMap[restaurantId].items.push({
-            id: item.id,
-            cartId: item.id,
-            dishId: item.dishId,
-            dishName: item.dishName || item?.dish?.name || "未知菜品",
-            dishPrice: price.toFixed(2),
-            dishImageUrl:
-                item.dishImageUrl || item?.dish?.imageUrl || "/images/default-dish.png",
-            quantity,
-            restaurantId,
-            selected: false,
-            totalPrice: (price * quantity).toFixed(2)
+            restaurantMap[restaurantId].items.push({
+                id: item.id,
+                cartId: item.id,
+                dishId: item.dishId,
+                dishName: item.dishName || item?.dish?.name || "未知菜品",
+                dishPrice: price.toFixed(2),
+                dishImageUrl:
+                    item.dishImageUrl || item?.dish?.imageUrl || "/images/default-dish.png",
+                quantity,
+                restaurantId,
+                selected: false,
+                totalPrice: (price * quantity).toFixed(2)
             });
         });
     
@@ -130,27 +247,35 @@ Page({
         this.updateRestaurantSelection();
         this.updateAllSelectedState();
     
+        // 加载餐厅信息后检查状态
         if (restaurantsToLoad.size > 0) {
-          this.loadMissingRestaurantInfo(Array.from(restaurantsToLoad));
+            this.loadMissingRestaurantInfo(Array.from(restaurantsToLoad), () => {
+                // 所有餐厅信息加载完成后，检查状态
+                this.checkRestaurantStatus();
+            });
+        } else {
+            // 直接检查状态
+            this.checkRestaurantStatus();
         }
-      },
+    },
 
       // 加载缺失的餐厅信息
-      loadMissingRestaurantInfo(restaurantIds) {
+      loadMissingRestaurantInfo(restaurantIds, callback) {
         let loaded = 0;
+        const total = restaurantIds.length;
     
         restaurantIds.forEach((id) => {
-          this.loadRestaurantDetail(id, (info) => {
-            if (info) {
-              this.updateRestaurantInfoInCart(id, info);
-            }
-            loaded++;
-            if (loaded === restaurantIds.length) {
-              this.calculateTotal();
-            }
-          });
+            this.loadRestaurantDetail(id, (info) => {
+                if (info) {
+                    this.updateRestaurantInfoInCart(id, info);
+                }
+                loaded++;
+                if (loaded === total && callback) {
+                    callback();
+                }
+            });
         });
-      },
+    },
 
     // 加载餐厅详细信息
     loadRestaurantDetail(restaurantId, callback) {
@@ -169,160 +294,245 @@ Page({
         const cartData = this.data.cartData;
         const index = cartData.findIndex((r) => r.restaurantId === restaurantId);
         if (index !== -1) {
-          cartData[index].restaurantName = restaurantInfo.name || "未知餐厅";
-          cartData[index].deliveryFee = restaurantInfo.deliveryFee || 0;
-          cartData[index].packingFee = restaurantInfo.packingFee || 0;
-          this.setData({ cartData });
+            cartData[index].restaurantName = restaurantInfo.name || "未知餐厅";
+            cartData[index].deliveryFee = restaurantInfo.deliveryFee || 0;
+            cartData[index].packingFee = restaurantInfo.packingFee || 0;
+            this.setData({ cartData });
         }
-      },
+    },
   
     // 切换餐厅全选状态
     toggleRestaurantSelection: function(e) {
-      const restaurant = e.currentTarget.dataset.restaurant;
-      const restaurantId = restaurant.restaurantId;
-      
-      const cartData = this.data.cartData;
-      const restaurantIndex = cartData.findIndex(r => r.restaurantId === restaurantId);
-      
-      if (restaurantIndex !== -1) {
-        const newSelectedState = !cartData[restaurantIndex].selected;
-        cartData[restaurantIndex].selected = newSelectedState;
+        const restaurant = e.currentTarget.dataset.restaurant;
+        const restaurantId = restaurant.restaurantId;
         
-        if (cartData[restaurantIndex].items && cartData[restaurantIndex].items.length > 0) {
-          cartData[restaurantIndex].items.forEach(item => {
-            item.selected = newSelectedState;
-          });
+        // 检查餐厅是否禁用（休息中或已停业）
+        const statusInfo = this.data.restaurantStatusMap[restaurantId];
+        if (statusInfo && statusInfo.disabled) {
+            wx.showToast({
+                title: `${restaurant.restaurantName}${statusInfo.statusText}，无法选择`,
+                icon: "none"
+            });
+            return;
         }
         
-        this.setData({ cartData });
-        this.calculateTotal();
-        this.updateAllSelectedState();
-      }
+        const cartData = this.data.cartData;
+        const restaurantIndex = cartData.findIndex(r => r.restaurantId === restaurantId);
+        
+        if (restaurantIndex !== -1) {
+            const newSelectedState = !cartData[restaurantIndex].selected;
+            cartData[restaurantIndex].selected = newSelectedState;
+            
+            if (cartData[restaurantIndex].items && cartData[restaurantIndex].items.length > 0) {
+                cartData[restaurantIndex].items.forEach(item => {
+                    // 只有餐厅可用时才选中商品
+                    item.selected = newSelectedState;
+                });
+            }
+            
+            this.setData({ cartData });
+            this.calculateTotal();
+            this.updateAllSelectedState();
+        }
     },
   
     // 切换单个商品选中状态
     toggleItemSelection: function(e) {
-      const item = e.currentTarget.dataset.item;
-      const restaurantId = e.currentTarget.dataset.restaurant;
-      
-      const cartData = this.data.cartData;
-      const restaurantIndex = cartData.findIndex(r => r.restaurantId === restaurantId);
-      
-      if (restaurantIndex !== -1) {
-        const itemIndex = cartData[restaurantIndex].items.findIndex(i => i.id === item.id);
+        const item = e.currentTarget.dataset.item;
+        const restaurantId = e.currentTarget.dataset.restaurant;
         
-        if (itemIndex !== -1) {
-          cartData[restaurantIndex].items[itemIndex].selected = !cartData[restaurantIndex].items[itemIndex].selected;
-          
-          this.setData({ cartData });
-          this.updateRestaurantSelection();
-          this.calculateTotal();
-          this.updateAllSelectedState();
+        // 检查餐厅是否禁用
+        const statusInfo = this.data.restaurantStatusMap[restaurantId];
+        if (statusInfo && statusInfo.disabled) {
+            wx.showToast({
+                title: `餐厅${statusInfo.statusText}，无法选择商品`,
+                icon: "none"
+            });
+            return;
         }
-      }
+        
+        const cartData = this.data.cartData;
+        const restaurantIndex = cartData.findIndex(r => r.restaurantId === restaurantId);
+        
+        if (restaurantIndex !== -1) {
+            const itemIndex = cartData[restaurantIndex].items.findIndex(i => i.id === item.id);
+            
+            if (itemIndex !== -1) {
+                cartData[restaurantIndex].items[itemIndex].selected = !cartData[restaurantIndex].items[itemIndex].selected;
+                
+                this.setData({ cartData });
+                this.updateRestaurantSelection();
+                this.calculateTotal();
+                this.updateAllSelectedState();
+            }
+        }
     },
   
     // 更新餐厅选中状态
     updateRestaurantSelection() {
         const cartData = this.data.cartData;
+        const restaurantStatusMap = this.data.restaurantStatusMap;
+        
         cartData.forEach((restaurant) => {
-          restaurant.selected =
-            restaurant.items.length > 0 &&
-            restaurant.items.every((item) => item.selected);
+            // 如果餐厅禁用，则不能选中
+            const statusInfo = restaurantStatusMap[restaurant.restaurantId];
+            if (statusInfo && statusInfo.disabled) {
+                restaurant.selected = false;
+                // 同时禁用所有商品的选择
+                if (restaurant.items && restaurant.items.length > 0) {
+                    restaurant.items.forEach(item => {
+                        item.selected = false;
+                    });
+                }
+            } else {
+                // 正常逻辑
+                restaurant.selected =
+                    restaurant.items.length > 0 &&
+                    restaurant.items.every((item) => item.selected);
+            }
         });
         this.setData({ cartData });
-      },
+    },
   
     // 切换全选状态
     toggleAllSelection: function() {
-      const newAllSelectedState = !this.data.allSelected;
-      const cartData = this.data.cartData;
-      
-      cartData.forEach(restaurant => {
-        restaurant.selected = newAllSelectedState;
-        if (restaurant.items && restaurant.items.length > 0) {
-          restaurant.items.forEach(item => {
-            item.selected = newAllSelectedState;
-          });
-        }
-      });
-      
-      this.setData({
-        cartData: cartData,
-        allSelected: newAllSelectedState
-      });
-      
-      this.calculateTotal();
+        const newAllSelectedState = !this.data.allSelected;
+        const cartData = this.data.cartData;
+        const restaurantStatusMap = this.data.restaurantStatusMap;
+        
+        cartData.forEach(restaurant => {
+            // 跳过禁用状态的餐厅
+            const statusInfo = restaurantStatusMap[restaurant.restaurantId];
+            if (statusInfo && statusInfo.disabled) {
+                restaurant.selected = false;
+                if (restaurant.items && restaurant.items.length > 0) {
+                    restaurant.items.forEach(item => {
+                        item.selected = false;
+                    });
+                }
+                return;
+            }
+            
+            restaurant.selected = newAllSelectedState;
+            if (restaurant.items && restaurant.items.length > 0) {
+                restaurant.items.forEach(item => {
+                    item.selected = newAllSelectedState;
+                });
+            }
+        });
+        
+        this.setData({
+            cartData: cartData,
+            allSelected: newAllSelectedState
+        });
+        
+        this.calculateTotal();
     },
+
   
     // 更新全选状态
     updateAllSelectedState() {
+        const cartData = this.data.cartData;
+        const restaurantStatusMap = this.data.restaurantStatusMap;
+        
+        // 只计算可选的餐厅
+        const selectableRestaurants = cartData.filter(restaurant => {
+            const statusInfo = restaurantStatusMap[restaurant.restaurantId];
+            return !(statusInfo && statusInfo.disabled);
+        });
+        
         const allSelected =
-          this.data.cartData.length > 0 &&
-          this.data.cartData.every((r) => r.selected);
+            selectableRestaurants.length > 0 &&
+            selectableRestaurants.every((r) => r.selected);
         this.setData({ allSelected });
-      },
+    },
   
     // 计算总价和选中数量
     calculateTotal() {
         let total = 0;
         let count = 0;
+        const restaurantStatusMap = this.data.restaurantStatusMap;
       
         this.data.cartData.forEach(r => {
-          const packing = (r.eatType === 2 ? r.packingFee : 0);
-      
-          let restaurantHasSelected = false;
-      
-          r.items.forEach(item => {
-            if (item.selected) {
-              total += item.dishPrice * item.quantity;
-              count += item.quantity;
-              restaurantHasSelected = true;
+            // 检查餐厅是否可用
+            const statusInfo = restaurantStatusMap[r.restaurantId];
+            if (statusInfo && statusInfo.disabled) {
+                return; // 跳过禁用状态的餐厅
             }
-          });
+            
+            const packing = (r.eatType === 2 ? r.packingFee : 0);
+            let restaurantHasSelected = false;
       
-          if (restaurantHasSelected) {
-            total += packing;
-          }
+            r.items.forEach(item => {
+                if (item.selected) {
+                    total += parseFloat(item.dishPrice) * item.quantity;
+                    count += item.quantity;
+                    restaurantHasSelected = true;
+                }
+            });
+      
+            if (restaurantHasSelected) {
+                total += packing;
+            }
         });
       
         this.setData({
-          totalPrice: total.toFixed(2),
-          selectedCount: count
+            totalPrice: total.toFixed(2),
+            selectedCount: count
         });
-      },
+    },
   
     // 增加商品数量
     increaseQuantity: function(e) {
-      const item = e.currentTarget.dataset.item;
-      const newQuantity = item.quantity + 1;
-      
-      console.log('增加数量:', item.dishId, '新数量:', newQuantity);
-      
-      this.updateCartQuantity(item, newQuantity);
-    },
-  
-    // 减少商品数量
-    decreaseQuantity: function(e) {
-      const item = e.currentTarget.dataset.item;
-      
-      if (item.quantity > 1) {
-        const newQuantity = item.quantity - 1;
-        console.log('减少数量:', item.dishId, '新数量:', newQuantity);
+        const item = e.currentTarget.dataset.item;
+        
+        // 检查餐厅状态
+        const statusInfo = this.data.restaurantStatusMap[item.restaurantId];
+        if (statusInfo && statusInfo.disabled) {
+            wx.showToast({
+                title: `餐厅${statusInfo.statusText}，无法操作商品`,
+                icon: "none"
+            });
+            return;
+        }
+        
+        const newQuantity = item.quantity + 1;
+        console.log('增加数量:', item.dishId, '新数量:', newQuantity);
         this.updateCartQuantity(item, newQuantity);
-      } else {
-        // 数量为1，减少会变为0，删除商品
-        wx.showModal({
-          title: '提示',
-          content: '确定要删除这个商品吗？',
-          success: (res) => {
-            if (res.confirm) {
-              this.deleteCartItem(item);
-            }
-          }
-        });
-      }
     },
+
+    // 减少商品数量（修改）
+    decreaseQuantity: function(e) {
+        const item = e.currentTarget.dataset.item;
+        
+        // 检查餐厅状态
+        const statusInfo = this.data.restaurantStatusMap[item.restaurantId];
+        if (statusInfo && statusInfo.disabled) {
+            wx.showToast({
+                title: `餐厅${statusInfo.statusText}，无法操作商品`,
+                icon: "none"
+            });
+            return;
+        }
+        
+        if (item.quantity > 1) {
+            const newQuantity = item.quantity - 1;
+            console.log('减少数量:', item.dishId, '新数量:', newQuantity);
+            this.updateCartQuantity(item, newQuantity);
+        } else {
+            // 数量为1，减少会变为0，删除商品
+            wx.showModal({
+                title: '提示',
+                content: '确定要删除这个商品吗？',
+                success: (res) => {
+                    if (res.confirm) {
+                        this.deleteCartItem(item);
+                    }
+                }
+            });
+        }
+    },
+
   
     // 更新购物车数量
     updateCartQuantity(item, newQuantity) {
@@ -516,101 +726,129 @@ Page({
   
     // 一键结算
     onCheckout: function() {
-      if (parseFloat(this.data.totalPrice) === 0) {
-          wx.showToast({
-              title: '请选择要结算的商品',
-              icon: 'none'
-          });
-          return;
-      }
-      const app = getApp();
-      app.globalData.cartCache = JSON.parse(JSON.stringify(this.data.cartData));
-      app.globalData.shouldRestoreCart = true; 
-      // 收集选中的商品
-      const selectedItems = [];
-      const cartData = this.data.cartData;
-      
-      cartData.forEach(restaurant => {
-          if (restaurant.items && restaurant.items.length > 0) {
-              restaurant.items.forEach(item => {
-                  if (item.selected) {
-                      selectedItems.push({
-                          dishId: item.dishId,
-                          name: item.dishName,
-                          price: item.dishPrice,
-                          quantity: item.quantity,
-                          imageUrl: item.dishImageUrl,
-                          restaurantId: item.restaurantId,
-                          restaurantName: restaurant.restaurantName,
-                          deliveryFee: restaurant.deliveryFee,
-                          packingFee: restaurant.packingFee
-                      });
-                  }
-              });
-          }
-      });
-      
-      if (selectedItems.length === 0) {
-          wx.showToast({
-              title: '请选择要结算的商品',
-              icon: 'none'
-          });
-          return;
-      }
-      
-      // 按餐厅分组选中的商品
-      const checkoutRestaurants = {};
-      cartData.forEach(restaurant => {
-        restaurant.items.forEach(item => {
-            if (item.selected) {
-                if (!checkoutRestaurants[restaurant.restaurantId]) {
-                    checkoutRestaurants[restaurant.restaurantId] = {
-                        restaurantId: restaurant.restaurantId,
-                        restaurantName: restaurant.restaurantName,
-                        eatType: restaurant.eatType, 
-                        packingFee: restaurant.packingFee,
-                        items: []
-                    };
+        if (parseFloat(this.data.totalPrice) === 0) {
+            wx.showToast({
+                title: '请选择要结算的商品',
+                icon: 'none'
+            });
+            return;
+        }
+
+        // 检查是否有选中的商品来自禁用状态的餐厅
+        const cartData = this.data.cartData;  // ← 这里声明了 cartData
+        const restaurantStatusMap = this.data.restaurantStatusMap;
+        let hasDisabledRestaurantItems = false;
+        let disabledRestaurantName = "";
+        
+        cartData.forEach(restaurant => {
+            const statusInfo = restaurantStatusMap[restaurant.restaurantId];
+            if (statusInfo && statusInfo.disabled) {
+                // 检查该餐厅是否有选中的商品
+                const hasSelected = restaurant.items.some(item => item.selected);
+                if (hasSelected) {
+                    hasDisabledRestaurantItems = true;
+                    disabledRestaurantName = restaurant.restaurantName;
                 }
-    
-                checkoutRestaurants[restaurant.restaurantId].items.push(item);
             }
         });
-    });
-      
-      // 计算每个餐厅的小计和总金额
-      let totalAmount = 0;
-      const restaurants = Object.values(checkoutRestaurants).map(restaurant => {
-        const dishSubTotal = restaurant.items.reduce((sum, item) => {
-            return sum + (parseFloat(item.dishPrice) * parseInt(item.quantity));
-        }, 0);
-          
-          const packingFee = parseFloat(restaurant.packingFee) || 0;
-          
-          const subTotal = dishSubTotal + packingFee ;
-          totalAmount += subTotal;
-          
-          return {
-              ...restaurant,
-              dishSubTotal: dishSubTotal.toFixed(2),
-              subTotal: subTotal.toFixed(2),
-              packingFee: packingFee.toFixed(2)
-          };
-      });
-      
-      // 准备订单数据
-      const orderData = {
-        restaurants: restaurants,
-        totalAmount: totalAmount.toFixed(2),
-        selectedCount: this.data.selectedCount
-      };
-      
-      console.log('结算数据:', orderData);
-      
-      // 跳转到提交订单页面
-      wx.navigateTo({
-          url: `/pages/submitOrder/submitOrder?data=${encodeURIComponent(JSON.stringify(orderData))}`
-      });
+        
+        if (hasDisabledRestaurantItems) {
+            wx.showToast({
+                title: `${disabledRestaurantName}${restaurantStatusMap[disabledRestaurantName]?.statusText}，无法结算`,
+                icon: "none"
+            });
+            return;
+        }
+
+        const app = getApp();
+        app.globalData.cartCache = JSON.parse(JSON.stringify(this.data.cartData));
+        app.globalData.shouldRestoreCart = true;
+        
+        // 收集选中的商品
+        const selectedItems = [];
+        // 注意：这里不要再声明 cartData，因为已经在函数开头声明了
+        
+        cartData.forEach(restaurant => {
+            if (restaurant.items && restaurant.items.length > 0) {
+                restaurant.items.forEach(item => {
+                    if (item.selected) {
+                        selectedItems.push({
+                            dishId: item.dishId,
+                            name: item.dishName,
+                            price: item.dishPrice,
+                            quantity: item.quantity,
+                            imageUrl: item.dishImageUrl,
+                            restaurantId: item.restaurantId,
+                            restaurantName: restaurant.restaurantName,
+                            deliveryFee: restaurant.deliveryFee,
+                            packingFee: restaurant.packingFee
+                        });
+                    }
+                });
+            }
+        });
+        
+        if (selectedItems.length === 0) {
+            wx.showToast({
+                title: '请选择要结算的商品',
+                icon: 'none'
+            });
+            return;
+        }
+        
+        // 按餐厅分组选中的商品
+        const checkoutRestaurants = {};
+        cartData.forEach(restaurant => {
+            restaurant.items.forEach(item => {
+                if (item.selected) {
+                    if (!checkoutRestaurants[restaurant.restaurantId]) {
+                        checkoutRestaurants[restaurant.restaurantId] = {
+                            restaurantId: restaurant.restaurantId,
+                            restaurantName: restaurant.restaurantName,
+                            eatType: restaurant.eatType,
+                            packingFee: restaurant.packingFee,
+                            items: []
+                        };
+                    }
+        
+                    checkoutRestaurants[restaurant.restaurantId].items.push(item);
+                }
+            });
+        });
+        
+        // 计算每个餐厅的小计和总金额
+        let totalAmount = 0;
+        const restaurants = Object.values(checkoutRestaurants).map(restaurant => {
+            const dishSubTotal = restaurant.items.reduce((sum, item) => {
+                return sum + (parseFloat(item.dishPrice) * parseInt(item.quantity));
+            }, 0);
+            
+            const packingFee = parseFloat(restaurant.packingFee) || 0;
+            
+            const subTotal = dishSubTotal + packingFee;
+            totalAmount += subTotal;
+            
+            return {
+                ...restaurant,
+                dishSubTotal: dishSubTotal.toFixed(2),
+                subTotal: subTotal.toFixed(2),
+                packingFee: packingFee.toFixed(2)
+            };
+        });
+        
+        // 准备订单数据
+        const orderData = {
+            restaurants: restaurants,
+            totalAmount: totalAmount.toFixed(2),
+            selectedCount: this.data.selectedCount
+        };
+        
+        console.log('结算数据:', orderData);
+        
+        // 跳转到提交订单页面
+        wx.navigateTo({
+            url: `/pages/submitOrder/submitOrder?data=${encodeURIComponent(JSON.stringify(orderData))}`
+        });
     },
   
     goDishDetail(e) {
