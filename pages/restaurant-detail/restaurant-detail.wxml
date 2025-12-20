@@ -322,17 +322,20 @@ id="pageScroll"
     <image class="shop-icon" src="/images/clock.png"></image>
     <text class="shop-text">查看营业时间表</text>
   </view>
-  <view class="shop-row">
+  <view class="shop-row" bindtap="onCallShop">
     <image class="shop-icon" src="/images/phone.png"></image>
     <text class="shop-text">{{restaurant.contactPhone}}</text>
   </view>
   <view class="shop-photos-row">
-  <image
+    <image
     wx:for="{{restaurant.shopImages}}"
     wx:key="i"
     class="shop-photo"
     src="{{item}}"
     mode="aspectFill"
+    data-url="{{item}}"
+    data-urls="{{restaurant.shopImages}}"
+    bindtap="previewShopImage"
   ></image>
 </view>
 

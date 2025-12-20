@@ -224,7 +224,7 @@ Page({
       
             if (businessStatus === 3) {
               wx.showModal({
-                title: '已打烊',
+                title: '营业已结束',
                 content: '本店今日营业已结束，暂不可下单',
                 showCancel: false,
                 confirmColor: '#ff6b35'
@@ -374,7 +374,7 @@ Page({
       const statusMap = {
         1: '营业中',
         2: '休息中',
-        3: '已打烊'
+        3: '休息中'
       };
       return statusMap[status] || '未知状态';
     },
@@ -1231,9 +1231,8 @@ openRemarkDialog() {
     this.updateCart(this.data.cartItems);
     },
     onReport(e) {
-    const app = getApp();
-    if (!app.globalData.userInfo) {
-        wx.showToast({ title: "请先登录", icon: "none" });
+    if (this.data.isGuest) {
+        this.showLoginTip('举报');
         return;
     }
     
@@ -1247,8 +1246,43 @@ openRemarkDialog() {
         remark: e.detail.value
     });
     },
+    onCallShop() {
+        const phone = this.data.restaurant.contactPhone;
+      
+        if (!phone) {
+          wx.showToast({
+            title: '暂无联系电话',
+            icon: 'none'
+          });
+          return;
+        }
+      
+        wx.showModal({
+          title: '联系商家',
+          content: `是否拨打商家电话：${phone}？`,
+          confirmText: '拨打',
+          cancelText: '取消',
+          confirmColor: '#ff6b35',
+          success: (res) => {
+            if (res.confirm) {
+              wx.makePhoneCall({
+                phoneNumber: phone
+              });
+            }
+          }
+        });
+      },      
     onBack() {
         wx.navigateBack();
-    }
+    },
+    previewShopImage(e) {
+        const current = e.currentTarget.dataset.url;
+        const urls = e.currentTarget.dataset.urls;
+      
+        wx.previewImage({
+          current,
+          urls
+        });
+      }
 });
   

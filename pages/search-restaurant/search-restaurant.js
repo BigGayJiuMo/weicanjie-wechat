@@ -145,8 +145,8 @@ Page({
                                     r.statusClass = "status-break"; 
                                     break;
                                 case 3:
-                                    r.statusText = "已打烊";
-                                    r.statusClass = "status-closed";
+                                    r.statusText = "休息中";
+                                    r.statusClass = "status-break";
                                     break;
                                 default: 
                                     r.statusText = "未知状态"; 

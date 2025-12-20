@@ -85,12 +85,12 @@ Page({
                                     r.statusClass = "status-break";
                                     break;
                                 case 3:
-                                    r.statusText = "已打烊";
+                                    r.statusText = "休息中";
                                     r.statusClass = "status-closed";
                                     break;
                                 case 0:
                                     r.statusText = "已停业";
-                                    r.statusClass = "status-closed";
+                                    r.statusClass = "status-break";
                                     break;
                                 default:
                                     r.statusText = "未知状态";
@@ -203,8 +203,8 @@ Page({
               r.statusClass = "status-break";
               break;
             case 3:
-              r.statusText = "已打烊";
-              r.statusClass = "status-closed";
+              r.statusText = "休息中";
+              r.statusClass = "status-break";
               break;
             default:
               r.statusText = "未知状态";
