@@ -215,6 +215,7 @@ Page({
                         title: "确认支付",
                         content: `共提交 ${ordersArray.length} 单，总金额 ¥${this.data.totalAmount}`,
                         confirmText: "确认支付",
+                        confirmColor: '#ff6b35',
                         success: r => {
                             if (!r.confirm) {
                                 wx.redirectTo({ url: "/pages/orders/orders" });

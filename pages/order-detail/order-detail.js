@@ -64,7 +64,7 @@ Page({
         const order = orderData.order;
         const restaurant = orderData.restaurant || {};
         let items = orderData.orderItems || [];
-
+        restaurant.contactPhone = restaurant.contactPhone || "";
         // 格式化商品
         items = items.map(i => ({
             ...i,
@@ -357,9 +357,28 @@ Page({
       },
     /** 联系客服/商家 */
     onContactService() {
-        // 这里可以弹出客服电话或跳转到客服页面
+        const order = this.data.order;
+        const restaurant = this.data.restaurant;
+    
+        // 制作中：联系商家
+        if (order.status === 3) {
+            if (!restaurant.contactPhone) {
+                wx.showToast({
+                    title: "商家未提供联系电话",
+                    icon: "none"
+                });
+                return;
+            }
+    
+            wx.makePhoneCall({
+                phoneNumber: restaurant.contactPhone
+            });
+            return;
+        }
+    
+        // 其他状态：联系客服
         wx.makePhoneCall({
-            phoneNumber: '400-123-4567', // 你的客服电话
+            phoneNumber: '400-123-4567'
         });
     },
     goReview() {
