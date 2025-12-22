@@ -33,7 +33,6 @@
 
       <view class="dish-meta">
         <text>月售 {{dish.monthlySales}}</text>
-        <text>库存 {{dish.stock}}</text>
       </view>
 
       <!-- 数量控制器 -->
@@ -176,7 +175,6 @@
 
   </view>
 </view>
-<!-- 💳 结算面板 -->
 <!-- 💳 结算面板 -->
 <view class="checkout-panel-mask {{showCheckoutPanel ? 'active' : ''}}" catchtap="hideCheckoutPanel">
 
