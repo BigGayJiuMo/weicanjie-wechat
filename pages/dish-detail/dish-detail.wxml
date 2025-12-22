@@ -28,12 +28,8 @@
       <text class="dish-name">{{dish.name}}</text>
     </view>
 
-    <!-- 月售 + 库存 + 数量控制器 -->
+    <!-- 数量控制器 -->
     <view class="dish-meta-row">
-
-      <view class="dish-meta">
-        <text>月售 {{dish.monthlySales}}</text>
-      </view>
 
       <!-- 数量控制器 -->
       <view class="controls-right">
