@@ -321,6 +321,30 @@
     color: #333;
   }
   
+  .eat-type-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  .eat-select {
+    display: flex;
+    gap: 20rpx;
+  }
+  
+  .eat-btn {
+    padding: 10rpx 26rpx;
+    border-radius: 30rpx;
+    border: 1px solid #ccc;
+    font-size: 26rpx;
+    color: #666;
+  }
+  
+  .eat-btn.active {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: #fff;
+  }
+
   .clear-cart {
     padding: 12rpx 24rpx;
     background: #f8f9fa;

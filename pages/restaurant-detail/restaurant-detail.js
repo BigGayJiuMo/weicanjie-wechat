@@ -32,8 +32,6 @@ Page({
       activeTab: 'menu',
       scrollIntoViewId: '', 
       isFavorite: false,
-      activeCategoryId: null,
-      activeTab: 'menu',
       scrollLocked: false,
       categoryPositions: [],
 
@@ -281,8 +279,9 @@ Page({
       },
       goDishDetail(e) {
         const id = e.currentTarget.dataset.id;
+        const eatType = this.data.eatType;
         wx.navigateTo({
-          url: `/pages/dish-detail/dish-detail?id=${id}`
+            url: `/pages/dish-detail/dish-detail?id=${id}&eatType=${eatType}`
         });
       },
     calcCategoryPositions() {
@@ -468,7 +467,7 @@ Page({
         if (currentQuantity === 1) {
           delete cartItems[dish.id];  // 前端删除
       
-          // ⭐⭐ 同步后端删除（真正删除数据库记录）
+          //  同步后端删除（真正删除数据库记录）
           this.removeItemFromServer(dish.id);
         } else {
           cartItems[dish.id] = currentQuantity - 1;
@@ -681,7 +680,7 @@ Page({
         const restaurant = this.data.restaurant;
         const packingFeeNumber = Number(restaurant ? restaurant.packingFee : 0);
       
-        /** ⭐ 根据用餐方式计算价格 */
+        /**  根据用餐方式计算价格 */
         const isEatIn = this.data.eatType == 1;   // 1 = 堂食
         const finalPackingFee = isEatIn ? 0 : packingFeeNumber;
         const totalAmount = subTotal + finalPackingFee;
@@ -1226,6 +1225,7 @@ openRemarkDialog() {
 
     selectEatType(e) {
     const type = e.currentTarget.dataset.type;
+    console.log(type);
     this.setData({ eatType: type });
     
     this.updateCart(this.data.cartItems);

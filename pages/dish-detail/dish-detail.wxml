@@ -120,6 +120,13 @@
   <view class="order-panel {{showOrderPanel ? 'active' : ''}}" catchtap="stopPropagation">
     <view class="panel-header">
       <text class="panel-title">已选商品</text>
+          <!-- ===== 用餐方式选择 ===== -->
+        <view class="eat-type-row" style="margin-left: 120rpx;">
+            <view class="eat-select">
+                <view class="eat-btn {{eatType == 1 ? 'active' : ''}}" data-type="1" bindtap="selectEatType">堂食</view>
+                <view class="eat-btn {{eatType == 2 ? 'active' : ''}}" data-type="2" bindtap="selectEatType">外带</view>
+            </view>
+        </view>
       <view class="clear-cart" bindtap="clearCart" wx:if="{{totalQuantity > 0}}">
         <text class="clear-text">清空</text>
       </view>
@@ -159,7 +166,7 @@
         <text class="summary-label">菜品小计</text>
         <text class="summary-value">¥{{formattedSubTotal}}</text>
       </view>
-      <view class="summary-row">
+      <view class="summary-row" wx:if="{{showPackingFee}}">
         <text class="summary-label">打包费</text>
         <text class="summary-value">¥{{packingFee}}</text>
       </view>
@@ -230,7 +237,7 @@
         <text class="summary-value">¥{{formattedSubTotal}}</text>
       </view>
 
-      <view class="checkout-summary-row">
+      <view class="checkout-summary-row" wx:if="{{showPackingFee}}">
         <text class="summary-label">打包费</text>
         <text class="summary-value">¥{{packingFee}}</text>
       </view>
