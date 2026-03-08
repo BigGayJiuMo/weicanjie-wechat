@@ -323,7 +323,7 @@
   
   /* 菜品分类标题 */
   .category-section {
-    margin-bottom: 40rpx;
+    margin-bottom: 50rpx;
   }
   
   .section-header {

@@ -50,6 +50,8 @@ Page({
 
       hoursDialogVisible: false,
       businessHoursFormatted: [],
+      scrollThrottleTimer: null,
+      recentlyClicked: false,
     },
     
     onLoad(options) {
@@ -158,25 +160,30 @@ Page({
         });
       },
 
-    onPageScroll(e) {
+      onPageScroll(e) {
         if (this.data.scrollLocked) return;
+        // 刚点击完，暂时不更新高亮
+        if (this.data.recentlyClicked) return;
     
         const scrollTop = e.detail.scrollTop;
         this.setData({ scrollTop });
     
-        for (let i = 0; i < this.categoryPositions.length; i++) {
-          const start = this.categoryPositions[i];
-          const end = this.categoryPositions[i + 1] ?? Infinity;
-    
-          if (scrollTop >= start && scrollTop < end) {
-            const id = this.data.categories[i].id;
-            if (id !== this.data.activeCategoryId) {
-              this.setData({ activeCategoryId: id });
+        if (this.data.scrollThrottleTimer) return;
+        this.setData({ scrollThrottleTimer: setTimeout(() => {
+            this.setData({ scrollThrottleTimer: null });
+            for (let i = 0; i < this.categoryPositions.length; i++) {
+                const start = this.categoryPositions[i];
+                const end = this.categoryPositions[i + 1] ?? Infinity;
+                if (scrollTop >= start && scrollTop < end) {
+                    const id = this.data.categories[i].id;
+                    if (id !== this.data.activeCategoryId) {
+                        this.setData({ activeCategoryId: id });
+                    }
+                    break;
+                }
             }
-            break;
-          }
-        }
-      },
+        }, 50) });
+    },
       loadRestaurantDetail(id) {
         const app = getApp();
         this.setData({ loading: true });
@@ -397,7 +404,8 @@ Page({
     
         this.setData({
             activeCategoryId: id,
-            scrollLocked: true   // 点击分类时锁住自动更新
+            scrollLocked: true,
+            recentlyClicked: true   // 标记为刚点击
         });
     
         const query = wx.createSelectorQuery().in(this);
@@ -405,16 +413,19 @@ Page({
             .fields({ node: true, scrollOffset: true })
             .exec(res => {
                 const scrollView = res[0].node;
-    
                 scrollView.scrollTo({
                     top: targetTop,
                     duration: 300
                 });
                 setTimeout(() => {
-                    this.updateActiveCategoryByScroll(targetTop);
-                    this.setData({
-                        scrollLocked: false
+                    this.setData({ 
+                        activeCategoryId: id,
+                        scrollLocked: false 
                     });
+                    // 500ms 后允许滚动更新（足够覆盖微小抖动）
+                    setTimeout(() => {
+                        this.setData({ recentlyClicked: false });
+                    }, 500);
                 }, 350);
             });
     },
