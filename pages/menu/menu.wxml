@@ -30,7 +30,12 @@
   </scroll-view>
 
   <!-- 右侧餐厅列表 -->
-  <scroll-view class="right-content" scroll-y="true">
+  <scroll-view 
+    class="right-content" 
+    scroll-y="true"
+    bindscrolltolower="loadMore"
+    lower-threshold="100"
+    >
     <view
       wx:for="{{restaurants}}"
       wx:key="id"
@@ -70,7 +75,12 @@
       </view>
 
     </view>
-
+    <view wx:if="{{loadingMore}}" class="load-more">
+        <text>加载中...</text>
+    </view>
+    <view wx:elif="{{!hasMore && restaurants.length > 0}}" class="no-more">
+        <text>—— 没有更多了 ——</text>
+    </view>
     <!-- 空状态提示 -->
     <view wx:if="{{restaurants.length === 0 && !loading}}" class="empty-container">
       <image class="empty-image" src="/images/empty-restaurant.png"></image>
