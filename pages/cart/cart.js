@@ -102,7 +102,7 @@ Page({
                 if (status === 2) {
                     statusText = "未营业";
                     statusClass = "status-break";
-                    disabled = false;
+                    disabled = true;
                 } else if (status === 3) {
                     statusText = "休息中";
                     statusClass = "status-break";
