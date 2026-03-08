@@ -907,6 +907,13 @@ Page({
         url: '/pages/index/index'
       });
     },
+    // 点击餐厅名称跳转到餐厅详情页
+    goToRestaurant(e) {
+        const restaurantId = e.currentTarget.dataset.restaurantid;
+        wx.navigateTo({
+            url: `/pages/restaurant-detail/restaurant-detail?id=${restaurantId}`
+        });
+    },
     selectEatType(e) {
         const type = Number(e.currentTarget.dataset.type);
         const restaurantId = e.currentTarget.dataset.restaurant;

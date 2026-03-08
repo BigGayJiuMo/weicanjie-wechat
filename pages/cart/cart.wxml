@@ -28,7 +28,7 @@
                 </view>
                 
                 <!-- 餐厅名称 -->
-                <view class="restaurant-main-info">
+                <view class="restaurant-main-info" bindtap="goToRestaurant" data-restaurantid="{{restaurant.restaurantId}}">
                     <text class="restaurant-name">{{restaurant.restaurantName}}</text>
                 </view>
 
