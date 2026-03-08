@@ -34,53 +34,76 @@ Page({
      *  ======================= */
     loadRestaurants: function (fromRefresh = false) {
         const app = getApp();
-        // 如果不是刷新操作，才显示页面 loading（防止覆盖下拉刷新动画）
         if (!fromRefresh) {
-          this.setData({ loading: true });
+            this.setData({ loading: true });
         }
     
         wx.request({
-          url: app.globalData.baseUrl + '/restaurant/all',
-          method: 'GET',
-          success: (res) => {
-            console.log('餐厅列表响应:', res.data);
-            if (res.data.code === 200) {
-              let restaurants = res.data.data || [];
-              // 过滤已下架的餐厅 (status=0)
-              restaurants = restaurants.filter(r => r.status != null && r.status !== 0);
+            url: app.globalData.baseUrl + '/restaurant/all',
+            method: 'GET',
+            success: (res) => {
+                console.log('餐厅列表响应:', res.data);
+                if (res.data.code === 200) {
+                    let restaurants = res.data.data || [];
+                    // 过滤已下架的餐厅 (status=0)
+                    restaurants = restaurants.filter(r => r.status != null && r.status !== 0);
     
-              restaurants.forEach(r => {
-                // ... 原有的营业状态处理逻辑（保持不变）
-                // 这里为了节省空间，省略原有处理代码，实际请保留你的完整逻辑
-              });
+                    restaurants.forEach(r => {
+                        // 处理评分
+                        if (r.avgRating === undefined || r.avgRating === -1 || r.avgRating === null) {
+                            r.avgRating = null;
+                        } else {
+                            r.avgRating = Number(r.avgRating).toFixed(1);
+                        }
     
-              // 按营业状态排序
-              restaurants.sort((a, b) => a.businessStatus - b.businessStatus);
+                        // ===== 处理营业状态显示 =====
+                        if (r.businessStatusText && r.businessStatusClass) {
+                            // 后台已提供文本和样式
+                            r.statusText = r.businessStatusText;
+                            r.statusClass = r.businessStatusClass;
+                        } else {
+                            // 根据 businessStatus 数字推断
+                            switch (r.businessStatus) {
+                                case 1:
+                                    r.statusText = "营业中";
+                                    r.statusClass = "status-open";
+                                    break;
+                                case 2:
+                                    r.statusText = "未营业";
+                                    r.statusClass = "status-break";
+                                    break;
+                                case 3:
+                                    r.statusText = "休息中";
+                                    r.statusClass = "status-break";
+                                    break;
+                                default:
+                                    r.statusText = "未知状态";
+                                    r.statusClass = "status-closed";
+                            }
+                        }
+                    });
     
-              this.setData({
-                restaurants,
-                loading: false,
-                refreshing: false, // 关闭下拉刷新
-              });
-            } else {
-              console.error('获取餐厅列表失败:', res.data.message);
-              this.setData({ 
-                loading: false,
-                refreshing: false 
-              });
-              this.loadMockData(); // 注意：如果 loadMockData 是异步，也需要在其中设置 refreshing: false
+                    // 按营业状态排序
+                    restaurants.sort((a, b) => a.businessStatus - b.businessStatus);
+    
+                    this.setData({
+                        restaurants,
+                        loading: false,
+                        refreshing: false,
+                    });
+                } else {
+                    console.error('获取餐厅列表失败:', res.data.message);
+                    this.setData({ loading: false, refreshing: false });
+                    this.loadMockData();
+                }
+            },
+            fail: (err) => {
+                console.error('请求餐厅列表失败:', err);
+                this.setData({ loading: false, refreshing: false });
+                this.loadMockData();
             }
-          },
-          fail: (err) => {
-            console.error('请求餐厅列表失败:', err);
-            this.setData({ 
-              loading: false,
-              refreshing: false 
-            });
-            this.loadMockData();
-          }
         });
-      },
+    },
   
     /** =======================
      *   搜索相关
