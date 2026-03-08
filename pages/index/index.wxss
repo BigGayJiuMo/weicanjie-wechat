@@ -240,7 +240,12 @@
   border-radius: 12rpx;
   border: 1rpx solid #ffd8c8;
 }
-
+.load-more-container, .no-more-container {
+    text-align: center;
+    padding: 30rpx 0;
+    color: #999;
+    font-size: 26rpx;
+}
 /* 加载状态 */
 .loading-container {
   display: flex;

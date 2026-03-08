@@ -9,6 +9,10 @@ Page({
       restaurants: [],
       loading: true,
       refreshing: false,
+      pageNum: 1,           
+      pageSize: 10,         
+      hasMore: true,       
+      loadingMore: false,   
     },
   
     onLoad: function () {
@@ -23,88 +27,100 @@ Page({
       this.setData({
         isGuest: app.globalData.isGuest
       });
-      this.loadRestaurants();
+      this.loadRestaurants(true, false);
     },
     onRefresh() {
         this.setData({ refreshing: true });
-        this.loadRestaurants(true); // 传入 true 表示是刷新操作
+        this.loadRestaurants(true, false); // 传入 true 表示是刷新操作
       },
     /** =======================
-     *   加载餐厅列表（修复营业状态）
+     *   加载餐厅列表
      *  ======================= */
-    loadRestaurants: function (fromRefresh = false) {
+    loadRestaurants: function (fromRefresh = false, isLoadMore = false) {
         const app = getApp();
-        if (!fromRefresh) {
+        let { pageNum, pageSize, restaurants, hasMore } = this.data;
+    
+        // 如果是刷新，重置页码
+        if (fromRefresh) {
+            pageNum = 1;
+            hasMore = true;
+            restaurants = [];
+        }
+    
+        // 如果正在加载更多且没有更多数据，则直接返回
+        if (isLoadMore && (!hasMore || this.data.loadingMore)) return;
+    
+        // 设置加载状态
+        if (isLoadMore) {
+            this.setData({ loadingMore: true });
+        } else {
             this.setData({ loading: true });
         }
     
         wx.request({
-            url: app.globalData.baseUrl + '/restaurant/all',
+            url: app.globalData.baseUrl + '/restaurant/page',
             method: 'GET',
+            data: {
+                pageNum: pageNum,
+                pageSize: pageSize
+                // 如果有搜索关键词，可以添加 keyword 参数
+            },
             success: (res) => {
-                console.log('餐厅列表响应:', res.data);
                 if (res.data.code === 200) {
-                    let restaurants = res.data.data || [];
-                    // 过滤已下架的餐厅 (status=0)
-                    restaurants = restaurants.filter(r => r.status != null && r.status !== 0);
-    
-                    restaurants.forEach(r => {
-                        // 处理评分
+                    const pageResult = res.data.data;
+                    const newList = pageResult.records || [];
+                    
+                    // 处理营业状态
+                    newList.forEach(r => {
                         if (r.avgRating === undefined || r.avgRating === -1 || r.avgRating === null) {
                             r.avgRating = null;
                         } else {
                             r.avgRating = Number(r.avgRating).toFixed(1);
                         }
-    
-                        // ===== 处理营业状态显示 =====
+                        // 沿用原有的营业状态处理逻辑
                         if (r.businessStatusText && r.businessStatusClass) {
-                            // 后台已提供文本和样式
                             r.statusText = r.businessStatusText;
                             r.statusClass = r.businessStatusClass;
                         } else {
-                            // 根据 businessStatus 数字推断
                             switch (r.businessStatus) {
-                                case 1:
-                                    r.statusText = "营业中";
-                                    r.statusClass = "status-open";
-                                    break;
-                                case 2:
-                                    r.statusText = "未营业";
-                                    r.statusClass = "status-break";
-                                    break;
-                                case 3:
-                                    r.statusText = "休息中";
-                                    r.statusClass = "status-break";
-                                    break;
-                                default:
-                                    r.statusText = "未知状态";
-                                    r.statusClass = "status-closed";
+                                case 1: r.statusText = "营业中"; r.statusClass = "status-open"; break;
+                                case 2: r.statusText = "未营业"; r.statusClass = "status-break"; break;
+                                case 3: r.statusText = "休息中"; r.statusClass = "status-break"; break;
+                                default: r.statusText = "未知状态"; r.statusClass = "status-closed";
                             }
                         }
                     });
     
-                    // 按营业状态排序
-                    restaurants.sort((a, b) => a.businessStatus - b.businessStatus);
+                    const updatedRestaurants = fromRefresh ? newList : restaurants.concat(newList);
+                    const hasMoreData = newList.length >= pageSize;
+                    const nextPageNum = pageNum + 1;
     
                     this.setData({
-                        restaurants,
+                        restaurants: updatedRestaurants,
+                        pageNum: nextPageNum,
+                        hasMore: hasMoreData,
                         loading: false,
                         refreshing: false,
+                        loadingMore: false
                     });
                 } else {
-                    console.error('获取餐厅列表失败:', res.data.message);
-                    this.setData({ loading: false, refreshing: false });
-                    this.loadMockData();
+                    wx.showToast({ title: '加载失败', icon: 'none' });
+                    this.setData({ loading: false, refreshing: false, loadingMore: false });
                 }
             },
             fail: (err) => {
-                console.error('请求餐厅列表失败:', err);
-                this.setData({ loading: false, refreshing: false });
+                console.error('请求失败', err);
+                this.setData({ loading: false, refreshing: false, loadingMore: false });
                 this.loadMockData();
             }
         });
     },
-  
+    /** =======================
+     *   加载更多餐厅
+     *  ======================= */
+    loadMore() {
+        this.loadRestaurants(false, true); // 加载更多
+    },
     /** =======================
      *   搜索相关
      *  ======================= */
@@ -233,9 +249,11 @@ Page({
      *  ======================= */
     loadMockData() {
         this.setData({
-          restaurants: [],
-          loading: false,
-          refreshing: false, // 确保下拉刷新关闭
+            restaurants: [],
+            loading: false,
+            refreshing: false,
+            loadingMore: false,
+            hasMore: false
         });
-      }
+    }
   });
