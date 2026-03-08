@@ -25,7 +25,14 @@
   </view>
   
   <!-- 餐厅列表滚动区域 - 使用固定高度确保滚动 -->
-  <scroll-view class="restaurant-scroll" scroll-y="true" enable-back-to-top="true">
+  <scroll-view 
+    class="restaurant-scroll" 
+    scroll-y="true" 
+    enable-back-to-top="true"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    >
     <!-- 顶部轮播图 -->
     <swiper class="banner" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}">
       <swiper-item wx:for="{{banners}}" wx:key="id">
