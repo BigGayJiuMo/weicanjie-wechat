@@ -279,10 +279,10 @@ id="pageScroll"
     <view class="rate-text">{{item.content}}</view>
 
     <view class="rate-images" wx:if="{{item.images && item.images.length}}">
-      <image wx:for="{{item.images}}" wx:key="i" class="rate-img"
-        src="{{item}}"
+        <image wx:for="{{item.images}}" wx:for-item="img" wx:key="index" class="rate-img"
+        src="{{img}}"
         data-urls="{{item.images}}"
-        data-url="{{item}}"
+        data-url="{{img}}"
         bindtap="previewImage"
         mode="aspectFill"></image>
     </view>
