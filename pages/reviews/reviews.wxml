@@ -47,14 +47,15 @@
       <!-- 图片列表 -->
       <view class="image-list" wx:if="{{item.images.length > 0}}">
         <image 
-          wx:for="{{item.images}}" 
-          wx:key="i" 
-          class="review-image" 
-          src="{{item}}"
-          data-url="{{item}}"
-          data-urls="{{item.images}}"
-          bindtap="previewImage"
-          mode="aspectFill"
+            wx:for="{{item.images}}" 
+            wx:for-item="img"       
+            wx:key="i" 
+            class="review-image" 
+            src="{{img}}"             
+            data-url="{{img}}"        
+            data-urls="{{item.images}}" 
+            bindtap="previewImage"
+            mode="aspectFill"
         />
       </view>
 
