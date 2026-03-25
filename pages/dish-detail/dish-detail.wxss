@@ -634,7 +634,7 @@
   }
   
   .checkout-items-list {
-    max-height: 700rpx;
+    max-height: 900rpx;
     overflow-y: auto;
   }
   
