@@ -107,8 +107,7 @@ Page({
           content: this.data.content,
           imageUrls: JSON.stringify(uploaded),
   
-          //  后端要 Integer，这里转换
-          isAnon: this.data.isAnon ? 1 : 0
+          isAnonymous: this.data.isAnon ? 1 : 0
         },
         success: res => {
           wx.hideLoading();
