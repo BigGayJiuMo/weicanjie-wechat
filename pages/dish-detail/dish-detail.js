@@ -66,13 +66,18 @@ Page({
         console.log("🍜 菜品详情：", res.data);
         if (res.data.code === 200) {
           let dish = res.data.data;
+  
+          // 处理字段为空时显示空字符串
+          dish.ingredients = dish.ingredients || "";  // 原料
+          dish.taste = dish.taste || "";             // 口味
+          dish.weight = dish.weight || "";               // 分量
           dish.formattedPrice = Number(dish.price).toFixed(2);
-
+  
           this.setData({
             dish,
             restaurantId: dish.restaurantId
           });
-
+  
           this.loadAllDishes(dish.restaurantId, () => {
             this.loadDishQuantityFromCart();
           });
