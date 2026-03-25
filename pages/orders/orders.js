@@ -24,7 +24,8 @@ Page({
   
               const items = (o.items || []).map(dish => ({
                 ...dish,
-                dishPrice: Number(dish.dishPrice || dish.price || 0).toFixed(2)
+                dishPrice: Number(dish.dishPrice || dish.price || 0).toFixed(2),
+                imageUrl: dish.dishImageUrl || dish.dishImage || "/images/logo.png" 
               }));
   
               return {
