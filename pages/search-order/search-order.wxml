@@ -98,8 +98,8 @@
         <text class="total-text">共 {{item.totalQuantity}} 件商品，合计：</text>
         <text class="total-price">￥{{item.totalAmount}}</text>
       </view>
-
-      <text class="order-time">{{item.createdTime}}</text>
+      <text class="order-number">订 单 号：{{item.orderNumber}}</text>
+      <text class="order-time">下单时间: {{item.createdTime}}</text>
 
       <!-- 评价按钮 -->
       <view class="review-box">

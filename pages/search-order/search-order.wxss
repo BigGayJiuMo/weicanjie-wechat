@@ -257,8 +257,14 @@
     font-size: 32rpx;
     font-weight: bold;
   }
-  
+  .order-number {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 2px;
+  }
   .order-time {
+    display: flex;
+    justify-content: start;
     text-align: right;
     margin-top: 10rpx;
     color: #999;

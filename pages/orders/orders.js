@@ -35,6 +35,7 @@ Page({
                 statusText: this.getStatusText(o.status),
                 restaurantName: o.restaurantName,
                 restaurantLogo: o.restaurantLogo,
+                orderNumber: o.orderNumber,
                 totalAmount,
                 items
               };

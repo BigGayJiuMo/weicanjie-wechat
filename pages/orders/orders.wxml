@@ -104,7 +104,8 @@
     </view>
 
     <!-- 时间 -->
-    <text class="order-time">{{item.createdTime}}</text>
+    <text class="order-number">订 单 号：{{item.orderNumber}}</text>
+    <text class="order-time">下单时间: {{item.createdTime}}</text>
 
     <!-- 右下角按钮（评价） -->
     <view class="review-box">

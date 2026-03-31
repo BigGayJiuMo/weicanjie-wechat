@@ -245,8 +245,14 @@ color: #4caf50; /* 绿色 */
   font-size: 32rpx;
   font-weight: bold;
 }
-
+.order-number {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 2px;
+  }
 .order-time {
+  display: flex;
+  justify-self: start;
   text-align: right;
   margin-top: 10rpx;
   color: #999;
