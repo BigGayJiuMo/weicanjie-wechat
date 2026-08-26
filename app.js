@@ -1,3 +1,5 @@
+const config = require('./utils/config.js');
+
 App({
   onLaunch: function () {
     this.checkLoginStatus();
@@ -43,9 +45,9 @@ App({
           
           console.log('发送登录请求:', requestData);
           
-          // 调用后端登录接口
+          // 调用后端微信登录接口
           wx.request({
-            url: that.globalData.baseUrl + '/user/login',
+            url: that.globalData.baseUrl + '/user/loginByWeChat',
             method: 'POST',
             header: {
               'content-type': 'application/json'
@@ -97,7 +99,7 @@ App({
   globalData: {
     userInfo: null,
     isGuest: true, // 默认是游客模式
-    baseUrl: 'http://localhost:8080/api',
+    baseUrl: config.BASE_URL, // 后端地址见 utils/config.js(真机预览改为局域网IP)
     cartCache: null,
     shouldRestoreCart: false
   }
