@@ -869,7 +869,8 @@ Page({
         url: app.globalData.baseUrl + '/order/create',
         method: 'POST',
         header: {
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          'X-Idempotent-Key': (require('../../utils/config')).genIdempotentKey()
         },
         data: orderData,
         success: (res) => {
@@ -948,6 +949,7 @@ Page({
       wx.request({
         url: app.globalData.baseUrl + `/order/pay/${orderId}`,
         method: 'POST',
+        header: { 'X-Idempotent-Key': (require('../../utils/config')).genIdempotentKey() },
         success: (res) => {
           wx.hideLoading();
   

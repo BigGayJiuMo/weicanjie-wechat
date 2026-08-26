@@ -44,6 +44,7 @@ Page({
       wx.request({
         url: app.globalData.baseUrl + "/order/refund/apply",
         method: "POST",
+        header: { "X-Idempotent-Key": (require("../../utils/config")).genIdempotentKey() },
         data: {
           orderId,
           reason: selectedReason,

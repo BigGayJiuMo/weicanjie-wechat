@@ -224,6 +224,7 @@ Page({
         wx.request({
             url: app.globalData.baseUrl + "/order/pay/" + this.data.orderId,
             method: "POST",
+            header: { "X-Idempotent-Key": (require("../../utils/config")).genIdempotentKey() },
             success: res => {
                 if (res.data.code === 200) {
                     wx.showToast({ title: "支付成功" });

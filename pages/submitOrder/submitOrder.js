@@ -185,11 +185,16 @@ Page({
         const app = getApp();
         const isMultiple = orderData.restaurants;
         const url = isMultiple ? "/order/create/batch" : "/order/create";
+        // 幂等 key:一次下单一个 key,重复点击/重试也不会创建重复订单
+        const idempotentKey = (require("../../utils/config")).genIdempotentKey();
 
         wx.request({
             url: app.globalData.baseUrl + url,
             method: "POST",
-            header: { "content-type": "application/json" },
+            header: {
+                "content-type": "application/json",
+                "X-Idempotent-Key": idempotentKey
+            },
             data: orderData,
 
             success: res => {
@@ -222,12 +227,13 @@ Page({
                                 return;
                             }
 
-                            // 批量支付
+                            // 批量支付(每笔一个幂等 key,防重复扣款)
                             let tasks = ordersArray.map(o =>
                                 new Promise(resolve => {
                                     wx.request({
                                         url: app.globalData.baseUrl + `/order/pay/${o.id}`,
                                         method: "POST",
+                                        header: { "X-Idempotent-Key": (require("../../utils/config")).genIdempotentKey() },
                                         success: () => resolve(),
                                         fail: () => resolve()
                                     });
@@ -276,6 +282,7 @@ Page({
         wx.request({
             url: app.globalData.baseUrl + `/order/pay/${orderId}`,
             method: "POST",
+            header: { "X-Idempotent-Key": (require("../../utils/config")).genIdempotentKey() },
             success: () => {
                 wx.hideLoading();
                 wx.showToast({ title: "支付成功" });
