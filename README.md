@@ -33,14 +33,15 @@
 ## 技术要点
 
 - 原生微信小程序框架（`glass-easel` 组件框架 + Skyline 渲染器）
-- 网络层统一封装在 `utils/request.js`（含 baseUrl 配置与错误提示）
+- 网络层封装在 `utils/config.js`（`BASE_URL` 支持配置化）
+- **幂等防重**：下单/支付/退款请求自动携带唯一 `X-Idempotent-Key`（`utils/config.js` 的 `genIdempotentKey()`），对接后端 `@Idempotent` 幂等切面，重复提交不会产生重复订单
 - 游客模式：未登录也可浏览，登录后同步数据
 
 ## 运行
 
 1. 下载安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
 2. 导入本项目目录 `weicanjie`
-3. 在 `utils/request.js` 中将 `baseUrl` 改为后端服务地址（默认 `http://localhost:8080/api`）
+3. 在 `utils/config.js` 中将 `BASE_URL` 改为后端服务地址（默认 `http://localhost:8080/api`；连 Docker/局域网后端时改为对应 IP）
 4. 编译运行即可
 
 > 注意：`project.private.config.json` 为本地私有配置，已加入 `.gitignore`，不会被提交。
